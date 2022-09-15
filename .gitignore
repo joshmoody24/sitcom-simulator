@@ -2,6 +2,7 @@
 tmp/
 .sitcom-venv
 .env
+renders/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

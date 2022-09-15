@@ -1,6 +1,7 @@
 import requests
 import os
 import random
+from tqdm import tqdm
 
 api_key = os.getenv("OPENAI_KEY")
 
@@ -53,7 +54,7 @@ def generate_script(prompt, characters, max_lines, style="", max_tokens_per_line
 
     lines = []
 
-    for i in range(max_lines):
+    for i in tqdm(range(max_lines), "Generating script"):
         script_so_far = prompt + "\n\n"
         for prev in lines:
             script_so_far += f'{prev["speaker"]["name"]}: {prev["text"]}\n'
@@ -66,7 +67,6 @@ def generate_script(prompt, characters, max_lines, style="", max_tokens_per_line
             break
         else:
             lines.append(line)
-    print("script generated: ", [line["text"] for line in lines])
     return lines
 
     print("script generation complete")
