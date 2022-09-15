@@ -5,10 +5,11 @@ from tqdm import tqdm
 
 api_key = os.getenv("OPENAI_KEY")
 
-default_max_tokens = 32
+default_max_tokens = 128
 
 def generate_line(script_so_far, next_speaker, max_tokens=default_max_tokens, temperature=1):
     prompt = script_so_far + next_speaker["name"] + ":"
+    # you can require actions by adding ' (' to the prompt
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
@@ -24,11 +25,18 @@ def generate_line(script_so_far, next_speaker, max_tokens=default_max_tokens, te
         "logprobs": None,
         "echo": False,
         "frequency_penalty": 0,
-        "stop": "\n",
+        # generate until the next speaker to check for stop codes
+        "stop": ":",
     }
     next_line = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json)
-    result = next_line.json()["choices"][0]['text']
-    too_short = 3
+    raw_text = next_line.json()["choices"][0]['text']
+    split = raw_text.split('\n')
+    result = split[0]
+    # was the ai trying to continue the script?
+    # print("length of split",len(split))
+    # print("raw: ", "\n".join(split))
+    # print(result)
+    too_short = 2
     if(len(result) <= too_short):
         return None
 
@@ -36,13 +44,16 @@ def generate_line(script_so_far, next_speaker, max_tokens=default_max_tokens, te
     speech = result.strip().replace(')','(').split('(')
     if(len(speech) > 1):
         action = speech[0]
-        speech = [1].strip()
+        print(action)
+        speech = speech[1].strip()
     else:
         speech = speech[0]
+        action = None
 
     return {
         "speaker": next_speaker,
-        "text": speech
+        "text": speech,
+        "action": action,
     }
 
 # returns a list of objects with all the data needed for future steps
