@@ -7,6 +7,27 @@ api_key = os.getenv("OPENAI_KEY")
 
 default_max_tokens = 128
 
+def generate_description(video_title):
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+    json = {
+        "model": "text-davinci-002",
+        "prompt": f"a youtube video description for a video titled \"{video_title}\"",
+        "max_tokens": 256,
+        "temperature": 1,
+        "top_p": 1,
+        "n": 1,
+        "stream": False,
+        "logprobs": None,
+        "echo": False,
+        "frequency_penalty": 0,
+    }
+    res = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json)
+    description = res.json()["choices"][0]['text'].strip()
+    return description
+
 def generate_line(script_so_far, next_speaker, max_tokens=default_max_tokens, temperature=1):
     prompt = script_so_far + next_speaker["name"] + ":"
     # you can require actions by adding ' (' to the prompt

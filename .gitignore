@@ -4,6 +4,7 @@ tmp/
 .env
 renders/
 client_secrets.json
+*-oauth2.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

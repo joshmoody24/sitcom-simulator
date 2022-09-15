@@ -11,12 +11,13 @@ load_dotenv()
 
 import sqlite3
 import random
-from generators.scriptgenerator import generate_script
+from generators.scriptgenerator import generate_script, generate_description
 from generators.imagegenerator import generate_prompts, generate_images
 from generators.audiogenerator import generate_voice_clips
 from generators.moviegenerator import generate_movie
 import sys
 from getopt import getopt
+from social.uploader import upload_to_yt
 
 # parse cmd args
 high_quality_audio = False
@@ -102,7 +103,6 @@ else:
             "description": char[2],
             "voice_token": char[3]
         })
-    print(characters)
 # keep generating scripts until user approves
 while(True):
     lines = generate_script(f"A script in which {video_title}", characters, max_length)
@@ -129,3 +129,14 @@ for i in range(len(lines)):
     }
     movieData.append(data)
 generate_movie(movieData, f"./renders/{video_title}.mp4")
+
+# generate keywords
+keywords = []
+KEYWORD_MIN_SIZE = 4
+for word in video_title.split(' '):
+    if(len(word) >= KEYWORD_MIN_SIZE):
+        keywords.append(word)
+
+# generate description
+description = generate_description(video_title)
+upload_to_yt(f"./renders/{video_title}.mp4", video_title, description, keywords, privacyStatus="public")
