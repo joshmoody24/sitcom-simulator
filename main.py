@@ -17,7 +17,7 @@ from generators.audiogenerator import generate_voice_clips
 from generators.moviegenerator import generate_movie
 import sys
 from getopt import getopt
-from social.uploader import upload_to_yt
+from social.yt_uploader import upload_to_yt
 
 # parse cmd args
 high_quality_audio = False
@@ -40,7 +40,6 @@ except Exception as e:
     print(e,'\n',helptext)
     sys.exit(2)
 for opt, arg in opts:
-    print(opt)
     if(opt == '-h'):
         print(helptext)
         sys.exit(2)
@@ -130,6 +129,8 @@ for i in range(len(lines)):
     movieData.append(data)
 generate_movie(movieData, f"./renders/{video_title}.mp4")
 
+# debug while figuring out video uploads
+sys.exit(0)
 # generate keywords
 keywords = []
 KEYWORD_MIN_SIZE = 4
