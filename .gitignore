@@ -5,6 +5,7 @@ tmp/
 renders/
 client_secrets.json
 *-oauth2.json
+sitcomcli.sqlite3
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
