@@ -101,12 +101,10 @@
             function loadQueue(){
                 fetch(window.location.origin.replace(8000,5000) + '/api/sitcom-queue').then(async (res) => {
                     const data = await res.json();
-                    console.log(data);
                     const table = document.getElementById("queue-table-body");
                     const rows = [];
                     table.innerHTML = "";
                     data.forEach((row, index) => {
-                        console.log(row)
                         table.innerHTML += `<tr><td>${index+1}</td><td>${row.prompt.replace('<script>','')}</td><td>${row.style?.replace('<script','') ?? "None"}</td></tr>`
                     });
                 });
@@ -114,7 +112,6 @@
             function loadVideos(){
                 fetch(window.location.origin.replace(8000,5000) + '/api/video-list').then(async (res) => {
                     const data = await res.json();
-                    console.log(data);
                     const list = document.getElementById("video-list");
                     const rows = [];
                     list.innerHTML = "";
