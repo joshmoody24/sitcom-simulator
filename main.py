@@ -123,7 +123,7 @@ conn.close()
 # keep generating scripts until user approves
 while(True):
     lines = generate_script(f"A script in which {video_title}", characters, max_length)
-    print("Script:\n", '\n'.join([f'{line["speaker"]["name"]}: u({line["action"]}) {line["text"]}' for line in lines]))
+    print("Script:\n", '\n'.join([f'{line["speaker"]["name"]}: ({line["action"]}) {line["text"]}' for line in lines]))
     if(require_validation):
         validated = input("Do you approve this script? (y/n): ")
         if(validated.lower() == "y"):
