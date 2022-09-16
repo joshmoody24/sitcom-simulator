@@ -21,7 +21,7 @@
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
             <div class="container px-5">
-                <a class="navbar-brand fw-bold" href="/">Sitcom List</a>
+                <a class="navbar-brand fw-bold" href="/">Sitcom Simulator</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     Menu
                     <i class="bi-list"></i>
@@ -44,6 +44,29 @@
                     <div class="container px-5">
                         <div class="row gx-5 align-items-center justify-content-center justify-content-lg-between">
                             <div class="col-12 col-lg-5">
+                                <h2 class="display-4 lh-1 mb-4">Sitcom Queue</h2>
+                                <p class="text-muted">Currently, the queue is processed manually to prevent spam. One video is processed every few hours.</p>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <th>Priority</th>
+                                        <th>Prompt</th>
+                                    </thead>
+                                    <tbody id="queue-table-body">
+        
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-sm-8 col-md-6">
+                                <div class="px-5 px-sm-0"><img class="img-fluid rounded-circle" src="https://source.unsplash.com/u8Jn2rzYIps/900x900" alt="..." /></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Basic features section-->
+                <section class="bg-light mt-5">
+                    <div class="container px-5">
+                        <div class="row gx-5 align-items-center justify-content-center justify-content-lg-between">
+                            <div class="col-12 col-lg-5">
                                 <h2 class="display-4 lh-1 mb-4">Sitcom Videos</h2>
                                 <table class="table table-striped">
                                     <thead>
@@ -60,28 +83,6 @@
                         </div>
                     </div>
                 </section>
-        <!-- Basic features section-->
-        <section class="bg-light mt-5">
-            <div class="container px-5">
-                <div class="row gx-5 align-items-center justify-content-center justify-content-lg-between">
-                    <div class="col-12 col-lg-5">
-                        <h2 class="display-4 lh-1 mb-4">Sitcom Queue</h2>
-                        <table class="table table-striped">
-                            <thead>
-                                <th>Priority</th>
-                                <th>Prompt</th>
-                            </thead>
-                            <tbody id="queue-table-body">
-
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col-sm-8 col-md-6">
-                        <div class="px-5 px-sm-0"><img class="img-fluid rounded-circle" src="https://source.unsplash.com/u8Jn2rzYIps/900x900" alt="..." /></div>
-                    </div>
-                </div>
-            </div>
-        </section>
         <!-- Footer-->
         <footer class="bg-black text-center py-5">
             <div class="container px-5">
@@ -102,7 +103,7 @@
 
         <script>
             function loadQueue(){
-                fetch('http://localhost:5000/sitcom-queue').then(async (res) => {
+                fetch(window.location.origin.replace(8000,5000) + '/sitcom-queue').then(async (res) => {
                     const data = await res.json();
                     console.log(data);
                     const table = document.getElementById("queue-table-body");
@@ -114,7 +115,7 @@
                 });
             }
             function loadVideos(){
-                fetch('http://localhost:5000/video-list').then(async (res) => {
+                fetch(window.location.origin.replace(8000,5000) + '/video-list').then(async (res) => {
                     const data = await res.json();
                     console.log(data);
                     const table = document.getElementById("video-table-body");

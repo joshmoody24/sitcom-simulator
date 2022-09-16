@@ -47,13 +47,13 @@
                         <!-- Mashead text and app badges-->
                         <div class="mb-5 mb-lg-0 text-center text-lg-start">
                             <h1 class="display-1 lh-1 mb-3">Generate Sitcoms With the Power of AI</h1>
-                            <form action="http://localhost:5000/submit-prompt" method="post">
+                            <form id="prompt-form">
                                 <div class="form-group mb-4">
                                     <label for="prompt" class="lead fw-normal text-muted mb-3">Try it! Enter a plot for a sitcom.</label>
-                                    <input class="form-control" type="text" id="prompt" name="prompt" placeholder="e.g. Mario smacks Luigi with a loaf of french bread" />
+                                    <input class="form-control" required type="text" id="prompt" name="prompt" placeholder="e.g. Mario smacks Luigi with a loaf of french bread" />
                                 </div>
                                 <div class="d-flex flex-column flex-lg-row align-items-center">
-                                    <button class="btn btn-primary me-lg-3 mb-4 mb-lg-0">Generate Sitcom</button>
+                                    <button id="submit-button" class="btn btn-primary me-lg-3 mb-4 mb-lg-0">Generate Sitcom</button>
                                 </div>
                             </form>
                         </div>
@@ -193,5 +193,21 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
+
+        <script>
+            const form = document.getElementById("prompt-form");
+            const submitButton = document.getElementById("submit-button");
+            const prompt = document.getElementById("prompt");
+            const backendUrl = window.location.origin.replace('8000','5000');
+            console.log(backendUrl)
+            form.onsubmit = (event) => {
+                event.preventDefault();
+                submitButton.disabled = true;
+                let data = new FormData();
+                data.append("prompt", prompt.value)
+                fetch(backendUrl + "/submit-prompt", {method:"post", body:data}).then(() => window.location.href=window.location.origin + "/view-sitcoms.html");
+                console.log("hey");
+            }
+        </script>
     </body>
 </html>

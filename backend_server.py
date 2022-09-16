@@ -12,15 +12,18 @@ def submit_prompt():
     if(request.method == 'POST'):
         print("here")
         prompt = request.form.get('prompt')
-        conn = sqlite3.connect("sitcomcli.sqlite3")
+        print(request)
+        print("form",request.form)
+        conn = sqlite3.connect("sitcomcli.sqlite3", timeout=10)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Videos (Prompt) VALUES (?)", [prompt])
         conn.commit()
+        conn.close()
         return "success"
 
 @app.route('/sitcom-queue', methods=["GET"])
 def sitcom_queue():
-    conn = sqlite3.connect("sitcomcli.sqlite3")
+    conn = sqlite3.connect("sitcomcli.sqlite3", timeout=10)
     cursor = conn.cursor()
     enqueued = cursor.execute("SELECT QueueId, Prompt, Style FROM Videos WHERE Finished = 0").fetchall()
     sitcoms = []
@@ -34,7 +37,7 @@ def sitcom_queue():
 
 @app.route('/video-list', methods=["GET"])
 def video_list():
-    conn = sqlite3.connect("sitcomcli.sqlite3")
+    conn = sqlite3.connect("sitcomcli.sqlite3", timeout=10)
     cursor = conn.cursor()
     videos = []
     query = cursor.execute("SELECT QueueId, Prompt, Style FROM Videos WHERE Finished = 1").fetchall()
@@ -44,6 +47,7 @@ def video_list():
             'prompt': row[1],
             'style': row[2]
         })
+    conn.close()
     return jsonify(videos)
 
 

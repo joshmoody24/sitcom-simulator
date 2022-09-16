@@ -103,6 +103,9 @@ elif(custom_prompt or read_from_queue):
         cursor.execute("UPDATE Videos SET Finished=1 WHERE QueueId = ?", [queue_id])
     # scan the prompt for character names
     characters_in_prompt = cursor.execute("SELECT CharacterId, FullName, Description, VoiceToken FROM Characters WHERE INSTR(LOWER(?),LOWER(FullName))", [custom_prompt]).fetchall()
+    if(len(characters_in_prompt) <= 0):
+        print("No registered characters found in prompt!")
+        sys.exit(1)
     video_title = custom_prompt
     characters = []
     for char in characters_in_prompt:
