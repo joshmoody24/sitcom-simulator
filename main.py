@@ -12,7 +12,7 @@ load_dotenv()
 import sqlite3
 import random
 from generators.scriptgenerator import generate_script, generate_description
-from generators.imagegenerator import generate_prompts, generate_images
+from generators.imagegenerator import generate_prompts, generate_images, generate_image
 from generators.audiogenerator import generate_voice_clips
 from generators.moviegenerator import generate_movie
 import sys
@@ -97,7 +97,7 @@ if(not custom_prompt and not read_from_queue):
 elif(custom_prompt or read_from_queue):
     
     if(read_from_queue):
-        query = cursor.execute("SELECT QueueId, Prompt from Videos").fetchone()
+        query = cursor.execute("SELECT QueueId, Prompt from Videos WHERE Finished = 0").fetchone()
         custom_prompt = query[1]
         queue_id = query[0]
         cursor.execute("UPDATE Videos SET Finished=1 WHERE QueueId = ?", [queue_id])
@@ -141,11 +141,21 @@ for i in range(len(lines)):
         'audio': f"./tmp/{i+1}.{audio_extension}"
     }
     movieData.append(data)
-generate_movie(movieData, f"./renders/{video_title}.mp4")
+if(not os.path.exists(f'./renders/{video_title}')):
+    os.makedirs(f'./renders/{video_title}')
+generate_movie(movieData, f"./renders/{video_title}/{video_title}.mp4")
 
-# debug while figuring out video uploads
-conn.commit()
-sys.exit(0)
+# generate description
+description = generate_description(video_title)
+# yt forces the video to be private. Looking into it.
+# upload_to_yt(f"./renders/{video_title}.mp4", video_title, description, keywords, privacyStatus="public")
+file1 = open(f"./renders/{video_title}/description.txt", "w")  # append mode
+file1.write(description)
+file1.close()
+
+# generate thumbnail
+generate_image(f'{video_title} youtube centered clickbait', f'./renders/{video_title}/thumbnail', quality=img_quality, width=512, height=512)
+
 # generate keywords
 keywords = []
 KEYWORD_MIN_SIZE = 4
@@ -153,6 +163,4 @@ for word in video_title.split(' '):
     if(len(word) >= KEYWORD_MIN_SIZE):
         keywords.append(word)
 
-# generate description
-description = generate_description(video_title)
-upload_to_yt(f"./renders/{video_title}.mp4", video_title, description, keywords, privacyStatus="public")
+conn.commit()

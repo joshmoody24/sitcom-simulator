@@ -17,7 +17,7 @@ def generate_prompts(lines, style=None):
         prompts.append(prompt)
     return prompts
 
-def generate_image(prompt, filename, quality=25):
+def generate_image(prompt, filename, quality=25, width=512, height=512):
     if(quality > 50):
         quality = 50
     if(quality < 5):
@@ -40,8 +40,8 @@ def generate_image(prompt, filename, quality=25):
         )
 
     request = {
-        "height": 512,
-        "width": 512,
+        "height": height,
+        "width": width,
         "cfg_scale": 8,
         "sampler": get_sampler_from_str('k_lms'),
         "steps": quality,

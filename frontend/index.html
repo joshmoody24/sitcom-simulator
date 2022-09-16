@@ -49,8 +49,17 @@
                             <h1 class="display-1 lh-1 mb-3">Generate Sitcoms With the Power of AI</h1>
                             <form id="prompt-form">
                                 <div class="form-group mb-4">
-                                    <label for="prompt" class="lead fw-normal text-muted mb-3">Try it! Enter a plot for a sitcom.</label>
+                                    <label for="prompt" class="lead fw-normal text-muted mb-3 d-flex align-items-center">
+                                        Try it! Enter a plot for a sitcom.
+                                        <a type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#character-modal" id="character-modal-button">
+                                            Supported character names.
+                                        </a>
+                                    </label>
                                     <input class="form-control" required type="text" id="prompt" name="prompt" placeholder="e.g. Mario smacks Luigi with a loaf of french bread" />
+                                </div>
+                                <div class="form-group mb-4">
+                                    <label for="prompt" class="lead fw-normal text-muted mb-3">Art style modifier (optional)</label>
+                                    <input class="form-control" type="text" id="style" name="style" placeholder="e.g. cyberpunk, claymation, watercolor" />
                                 </div>
                                 <div class="d-flex flex-column flex-lg-row align-items-center">
                                     <button id="submit-button" class="btn btn-primary me-lg-3 mb-4 mb-lg-0">Generate Sitcom</button>
@@ -189,6 +198,26 @@
                 </div>
             </div>
         </footer>
+        <!-- character modal -->
+        <div class="modal fade" id="character-modal" tabindex="-1" aria-labelledby="character-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="character-modal-label">Supported Characters</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="character-list">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                <small class="text-muted p-1">In the prompt, make sure you spell character names EXACTLY as spelled above</small>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+            </div>
+        </div>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
@@ -198,6 +227,7 @@
             const form = document.getElementById("prompt-form");
             const submitButton = document.getElementById("submit-button");
             const prompt = document.getElementById("prompt");
+            const style = document.getElementById("style");
             const backendUrl = window.location.origin.replace('8000','5000');
             console.log(backendUrl)
             form.onsubmit = (event) => {
@@ -205,9 +235,20 @@
                 submitButton.disabled = true;
                 let data = new FormData();
                 data.append("prompt", prompt.value)
+                data.append("style", style.value)
                 fetch(backendUrl + "/submit-prompt", {method:"post", body:data}).then(() => window.location.href=window.location.origin + "/view-sitcoms.html");
                 console.log("hey");
             }
+            function loadCharacters(){
+                const characterList = document.getElementById('character-list');
+                fetch(window.location.origin.replace(8000,5000) + '/character-list').then(async (res) => {
+                    data = await res.json();
+                    characterList.innerHTML = "<ul class='list-group'>";
+                    data.forEach(name => characterList.innerHTML += "<li class='list-group-item'>" + name.replace("<script","") + "</li>");
+                    characterList.innerHTML += "</ul>";
+                })
+            }
+            document.getElementById("character-modal-button").onclick = loadCharacters;
         </script>
     </body>
 </html>
