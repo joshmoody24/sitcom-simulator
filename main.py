@@ -26,6 +26,7 @@ max_length = 10
 require_validation = False
 custom_prompt = None
 read_from_queue = False
+style=""
 
 argv = sys.argv[1:]
 helptext = '''main.py
@@ -97,7 +98,8 @@ if(not custom_prompt and not read_from_queue):
 elif(custom_prompt or read_from_queue):
     
     if(read_from_queue):
-        query = cursor.execute("SELECT QueueId, Prompt from Videos WHERE Finished = 0").fetchone()
+        query = cursor.execute("SELECT QueueId, Prompt, Style from Videos WHERE Finished = 0").fetchone()
+        style = query[2]
         custom_prompt = query[1]
         queue_id = query[0]
         cursor.execute("UPDATE Videos SET Finished=1 WHERE QueueId = ?", [queue_id])
@@ -129,7 +131,7 @@ while(True):
     else:
         break
 
-prompts = generate_prompts(lines)
+prompts = generate_prompts(lines, style)
 audio_extension = "wav" if high_quality_audio else "mp3"
 generate_voice_clips(lines, high_quality_audio)
 generate_images(prompts, img_quality)

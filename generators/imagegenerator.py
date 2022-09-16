@@ -13,7 +13,7 @@ def generate_prompts(lines, style=None):
         # randomSitcom = random.choice(RealLifeSitcom.objects.all())
         prompt = line["speaker"]["description"] if line["speaker"]["description"] else line["speaker"]["name"]
         if(style):
-            prompt += f" {style}"
+            prompt += f", {style}"
         prompts.append(prompt)
     return prompts
 
