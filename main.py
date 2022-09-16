@@ -25,6 +25,7 @@ img_quality = 25
 max_length = 10
 require_validation = False
 custom_prompt = None
+read_from_queue = False
 
 argv = sys.argv[1:]
 helptext = '''main.py
@@ -33,9 +34,10 @@ helptext = '''main.py
 \t-q <img-quality [5-50, default 25]>
 \t-l <max_length [1-100, default 10]>
 \t-v [require user validation for script]
+\t-q [read from queue]
 \t-p \'<prompt>\''''
 try:
-    opts, args = getopt(argv, "vhaq:l:p:", ["hq-audio", "img-quality=", "max-length=","require-validation","prompt="])
+    opts, args = getopt(argv, "dvhaq:l:p:", ["hq-audio", "img-quality=", "max-length=","require-validation","prompt=","dequeue"])
 except Exception as e:
     print(e,'\n',helptext)
     sys.exit(2)
@@ -61,12 +63,14 @@ for opt, arg in opts:
         require_validation = True
     elif opt in ("-p", "--prompt"):
         custom_prompt = arg
+    elif opt in ("-d", "--dequeue"):
+        read_from_queue = True
 
 conn = sqlite3.connect("sitcomcli.sqlite3")
 cursor = conn.cursor()
 
 # randomly select 2 characters from the database
-if(not custom_prompt):
+if(not custom_prompt and not read_from_queue):
     characterIds = [x[0] for x in cursor.execute("SELECT CharacterId FROM Characters").fetchall()]
     char1 = cursor.execute("SELECT CharacterId, FullName, Description, VoiceToken FROM Characters WHERE CharacterId = ?", [random.choice(characterIds)]).fetchone()
     char1 = {
@@ -90,7 +94,13 @@ if(not custom_prompt):
 
     video_title = f"{char1['name']} and {char2['name']} have a discussion about {topic}"
 # custom prompt
-else:
+elif(custom_prompt or read_from_queue):
+    
+    if(read_from_queue):
+        query = cursor.execute("SELECT QueueId, Prompt from Videos").fetchone()
+        custom_prompt = query[1]
+        queue_id = query[0]
+        cursor.execute("UPDATE Videos SET Finished=1 WHERE QueueId = ?", [queue_id])
     # scan the prompt for character names
     characters_in_prompt = cursor.execute("SELECT CharacterId, FullName, Description, VoiceToken FROM Characters WHERE INSTR(LOWER(?),LOWER(FullName))", [custom_prompt]).fetchall()
     video_title = custom_prompt
@@ -102,6 +112,7 @@ else:
             "description": char[2],
             "voice_token": char[3]
         })
+
 # keep generating scripts until user approves
 while(True):
     lines = generate_script(f"A script in which {video_title}", characters, max_length)
@@ -130,6 +141,7 @@ for i in range(len(lines)):
 generate_movie(movieData, f"./renders/{video_title}.mp4")
 
 # debug while figuring out video uploads
+conn.commit()
 sys.exit(0)
 # generate keywords
 keywords = []

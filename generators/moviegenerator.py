@@ -56,7 +56,6 @@ def generate_movie(dialogueData=[{}], output_path="output.mp4"):
             
         txt_clip = TextClip(caption, fontsize=48, color='white', size=(VIDEO_WIDTH, VIDEO_HEIGHT - img_clip.h))
         txt_clip = txt_clip.set_position(('center', 1-float(VIDEO_HEIGHT-img_clip.h)/float(VIDEO_HEIGHT)), relative=True).set_duration(duration)
-        print(txt_clip.pos, txt_clip.h, txt_clip.w)
 
         video = CompositeVideoClip([bg, img_clip, txt_clip])
         video = video.set_fps(24)
