@@ -229,7 +229,6 @@
             const prompt = document.getElementById("prompt");
             const style = document.getElementById("style");
             const backendUrl = window.location.origin.replace('8000','5000');
-            console.log(backendUrl)
             form.onsubmit = (event) => {
                 event.preventDefault();
                 submitButton.disabled = true;
@@ -237,11 +236,10 @@
                 data.append("prompt", prompt.value)
                 data.append("style", style.value)
                 fetch(backendUrl + "/submit-prompt", {method:"post", body:data}).then(() => window.location.href=window.location.origin + "/view-sitcoms.html");
-                console.log("hey");
             }
             function loadCharacters(){
                 const characterList = document.getElementById('character-list');
-                fetch(window.location.origin.replace(8000,5000) + '/character-list').then(async (res) => {
+                fetch(window.location.origin.replace(8000,5000) + '/api/character-list').then(async (res) => {
                     data = await res.json();
                     characterList.innerHTML = "<ul class='list-group'>";
                     data.forEach(name => characterList.innerHTML += "<li class='list-group-item'>" + name.replace("<script","") + "</li>");
