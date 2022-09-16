@@ -27,6 +27,7 @@ require_validation = False
 custom_prompt = None
 read_from_queue = False
 style=""
+queue_id=None
 
 argv = sys.argv[1:]
 helptext = '''main.py
@@ -67,7 +68,7 @@ for opt, arg in opts:
     elif opt in ("-d", "--dequeue"):
         read_from_queue = True
 
-conn = sqlite3.connect("sitcomcli.sqlite3")
+conn = sqlite3.connect("sitcomcli.sqlite3", timeout=10)
 cursor = conn.cursor()
 
 # randomly select 2 characters from the database
@@ -118,10 +119,11 @@ elif(custom_prompt or read_from_queue):
             "voice_token": char[3]
         })
 
+conn.close()
 # keep generating scripts until user approves
 while(True):
     lines = generate_script(f"A script in which {video_title}", characters, max_length)
-    print("Script:\n", '\n'.join([f'{line["speaker"]["name"]}: ({line["action"]}) {line["text"]}' for line in lines]))
+    print("Script:\n", '\n'.join([f'{line["speaker"]["name"]}: u({line["action"]}) {line["text"]}' for line in lines]))
     if(require_validation):
         validated = input("Do you approve this script? (y/n): ")
         if(validated.lower() == "y"):
@@ -165,4 +167,8 @@ for word in video_title.split(' '):
     if(len(word) >= KEYWORD_MIN_SIZE):
         keywords.append(word)
 
+conn = sqlite3.connect("sitcomcli.sqlite3", timeout=10)
+cursor = conn.cursor()
+cursor.execute("UPDATE Videos SET Finished=1 WHERE QueueId = ?", [queue_id])
 conn.commit()
+conn.close()
