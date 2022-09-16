@@ -235,7 +235,7 @@
                 let data = new FormData();
                 data.append("prompt", prompt.value)
                 data.append("style", style.value)
-                fetch(backendUrl + "/submit-prompt", {method:"post", body:data}).then(() => window.location.href=window.location.origin + "/view-sitcoms.html");
+                fetch(backendUrl + "/api/submit-prompt", {method:"post", body:data}).then(() => window.location.href=window.location.origin + "/view-sitcoms.html");
             }
             function loadCharacters(){
                 const characterList = document.getElementById('character-list');
