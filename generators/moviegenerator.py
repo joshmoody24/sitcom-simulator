@@ -45,13 +45,14 @@ def generate_movie(dialogueData=[{}], output_path="output.mp4"):
         char_counter = 0
         while(len(raw_caption_queue) > 0):
             split = raw_caption_queue.split(' ')
-            caption += split[0]
-            char_counter += len(split[0])
-            if(char_counter < max_chars_per_line):
+            if(char_counter + split[0] < max_chars_per_line):
                 caption += " "
+                char_counter += 1
             else:
                 caption += "\n"
                 char_counter = 0
+            caption += split[0]
+            char_counter += len(split[0])
             raw_caption_queue = " ".join(split[1:])
             
         txt_clip = TextClip(caption, fontsize=48, font="Liberation-Sans", color='white', size=(VIDEO_WIDTH, VIDEO_HEIGHT - img_clip.h))
