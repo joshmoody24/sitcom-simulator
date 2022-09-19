@@ -23,6 +23,7 @@ def generate_voice_clips(lines, high_quality=False):
                 "inference_text": lines[i]["text"]
             }
             response = requests.post('https://api.fakeyou.com/tts/inference', headers=headers, json=payload)
+            print("printing response debug",response.text,"status code", response.status_code, "payload",payload)
             json = response.json()
             success = json['success']
             if(not success):
