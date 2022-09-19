@@ -95,6 +95,8 @@ def generate_script(prompt, characters, max_lines, style="", max_tokens_per_line
         # randomly select next speaker
         prev_speaker_id = lines[-1]["speaker"]["id"] if len(lines) > 0 else ""
         next_speaker_candidates = [char for char in characters if char["id"] != prev_speaker_id]
+        if(len(characters) == 1):
+            next_speaker_candidates.append(characters[0])
         next_speaker = random.choice(next_speaker_candidates)
         line = generate_line(script_so_far, next_speaker, max_tokens_per_line)
         if(line is None):
