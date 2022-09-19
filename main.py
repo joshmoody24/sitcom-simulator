@@ -122,7 +122,7 @@ elif(custom_prompt or read_from_queue):
 conn.close()
 # keep generating scripts until user approves
 while(True):
-    lines = generate_script(f"A script in which {video_title}", characters, max_length)
+    lines = generate_script(f"A script for a sitcom in which {video_title}", characters, max_length)
     print("Script:\n", '\n'.join([f'{line["speaker"]["name"]}: ({line["action"]}) {line["text"]}' for line in lines]))
     if(require_validation):
         validated = input("Do you approve this script? (y/n): ")
