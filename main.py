@@ -100,6 +100,9 @@ elif(custom_prompt or read_from_queue):
     
     if(read_from_queue):
         query = cursor.execute("SELECT QueueId, Prompt, Style from Videos WHERE Finished = 0").fetchone()
+        if(not query):
+            print("No pending videos in the database")
+            exit()
         style = query[2]
         custom_prompt = query[1]
         queue_id = query[0]

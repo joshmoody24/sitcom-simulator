@@ -1,4 +1,7 @@
 #!/bin/which python3
+
+# fmt: off
+
 import pathlib
 import sys
 import os
@@ -11,13 +14,18 @@ import mimetypes
 
 import grpc
 from argparse import ArgumentParser, Namespace
-from typing import Dict, Generator, List, Union, Any, Sequence, Tuple
-from dotenv import load_dotenv
+from typing import Dict, Generator, List, Optional, Union, Any, Sequence, Tuple
 from google.protobuf.json_format import MessageToJson
 from PIL import Image
 
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    pass
+else:
+    load_dotenv()
 
+# this is necessary because of how the auto-generated code constructs its imports
 thisPath = pathlib.Path(__file__).parent.resolve()
 genPath = thisPath / "interfaces/gooseai/generation"
 sys.path.append(str(genPath))
@@ -25,59 +33,42 @@ sys.path.append(str(genPath))
 import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 import stability_sdk.interfaces.gooseai.generation.generation_pb2_grpc as generation_grpc
 
+from stability_sdk.utils import (
+    SAMPLERS,
+    MAX_FILENAME_SZ,
+    truncate_fit,
+    get_sampler_from_str,
+    open_images,
+)
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.INFO)
 
-algorithms: Dict[str, int] = {
-    "ddim": generation.SAMPLER_DDIM,
-    "plms": generation.SAMPLER_DDPM,
-    "k_euler": generation.SAMPLER_K_EULER,
-    "k_euler_ancestral": generation.SAMPLER_K_EULER_ANCESTRAL,
-    "k_heun": generation.SAMPLER_K_HEUN,
-    "k_dpm_2": generation.SAMPLER_K_DPM_2,
-    "k_dpm_2_ancestral": generation.SAMPLER_K_DPM_2_ANCESTRAL,
-    "k_lms": generation.SAMPLER_K_LMS,
-}
 
-def image_to_prompt(im, init: bool = False, mask: bool = False) -> Tuple[str, generation.Prompt]:
+def image_to_prompt(im, init: bool = False, mask: bool = False) -> generation.Prompt:
     if init and mask:
         raise ValueError("init and mask cannot both be True")
     buf = io.BytesIO()
-    im.save(buf, format='PNG')
+    im.save(buf, format="PNG")
     buf.seek(0)
     if mask:
         return generation.Prompt(
             artifact=generation.Artifact(
-                type=generation.ARTIFACT_MASK,
-                binary=buf.getvalue()
+                type=generation.ARTIFACT_MASK, binary=buf.getvalue()
             )
         )
     return generation.Prompt(
         artifact=generation.Artifact(
-            type=generation.ARTIFACT_IMAGE,
-            binary=buf.getvalue()
+            type=generation.ARTIFACT_IMAGE, binary=buf.getvalue()
         ),
-        parameters=generation.PromptParameters(
-            init=init
-        ),
+        parameters=generation.PromptParameters(init=init),
     )
-
-def get_sampler_from_str(s: str) -> generation.DiffusionSampler:
-    """
-    Convert a string to a DiffusionSampler enum.
-
-    :param s: The string to convert.
-    :return: The DiffusionSampler enum.
-    """
-    algorithm_key = s.lower().strip()
-    algorithm = algorithms.get(algorithm_key, None)
-    if algorithm is None:
-        raise ValueError(f"unknown sampler {s}")
-    return algorithm
 
 
 def process_artifacts_from_answers(
-    filename: str,
+    prefix: str,
+    prompt: str,
     answers: Union[
         Generator[generation.Answer, None, None], Sequence[generation.Answer]
     ],
@@ -88,6 +79,7 @@ def process_artifacts_from_answers(
     Process the Artifacts from the Answers.
 
     :param prefix: The prefix for the artifact filenames.
+    :param prompt: The prompt to add to the artifact filenames.
     :param answers: The Answers to process.
     :param write: Whether to write the artifacts to disk.
     :param verbose: Whether to print the artifact filenames.
@@ -97,7 +89,7 @@ def process_artifacts_from_answers(
     idx = 0
     for resp in answers:
         for artifact in resp.artifacts:
-            artifact_p = filename
+            artifact_start = time.time()
             if artifact.type == generation.ARTIFACT_IMAGE:
                 ext = mimetypes.guess_extension(artifact.mime)
                 contents = artifact.binary
@@ -110,7 +102,7 @@ def process_artifacts_from_answers(
             else:
                 ext = ".pb"
                 contents = artifact.SerializeToString()
-            out_p = f"{artifact_p}{ext}"
+            out_p = truncate_fit(prefix, prompt, ext, int(artifact_start), idx, MAX_FILENAME_SZ)
             if write:
                 with open(out_p, "wb") as f:
                     f.write(bytes(contents))
@@ -118,33 +110,8 @@ def process_artifacts_from_answers(
                         artifact_t = generation.ArtifactType.Name(artifact.type)
                         logger.info(f"wrote {artifact_t} to {out_p}")
 
-            yield [out_p, artifact]
+            yield (out_p, artifact)
             idx += 1
-
-
-def open_images(
-    images: Union[
-        Sequence[Tuple[str, generation.Artifact]],
-        Generator[Tuple[str, generation.Artifact], None, None],
-    ],
-    verbose: bool = False,
-) -> Generator[Tuple[str, generation.Artifact], None, None]:
-    """
-    Open the images from the filenames and Artifacts tuples.
-
-    :param images: The tuples of Artifacts and associated images to open.
-    :return:  A Generator of tuples of image filenames and Artifacts, intended
-     for passthrough.
-    """
-    from PIL import Image
-
-    for path, artifact in images:
-        if artifact.type == generation.ARTIFACT_IMAGE:
-            if verbose:
-                logger.info(f"opening {path}")
-            img = Image.open(io.BytesIO(artifact.binary))
-            img.show()
-        yield [path, artifact]
 
 
 class StabilityInference:
@@ -178,8 +145,7 @@ class StabilityInference:
 
         if host.endswith("443"):
             if key:
-                call_credentials.append(
-                    grpc.access_token_call_credentials(f"{key}"))
+                call_credentials.append(grpc.access_token_call_credentials(f"{key}"))
             else:
                 raise ValueError(f"key is required for {host}")
             channel_credentials = grpc.composite_channel_credentials(
@@ -199,9 +165,9 @@ class StabilityInference:
 
     def generate(
         self,
-        prompt: Union[List[str], str],
-        init_image: Image.Image = None,
-        mask_image: Image.Image = None,
+        prompt: Union[str, List[str], generation.Prompt, List[generation.Prompt]],
+        init_image: Optional[Image.Image] = None,
+        mask_image: Optional[Image.Image] = None,
         height: int = 512,
         width: int = 512,
         start_schedule: float = 1.0,
@@ -212,7 +178,12 @@ class StabilityInference:
         seed: Union[Sequence[int], int] = 0,
         samples: int = 1,
         safety: bool = True,
-        classifiers: generation.ClassifierParameters = None,
+        classifiers: Optional[generation.ClassifierParameters] = None,
+        guidance_preset: generation.GuidancePreset = generation.GUIDANCE_PRESET_NONE,
+        guidance_cuts: int = 0,
+        guidance_strength: Optional[float] = None,
+        guidance_prompt: Union[str, generation.Prompt] = None,
+        guidance_models: List[str] = None,
     ) -> Generator[generation.Answer, None, None]:
         """
         Generate images from a prompt.
@@ -229,70 +200,126 @@ class StabilityInference:
         :param steps: Number of steps to take.
         :param seed: Seed for the random number generator.
         :param samples: Number of samples to generate.
-        :param safety: Whether to use safety mode.
-        :param classifiers: Classifier parameters to use.
+        :param safety: DEPRECATED/UNUSED - Cannot be disabled.
+        :param classifiers: DEPRECATED/UNUSED - Has no effect on image generation.
+        :param guidance_preset: Guidance preset to use. See generation.GuidancePreset for supported values.
+        :param guidance_cuts: Number of cuts to use for guidance.
+        :param guidance_strength: Strength of the guidance. We recommend values in range [0.0,1.0]. A good default is 0.25
+        :param guidance_prompt: Prompt to use for guidance, defaults to `prompt` argument (above) if not specified.
+        :param guidance_models: Models to use for guidance.
         :return: Generator of Answer objects.
         """
-        if safety and classifiers is None:
-            classifiers = generation.ClassifierParameters()
-
         if (prompt is None) and (init_image is None):
             raise ValueError("prompt and/or init_image must be provided")
 
         if (mask_image is not None) and (init_image is None):
-            raise ValueError("If mask_image is provided, init_image must also be provided")
-
-        request_id = str(uuid.uuid4())
+            raise ValueError(
+                "If mask_image is provided, init_image must also be provided"
+            )
 
         if not seed:
             seed = [random.randrange(0, 4294967295)]
-        else:
+        elif isinstance(seed, int):
             seed = [seed]
-
-        if isinstance(prompt, str):
-            prompt = [generation.Prompt(text=prompt)]
-        elif isinstance(prompt, Sequence):
-            prompt = [generation.Prompt(text=p) for p in prompt]
         else:
-            raise TypeError("prompt must be a string or a sequence")
+            seed = list(seed)
 
-        if (init_image is not None):
-            prompt += [image_to_prompt(init_image, init=True)]
-            parameters = generation.StepParameter(
-                    scaled_step=0,
-                    sampler=generation.SamplerParameters(
-                        cfg_scale=cfg_scale,
-                    ),
-                    schedule=generation.ScheduleParameters(
-                        start=start_schedule,
-                        end=end_schedule,
+        prompts: List[generation.Prompt] = []
+        if any(isinstance(prompt, t) for t in (str, generation.Prompt)):
+            prompt = [prompt]
+        for p in prompt:
+            if isinstance(p, str):
+                p = generation.Prompt(text=p)
+            elif not isinstance(p, generation.Prompt):
+                raise TypeError("prompt must be a string or generation.Prompt object")
+            prompts.append(p)
+
+        step_parameters = dict(
+            scaled_step=0,
+            sampler=generation.SamplerParameters(cfg_scale=cfg_scale),
+        )
+            
+        # NB: Specifying schedule when there's no init image causes washed out results
+        if init_image is not None:
+            step_parameters['schedule'] = generation.ScheduleParameters(
+                start=start_schedule,
+                end=end_schedule,
+            )
+            prompts += [image_to_prompt(init_image, init=True)]
+
+            if mask_image is not None:
+                prompts += [image_to_prompt(mask_image, mask=True)]
+
+        
+        if guidance_prompt:
+            if isinstance(guidance_prompt, str):
+                guidance_prompt = generation.Prompt(text=guidance_prompt)
+            elif not isinstance(guidance_prompt, generation.Prompt):
+                raise ValueError("guidance_prompt must be a string or Prompt object")
+        if guidance_strength == 0.0:
+            guidance_strength = None
+
+            
+        # Build our CLIP parameters
+        if guidance_preset is not generation.GUIDANCE_PRESET_NONE:
+            # to do: make it so user can override this
+            step_parameters['sampler']=None
+
+            if guidance_models:
+                guiders = [generation.Model(alias=model) for model in guidance_models]
+            else:
+                guiders = None
+
+            if guidance_cuts:
+                cutouts = generation.CutoutParameters(count=guidance_cuts)
+            else:
+                cutouts = None
+
+            step_parameters["guidance"] = generation.GuidanceParameters(
+                guidance_preset=guidance_preset,
+                instances=[
+                    generation.GuidanceInstanceParameters(
+                        guidance_strength=guidance_strength,
+                        models=guiders,
+                        cutouts=cutouts,
+                        prompt=guidance_prompt,
                     )
-                ),
-            if (mask_image is not None):
-                prompt += [image_to_prompt(mask_image, mask=True)]
-        else:
-            parameters = generation.StepParameter(
-                    scaled_step=0,
-                    sampler=generation.SamplerParameters(
-                        cfg_scale=cfg_scale),
-                ),
+                ],
+            )
 
-        rq = generation.Request(
-            engine_id=self.engine,
-            request_id=request_id,
-            prompt=prompt,
-            image=generation.ImageParameters(
-                transform=generation.TransformType(diffusion=sampler),
-                height=height,
-                width=width,
-                seed=seed,
-                steps=steps,
-                samples=samples,
-                parameters=parameters,
-            ),
-            classifier=classifiers,
+        image_parameters=generation.ImageParameters(
+            transform=generation.TransformType(diffusion=sampler),
+            height=height,
+            width=width,
+            seed=seed,
+            steps=steps,
+            samples=samples,
+            parameters=[generation.StepParameter(**step_parameters)],
         )
 
+        return self.emit_request(prompt=prompts, image_parameters=image_parameters)
+
+            
+    # The motivation here is to facilitate constructing requests by passing protobuf objects directly.
+    def emit_request(
+        self,
+        prompt: generation.Prompt,
+        image_parameters: generation.ImageParameters,
+        engine_id: str = None,
+        request_id: str = None,
+    ):
+        if not request_id:
+            request_id = str(uuid.uuid4())
+        if not engine_id:
+            engine_id = self.engine
+        
+        rq = generation.Request(
+            engine_id=engine_id,
+            request_id=request_id,
+            prompt=prompt,
+            image=image_parameters
+        )
+        
         if self.verbose:
             logger.info("Sending request.")
 
@@ -311,31 +338,11 @@ class StabilityInference:
                     )
                 else:
                     logger.info(
-                        f"Got keepalive {answer.answer_id} in "
-                        f"{duration:0.2f}s"
+                        f"Got keepalive {answer.answer_id} in " f"{duration:0.2f}s"
                     )
 
             yield answer
             start = time.time()
-
-
-def build_request_dict(cli_args: Namespace) -> Dict[str, Any]:
-    """
-    Build a Request arguments dictionary from the CLI arguments.
-    """
-    return {
-        "height": cli_args.height,
-        "width": cli_args.width,
-        "start_schedule": cli_args.start_schedule,
-        "end_schedule": cli_args.end_schedule,
-        "cfg_scale": cli_args.cfg_scale,
-        "sampler": get_sampler_from_str(cli_args.sampler),
-        "steps": cli_args.steps,
-        "seed": cli_args.seed,
-        "samples": cli_args.num_samples,
-        "init_image": cli_args.init_image,
-        "mask_image": cli_args.mask_image,
-    }
 
 
 if __name__ == "__main__":
@@ -347,6 +354,15 @@ if __name__ == "__main__":
     fh.setFormatter(fh_formatter)
     logger.addHandler(fh)
 
+    logger.warning(
+        "[Deprecation Warning] The method you have used to invoke the sdk will be deprecated shortly."
+        "[Deprecation Warning] Please modify your code to call the sdk without invoking the 'client' module instead."
+        "[Deprecation Warning] rather than:"
+        "[Deprecation Warning]    $ python -m stability_sdk.client ...  "
+        "[Deprecation Warning] instead do this:"
+        "[Deprecation Warning]    $ python -m stability_sdk ...  "
+    )
+    
     STABILITY_HOST = os.getenv("STABILITY_HOST", "grpc.stability.ai:443")
     STABILITY_KEY = os.getenv("STABILITY_KEY", "")
 
@@ -372,11 +388,15 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--start_schedule",
-        type=float, default=0.5, help="[0.5] start schedule for init image (must be greater than 0, 1 is full strength text prompt, no trace of image)"
+        type=float,
+        default=0.5,
+        help="[0.5] start schedule for init image (must be greater than 0, 1 is full strength text prompt, no trace of image)",
     )
     parser.add_argument(
         "--end_schedule",
-        type=float, default=0.01, help="[0.01] end schedule for init image"
+        type=float,
+        default=0.01,
+        help="[0.01] end schedule for init image",
     )
     parser.add_argument(
         "--cfg_scale", "-C", type=float, default=7.0, help="[7.0] CFG scale factor"
@@ -386,7 +406,7 @@ if __name__ == "__main__":
         "-A",
         type=str,
         default="k_lms",
-        help="[k_lms] (" + ", ".join(algorithms.keys()) + ")",
+        help="[k_lms] (" + ", ".join(SAMPLERS.keys()) + ")",
     )
     parser.add_argument(
         "--steps", "-s", type=int, default=50, help="[50] number of steps"
@@ -396,7 +416,7 @@ if __name__ == "__main__":
         "--prefix",
         "-p",
         type=str,
-        default="generation",
+        default="generation_",
         help="output prefixes for artifacts",
     )
     parser.add_argument(
@@ -414,12 +434,14 @@ if __name__ == "__main__":
         default="stable-diffusion-v1-5",
     )
     parser.add_argument(
-        "--init_image", "-i",
+        "--init_image",
+        "-i",
         type=str,
         help="Init image",
     )
     parser.add_argument(
-        "--mask_image", "-m",
+        "--mask_image",
+        "-m",
         type=str,
         help="Mask image",
     )
@@ -432,14 +454,28 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         args.prompt = " ".join(args.prompt)
-        
+
     if args.init_image:
         args.init_image = Image.open(args.init_image)
-        
+
     if args.mask_image:
         args.mask_image = Image.open(args.mask_image)
 
-    request = build_request_dict(args)
+    request =  {
+        "height": args.height,
+        "width": args.width,
+        "start_schedule": args.start_schedule,
+        "end_schedule": args.end_schedule,
+        "cfg_scale": args.cfg_scale,
+        "sampler": get_sampler_from_str(args.sampler),
+        "steps": args.steps,
+        "seed": args.seed,
+        "samples": args.num_samples,
+        "init_image": args.init_image,
+        "mask_image": args.mask_image,
+    }
+
+
 
     stability_api = StabilityInference(
         STABILITY_HOST, STABILITY_KEY, engine=args.engine, verbose=True
@@ -447,7 +483,7 @@ if __name__ == "__main__":
 
     answers = stability_api.generate(args.prompt, **request)
     artifacts = process_artifacts_from_answers(
-        args.prefix, answers, write=not args.no_store, verbose=True
+        args.prefix, args.prompt, answers, write=not args.no_store, verbose=True
     )
     if args.show:
         for artifact in open_images(artifacts, verbose=True):
