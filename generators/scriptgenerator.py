@@ -47,11 +47,13 @@ def generate_line(script_so_far, next_speaker, max_tokens=default_max_tokens, te
         "echo": False,
         "frequency_penalty": 0,
         # generate until the next speaker to check for stop codes
-        "stop": ":",
+        # update: using ":" didn't work very well so I'm back to newlines
+        "stop": "\n",
     }
     next_line = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json)
+    print(headers,json,next_line.text)
     raw_text = next_line.json()["choices"][0]['text']
-    split = raw_text.split('\n')
+    split = raw_text.strip().split('\n')
     result = split[0]
     # was the ai trying to continue the script?
     # print("length of split",len(split))
@@ -93,6 +95,8 @@ def generate_script(prompt, characters, max_lines, style="", max_tokens_per_line
         # randomly select next speaker
         prev_speaker_id = lines[-1]["speaker"]["id"] if len(lines) > 0 else ""
         next_speaker_candidates = [char for char in characters if char["id"] != prev_speaker_id]
+        if(len(characters) == 1):
+            next_speaker_candidates.append(characters[0])
         next_speaker = random.choice(next_speaker_candidates)
         line = generate_line(script_so_far, next_speaker, max_tokens_per_line)
         if(line is None):

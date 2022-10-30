@@ -116,7 +116,7 @@
                     const rows = [];
                     list.innerHTML = "";
                     data.reverse().forEach((row, index) => {
-                        list.innerHTML += `<div class="card my-4"><object style="aspect-ratio:16/10;object-fit:cover;" data=\'${window.location.origin.replace(8000,5000) + '/api' + row.thumbnail}\' type="image/png"><img alt=\'${row.prompt}'\' class="card-img-top" style="aspect-ratio:16/10;object-fit:cover;" src='/assets/img/default.jpg'></object><div class="card-body"><h5 class="card-title">${row.prompt.replace('<script','')}</h5><p class="card-text">${row.description}</p><a href='${window.location.origin.replace(8000,5000) + '/api/video/' + row.prompt}\'" class="btn btn-primary">Watch Video</a></div></div>`
+                        list.innerHTML += `<div class="card my-4"><object style="aspect-ratio:16/10;object-fit:cover;" data=\'${window.location.origin.replace(8000,5000) + '/api' + row.thumbnail}\' type="image/png"><img alt=\'${row.prompt}'\' class="card-img-top" style="aspect-ratio:16/10;object-fit:cover;" src='/assets/img/default.jpg'></object><div class="card-body"><h5 class="card-title">${row.prompt.replace('<script','')}</h5><p class="card-text">${row.description}</p><a href="${window.location.origin.replace(8000,5000) + '/api/video/' + row.prompt}" class="btn btn-primary">Watch Video</a></div></div>`
                     });
                 });
             }
