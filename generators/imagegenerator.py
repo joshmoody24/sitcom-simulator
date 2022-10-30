@@ -53,7 +53,7 @@ def generate_image(prompt, filename, quality=25, width=512, height=512):
 
     answers = stability_api.generate(prompt, **request)
     artifacts = process_artifacts_from_answers(
-        filename, answers, write=True, verbose=True
+        filename, prompt, answers, write=True, verbose=True
     )
 
     showimages = False
