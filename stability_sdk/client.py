@@ -102,6 +102,8 @@ def process_artifacts_from_answers(
             else:
                 ext = ".pb"
                 contents = artifact.SerializeToString()
+            # added as hotfix
+            prompt = ''
             out_p = truncate_fit(prefix, prompt, ext, int(artifact_start), idx, MAX_FILENAME_SZ)
             if write:
                 with open(out_p, "wb") as f:
