@@ -21,8 +21,9 @@ def generate_movie(dialogueData=[{}], output_path="output.mp4"):
         # calculate the duration
         hang_time = 0.35
         duration = voiceover.duration + hang_time
-        if(duration < 2):
-            duration = 2
+        min_length = 1.5
+        if(duration < min_length):
+            duration = min_length
 
         # black background
         bg = ColorClip(size=(VIDEO_WIDTH,VIDEO_HEIGHT), color=[0,0,0])
