@@ -1,8 +1,8 @@
 title="Mario and Luigi complain about a trashy TV show"
 
 characters = [
-    { name="Mario", description="Dieter F. Uchtdorf in black suit and tie", voice_token="TM:c7j599fz0pbg" },
-    { name="Luigi", description="David A. Bednar in black suit and tie", voice_token="TM:fp4fcyja6mk1" }
+    { name="Mario", description="Mario with red cap and mustache", voice_token="TM:c7j599fz0pbg" },
+    { name="Luigi", description="Luigi with green cap and mustache", voice_token="TM:fp4fcyja6mk1" }
 ]
 
 global_style = "in the sitcom How I Met Your Mother (1993)"
