@@ -1,7 +1,7 @@
 # Sitcom Simulator
 A command-line tool for generating bad movies using GPT-3, Stable Diffusion, FakeYou, and MoviePy
 
-# Prerequisites
+## Prerequisites
 - Python 3
 - ImageMagick executable (download [here](https://imagemagick.org/script/download.php#windows))
 - Stability API key (get one [here](https://beta.dreamstudio.ai/membership?tab=apiKeys))
@@ -40,5 +40,12 @@ After some processing time, the video will be saved in the `renders` folder in t
 - -s STYLE, --style STYLE: a string that gets appended to image generation to customize image style
 - -y, --yes: answer prompts automatically with 'yes' or default value
 
-# Contributions
+## How it Works
+Sitcom Simulator is essentially duct tape that combines multiple different AI tools into one unholy abomination.
+- GPT-3 generates the video script
+- FakeYou generates voices for the characters
+- Stable Diffusion generates images for the characters
+- MoviePy connects the images and voices into a movie
+
+## Contributions
 Want to help work on this project? I'm down! Feel free to contribute. Hit me up if you have any questions 😘
