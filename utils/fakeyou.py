@@ -26,11 +26,12 @@ def get_characters_in_prompt(prompt):
         # this is kind of jank so I'm turning it off for now
         detailed_search = False
 
-        split_voice = [word for word in stripped_voice.split(' ') if len(word) > 3] if detailed_search else [stripped_voice]
+        split_voice = [word.replace() for word in stripped_voice.split(' ') if len(word) > 3] if detailed_search else [stripped_voice]
 
         character_in_prompt = False
         for word in split_voice:
-            if(word.lower() in [word.lower() for word in prompt.split(' ')]):
+            # avoid short models like 'ed' matching everything
+            if(len(word) >= 3 and word.lower() in prompt.lower()):
                 character_in_prompt = True
                 break
             
