@@ -89,7 +89,7 @@ def generate_script(prompt, characters, max_lines, style="", max_tokens_per_line
 
     lines = []
 
-    for i in tqdm(range(max_lines), "Generating script"):
+    for i in tqdm(range(max_lines), desc="Generating script"):
         script_so_far = prompt + "\n\n"
         for prev in lines:
             script_so_far += f'{prev["speaker"]}: {prev["text"]}\n'
@@ -97,7 +97,7 @@ def generate_script(prompt, characters, max_lines, style="", max_tokens_per_line
         prev_speaker_name = lines[-1]["speaker"] if len(lines) > 0 else ""
         next_speaker_candidates = [name for name in characters if name != prev_speaker_name]
         if(len(characters) == 1):
-            next_speaker_candidates.append(characters[0])
+            next_speaker_candidates.append(prev_speaker_name)
         next_speaker = random.choice(next_speaker_candidates)
         line = generate_line(script_so_far, next_speaker, max_tokens_per_line)
         if(line is None):

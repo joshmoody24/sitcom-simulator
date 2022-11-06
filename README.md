@@ -38,6 +38,7 @@ After some processing time, the video will be saved in the `renders` folder in t
 - -v, --validate-script: require user to approve generated script before creating video
 - -p PROMPT, --prompt PROMPT: the prompt for the script that gets send to GPT-3
 - -s STYLE, --style STYLE: a string that gets appended to image generation to customize image style
+- -f PATH, --script PATH: specify a custom script (TOML format) instead of generating one (see sample_script.toml)
 - -y, --yes: answer prompts automatically with 'yes' or default value
 
 ## How it Works

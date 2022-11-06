@@ -18,25 +18,51 @@ def create_sitcom(args, config):
     if(args.prompt == None and args.script == None):
         args.prompt = input("Enter a prompt to generate the video script: ")
 
+    if(args.script):
+        script = load_toml(args.script)
+
+    if(args.script):
+        args.prompt = script['title']
+    
     # clean prompt
     prompt = args.prompt.replace('-', ' ')
 
-    possible_characters = get_characters_in_prompt(prompt)
-    characters = select_characters(possible_characters, args)
-    if(len(characters) <= 0):
-        print("No voices selected. Exiting.")
-        exit()
-
-    # visually describe the character for image generation
-    character_descriptions = describe_characters(characters, args)
+    if(not args.script):
+        possible_characters = get_characters_in_prompt(prompt)
+        characters = select_characters(possible_characters, args)
+        if(len(characters) <= 0):
+            print("No voices selected. Exiting.")
+            exit()
+    else:
+        characters = {data['name']: data for data in script['characters']}
 
     # generate the script for the video
-    lines = create_script(characters, args)
+    if(not args.script):
+        lines = create_script(characters, args)
+    else:
+        lines = []
+        for line in script['lines']:
+            lines.append({
+                "speaker": line['speaker'],
+                "text": line['speech'],
+                "action": "",
+            })
+
+    # visually describe the character for image generation
+    if(not args.script):
+        character_descriptions = describe_characters(characters, args)
+    else:
+        character_descriptions = dict()
+        for name, data in characters.items():
+            character_descriptions[name] = data['description']
 
     # convert data into correct format for rest of process
     for i, name in enumerate(characters):
         characters[name]['description'] = character_descriptions[name]
-        characters[name]['voice_token'] = characters[name]['model_token'] if args.high_quality_audio else ''
+        if(args.script):
+            characters[name]['voice_token'] = characters[name]['voice_token'] if args.high_quality_audio else ''
+        else:
+            characters[name]['voice_token'] = characters[name]['model_token'] if args.high_quality_audio else ''
 
     # generate the prompts used to generate images with stable diffusion
     prompts = generate_prompts(lines, characters, args.style)
@@ -63,10 +89,13 @@ def create_sitcom(args, config):
         }
         movieData.append(data)
 
-    if(not os.path.exists(f'./renders/{prompt}')):
-        os.makedirs(f'./renders/{prompt}')
+    filename = prompt
+    if(len(filename) > 50):
+        filename = filename[:50]
+    if(not os.path.exists(f'./renders/{filename}')):
+        os.makedirs(f'./renders/{filename}')
 
-    generate_movie(config['font'], movieData, f"./renders/{prompt}/{prompt}.mp4")
+    generate_movie(config['font'], movieData, f"./renders/{filename}/{filename}.mp4")
 
     # clean the tmp folder again
     shutil.rmtree('./tmp')

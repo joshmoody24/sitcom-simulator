@@ -1,0 +1,60 @@
+title="Mario and Luigi complain about a trashy TV show"
+
+characters = [
+    { name="Mario", description="Dieter F. Uchtdorf in black suit and tie", voice_token="TM:c7j599fz0pbg" },
+    { name="Luigi", description="David A. Bednar in black suit and tie", voice_token="TM:fp4fcyja6mk1" }
+]
+
+global_style = "in the sitcom How I Met Your Mother (1993)"
+
+[[lines]]
+speaker="Mario"
+speech="This show is terrible!"
+
+[[lines]]
+speaker="Luigi"
+speech="I know, right? It's like they're just trying to appeal to the lowest common denominator."
+
+[[lines]]
+speaker="Mario"
+speech="And what's with all the product placement?"
+
+[[lines]]
+speaker="Luigi"
+speech="I know! It's so blatant and obnoxious."
+
+[[lines]]
+speaker="Mario"
+speech="I just can't believe people actually watch this garbage."
+
+[[lines]]
+speaker="Luigi"
+speech="I know. It's just a waste of time."
+
+[[lines]]
+speaker="Mario"
+speech="By the way, did I tell you I have an onlyfans?"
+
+[[lines]]
+speaker="Luigi"
+speech="What?!"
+
+[[lines]]
+speaker="Mario"
+speech="Oh, yeah. I've been making a lot of money posting videos of myself eating pizza in my underwear."
+
+[[lines]]
+speaker="Luigi"
+speech="That's so trashy!"
+
+[[lines]]
+speaker="Mario"
+speech="I know. But people love it. And the money's good."
+
+[[lines]]
+speaker="Luigi"
+speech="I can't believe you're doing that."
+
+[[lines]]
+speaker="Mario"
+speech="Hey, it's a living."
