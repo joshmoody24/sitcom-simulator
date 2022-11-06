@@ -7,7 +7,7 @@ from tqdm import tqdm
 import os
 
 # takes in array of line models
-def generate_voice_clips(lines, high_quality=False):
+def generate_voice_clips(lines, characters, high_quality=False):
     if(not os.path.exists('./tmp')):
         os.mkdir('./tmp')
     if(high_quality):
@@ -22,21 +22,20 @@ def generate_voice_clips(lines, high_quality=False):
             }
             payload = {
                 "uuid_idempotency_token": entropy,
-                "tts_model_token": lines[i]["speaker"]["voice_token"],
+                "tts_model_token": characters[lines[i]["speaker"]]["voice_token"],
                 "inference_text": lines[i]["text"]
             }
             response = requests.post('https://api.fakeyou.com/tts/inference', headers=headers, json=payload)
-            print("printing response debug",response.text,"status code", response.status_code, "payload",payload)
             json = response.json()
             success = json['success']
             if(not success):
-                raise Exception("Some sort of API error occured", json)
+                raise Exception("Some sort of FakeYou API error occured", json)
                 break
             job_token = json['inference_job_token']
             job_tokens.append(job_token)
             time.sleep(job_delay)
         
-        # poll the jobs until al  are complete
+        # poll the jobs until all are complete
         poll_delay = 12
         audio_urls = []
         for i in tqdm(range(len(job_tokens)), desc="Waiting for audio to render"):

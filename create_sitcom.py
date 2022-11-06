@@ -33,28 +33,41 @@ def create_sitcom(args):
     # if multiple matches, user chooses which voice to use
     selected_voices = {}
     for name, voices in possible_characters.items():
-        print(f"\n\nCharacter detected in script: {name}\n")
-        selection = None
-        error = None
-        while(selection == None):
-            if(error):
-                print(f"\nError: {error}\n")
-            print("0. Do not include this character.")
-            for i, voice in enumerate(voices):
-                print(f"{i+1}. {voice['title']} by {voice['creator_display_name']}")
-            print('')
-            try:
-                selection = int(input("Which voice do you want to use for this character? (number) "))
-                if(selection > len(voices) or selection < 0):
+        print(f"\nCharacter detected in script: {name}\n")
+        # choose voice model (if high quality audio)
+        if(args.high_quality_audio):
+            selection = None
+            error = None
+            while(selection == None):
+                if(error):
+                    print(f"\nError: {error}\n")
+                print("0. Do not include this character.")
+                for i, voice in enumerate(voices):
+                    print(f"{i+1}. {voice['title']} by {voice['creator_display_name']}")
+                print('')
+                try:
+                    selection = int(input("Which voice do you want to use for this character? (number) "))
+                    if(selection > len(voices) or selection < 0):
+                        selection = None
+                        error = "Number out of range."
+                except Exception:
                     selection = None
-                    error = "Number out of range."
-            except Exception:
-                selection = None
-                error = "Please enter a valid number."
-        # go back to zero-indexing
-        selection -= 1
-        if(selection >= 0):
-            selected_voices[name] = voices[selection]
+                    error = "Please enter a valid number."
+            # go back to zero-indexing
+            selection -= 1
+            if(selection >= 0):
+                selected_voices[name] = voices[selection]
+        # ask user if they want to include this character (if low quality audio)
+        else:
+            include_character = None
+            while(include_character not in ['y', 'n']):
+                include_character = input("Include this character? (y/n) ").lower()
+            if(include_character == 'y'):
+                selected_voices[name] = dict()
+
+    if(len(selected_voices) <= 0):
+        print("No voices selected. Exiting.")
+        exit()
 
     # the final list of charactesr
     # it won't have all the data yet
@@ -88,17 +101,16 @@ def create_sitcom(args):
     # convert data into correct format for rest of process
     for i, name in enumerate(selected_voices):
         characters[name]['description'] = character_descriptions[name]
-        characters[name]['voice_token'] = selected_voices[name]['model_token']
+        characters[name]['voice_token'] = selected_voices[name]['model_token'] if args.high_quality_audio else ''
 
 
     prompts = generate_prompts(lines, characters, args.style)
     audio_extension = "wav" if args.high_quality_audio else "mp3"
-    generate_voice_clips(lines, args.high_quality_audio)
+    generate_voice_clips(lines, characters, args.high_quality_audio)
     generate_images(prompts, args.img_quality)
     movieData = []
     # sort the image files by create date to get them in order
     images = glob.glob('./tmp/*.png')
-    print(images)
     images.sort(key=os.path.getmtime, reverse=True)
     print(images)
     for i in range(len(lines)):
@@ -144,7 +156,6 @@ if(__name__ == "__main__"):
 
     # process command line arguments
     args = parse_args()
-    print(os.environ.get("OPENAI_KEY"))
 
     # do the magic
     create_sitcom(args)
