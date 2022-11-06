@@ -1,17 +1,14 @@
-
-import random
-import sys
-sys.path.append('sitcoms\stabilitysdk\stability-sdk-main\src\stability_sdk')
+# sys.path.append('sitcoms\stabilitysdk\stability-sdk-main\src\stability_sdk')
 from stability_sdk.client import StabilityInference, process_artifacts_from_answers, open_images, get_sampler_from_str
 from dotenv import load_dotenv
 import os
 from tqdm import tqdm
 
-def generate_prompts(lines, style=None):
+def generate_prompts(lines, characters, style=None):
     prompts = []
     for line in lines:
         # randomSitcom = random.choice(RealLifeSitcom.objects.all())
-        prompt = line["speaker"]["description"] if line["speaker"]["description"] else line["speaker"]["name"]
+        prompt = characters[line['speaker']]['description']
         if(style):
             prompt += f", {style}"
         prompts.append(prompt)
@@ -53,7 +50,7 @@ def generate_image(prompt, filename, quality=25, width=512, height=512):
 
     answers = stability_api.generate(prompt, **request)
     artifacts = process_artifacts_from_answers(
-        filename, prompt, answers, write=True, verbose=True
+        filename, prompt, answers, write=True, verbose=False
     )
 
     showimages = False
@@ -69,5 +66,5 @@ def generate_image(prompt, filename, quality=25, width=512, height=512):
 def generate_images(prompts, quality=25):
     counter = 1
     for prompt in tqdm(prompts, desc="Generating images"):
-        generate_image(prompt, f"./tmp/{counter}", quality)
+        generate_image(prompt, f"./tmp/{counter}-", quality)
         counter += 1

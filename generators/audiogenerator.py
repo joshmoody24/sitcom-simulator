@@ -4,9 +4,12 @@ import uuid
 import time
 from pathlib import Path
 from tqdm import tqdm
+import os
 
 # takes in array of line models
 def generate_voice_clips(lines, high_quality=False):
+    if(not os.path.exists('./tmp')):
+        os.mkdir('./tmp')
     if(high_quality):
         # start all the jobs
         job_tokens = []

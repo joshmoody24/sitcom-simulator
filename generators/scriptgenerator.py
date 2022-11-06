@@ -3,11 +3,10 @@ import os
 import random
 from tqdm import tqdm
 
-api_key = os.getenv("OPENAI_KEY")
-
 default_max_tokens = 128
 
 def generate_description(video_title):
+    api_key = os.getenv("OPENAI_KEY")
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
@@ -28,9 +27,12 @@ def generate_description(video_title):
     description = res.json()["choices"][0]['text'].strip()
     return description
 
-def generate_line(script_so_far, next_speaker, max_tokens=default_max_tokens, temperature=1):
-    prompt = script_so_far + next_speaker["name"] + ":"
+def generate_line(script_so_far, next_speaker_name, max_tokens=default_max_tokens, temperature=1):
+    prompt = script_so_far + next_speaker_name + ":"
+    api_key = os.getenv("OPENAI_KEY")
     # you can require actions by adding ' (' to the prompt
+    if(api_key == None):
+        raise Exception("No OpenAI API key provided")
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
@@ -51,7 +53,6 @@ def generate_line(script_so_far, next_speaker, max_tokens=default_max_tokens, te
         "stop": "\n",
     }
     next_line = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json)
-    print(headers,json,next_line.text)
     raw_text = next_line.json()["choices"][0]['text']
     split = raw_text.strip().split('\n')
     result = split[0]
@@ -74,7 +75,7 @@ def generate_line(script_so_far, next_speaker, max_tokens=default_max_tokens, te
         action = None
 
     return {
-        "speaker": next_speaker,
+        "speaker": next_speaker_name,
         "text": speech,
         "action": action,
     }
@@ -91,10 +92,10 @@ def generate_script(prompt, characters, max_lines, style="", max_tokens_per_line
     for i in tqdm(range(max_lines), "Generating script"):
         script_so_far = prompt + "\n\n"
         for prev in lines:
-            script_so_far += f'{prev["speaker"]["name"]}: {prev["text"]}\n'
+            script_so_far += f'{prev["speaker"]}: {prev["text"]}\n'
         # randomly select next speaker
-        prev_speaker_id = lines[-1]["speaker"]["id"] if len(lines) > 0 else ""
-        next_speaker_candidates = [char for char in characters if char["id"] != prev_speaker_id]
+        prev_speaker_name = lines[-1]["speaker"] if len(lines) > 0 else ""
+        next_speaker_candidates = [name for name in characters if name != prev_speaker_name]
         if(len(characters) == 1):
             next_speaker_candidates.append(characters[0])
         next_speaker = random.choice(next_speaker_candidates)
