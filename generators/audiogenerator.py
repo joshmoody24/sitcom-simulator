@@ -7,13 +7,13 @@ from tqdm import tqdm
 import os
 
 # takes in array of line models
-def generate_voice_clips(lines, characters, high_quality=False):
+def generate_voice_clips(lines, characters, high_quality=False, config=None):
     if(not os.path.exists('./tmp')):
         os.mkdir('./tmp')
     if(high_quality):
         # start all the jobs
         job_tokens = []
-        job_delay = 52
+        job_delay = config['job_delay'] if 'job_delay' in config else 52
         for i in tqdm(range(len(lines)), desc="Starting voice jobs"):
             entropy = str(uuid.uuid4())
             voice_token = characters[lines[i]["speaker"]]["voice_token"]
@@ -39,7 +39,7 @@ def generate_voice_clips(lines, characters, high_quality=False):
             time.sleep(job_delay)
         
         # poll the jobs until all are complete
-        poll_delay = 12
+        poll_delay = config['poll_delay'] if 'poll_delay' in config else 12
         audio_urls = []
         for i in tqdm(range(len(job_tokens)), desc="Waiting for audio to render"):
             completed = False

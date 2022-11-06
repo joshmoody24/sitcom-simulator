@@ -8,10 +8,12 @@ from generators.moviegenerator import generate_movie
 from utils.argparser import parse_args
 from utils.fakeyou import get_characters_in_prompt
 from utils.userinput import select_characters, create_script, describe_characters
+from utils.toml import load_toml
 
-def create_sitcom(args):
+def create_sitcom(args, config):
     # clean the tmp folder to make sure we're starting fresh
-    shutil.rmtree('./tmp')
+    if(os.path.exists(f'./tmp')):
+        shutil.rmtree('./tmp')
 
     if(args.prompt == None and args.script == None):
         args.prompt = input("Enter a prompt to generate the video script: ")
@@ -42,7 +44,7 @@ def create_sitcom(args):
     # generating voice clips can take a LONG time if args.high_quality_audio == True
     # because of long delays to avoid API timeouts on FakeYou.com
     audio_extension = "wav" if args.high_quality_audio else "mp3"
-    generate_voice_clips(lines, characters, args.high_quality_audio)
+    generate_voice_clips(lines, characters, args.high_quality_audio, config)
 
     # save generating images till last since it costs money
     # don't want to crash afterward
@@ -64,7 +66,7 @@ def create_sitcom(args):
     if(not os.path.exists(f'./renders/{prompt}')):
         os.makedirs(f'./renders/{prompt}')
 
-    generate_movie(movieData, f"./renders/{prompt}/{prompt}.mp4")
+    generate_movie(config['font'], movieData, f"./renders/{prompt}/{prompt}.mp4")
 
     # clean the tmp folder again
     shutil.rmtree('./tmp')
@@ -74,6 +76,7 @@ if(__name__ == "__main__"):
 
     load_dotenv(find_dotenv())
     args = parse_args()
+    config = load_toml('config.toml')
     
     # do the magic
-    create_sitcom(args)
+    create_sitcom(args, config)
