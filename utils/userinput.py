@@ -61,7 +61,7 @@ def select_characters(possible_characters, args):
 def create_script(characters, args):
     # keep generating scripts until user approves
     while(True):
-        lines = generate_script(f"A script for {args.prompt}", characters, args.max_length)
+        lines = generate_script(f"A script for a movie in which {args.prompt}", characters, args.max_length)
         # line['action'] is also a thing. Not being used at the moment. For example "Mario (running towards Luigi):"
         print("\nScript:\n", '\n'.join([f'{line["speaker"]}: {line["text"]}' for line in lines]))
         if(args.validate_script):
