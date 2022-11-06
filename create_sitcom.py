@@ -20,6 +20,7 @@ def create_sitcom(args, config):
 
     if(args.script):
         script = load_toml(args.script)
+        args.style = script['global_style']
 
     if(args.script):
         args.prompt = script['title']
