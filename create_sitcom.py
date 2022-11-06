@@ -1,118 +1,58 @@
-# two modes - auto and manual
-
-# start with auto
-
 import os
 import shutil
+import glob
 from dotenv import load_dotenv, find_dotenv
-import random
-from generators.scriptgenerator import generate_script, generate_description
 from generators.imagegenerator import generate_prompts, generate_images, generate_image
 from generators.audiogenerator import generate_voice_clips
 from generators.moviegenerator import generate_movie
 from utils.argparser import parse_args
 from utils.fakeyou import get_characters_in_prompt
-from utils.toml import load_toml
-import sys
-import glob
+from utils.userinput import select_characters, create_script, describe_characters
 
 def create_sitcom(args):
+    # clean the tmp folder to make sure we're starting fresh
+    shutil.rmtree('./tmp')
+
     if(args.prompt == None and args.script == None):
-        args.prompt = input("Please enter a prompt to generate the video script: ")
+        args.prompt = input("Enter a prompt to generate the video script: ")
 
     # clean prompt
     prompt = args.prompt.replace('-', ' ')
 
-    # load custom high-quality character data
-    curated_characters = load_toml("./characters/characters.toml")
-
-    print("--- Character Voice Selection ---")    
-    # scan the prompt for character names
     possible_characters = get_characters_in_prompt(prompt)
-
-    # if multiple matches, user chooses which voice to use
-    selected_voices = {}
-    for name, voices in possible_characters.items():
-        print(f"\nCharacter detected in script: {name}\n")
-        # choose voice model (if high quality audio)
-        if(args.high_quality_audio):
-            selection = None
-            error = None
-            while(selection == None):
-                if(error):
-                    print(f"\nError: {error}\n")
-                print("0. Do not include this character.")
-                for i, voice in enumerate(voices):
-                    print(f"{i+1}. {voice['title']} by {voice['creator_display_name']}")
-                print('')
-                try:
-                    selection = int(input("Which voice do you want to use for this character? (number) "))
-                    if(selection > len(voices) or selection < 0):
-                        selection = None
-                        error = "Number out of range."
-                except Exception:
-                    selection = None
-                    error = "Please enter a valid number."
-            # go back to zero-indexing
-            selection -= 1
-            if(selection >= 0):
-                selected_voices[name] = voices[selection]
-        # ask user if they want to include this character (if low quality audio)
-        else:
-            include_character = None
-            while(include_character not in ['y', 'n']):
-                include_character = input("Include this character? (y/n) ").lower()
-            if(include_character == 'y'):
-                selected_voices[name] = dict()
-
-    if(len(selected_voices) <= 0):
+    characters = select_characters(possible_characters, args)
+    if(len(characters) <= 0):
         print("No voices selected. Exiting.")
         exit()
 
-    # the final list of charactesr
-    # it won't have all the data yet
-    # but it will have enough to generate the script
-    characters = {}
-    for i, name in enumerate(selected_voices):
-        characters[name] = dict()
-    # keep generating scripts until user approves
-    while(True):
-        lines = generate_script(f"A script for {args.prompt}", characters, args.max_length)
-        # line['action'] is also a thing. Not being used at the moment. For example "Mario (running towards Luigi):"
-        print("\nScript:\n", '\n'.join([f'{line["speaker"]}: {line["text"]}' for line in lines]))
-        if(args.validate_script):
-            validated = input("Do you approve this script? (y/n): ")
-            if(validated.lower() == "y"):
-                break
-            else:
-                continue
-        else:
-            break
+    # visually describe the character for image generation
+    character_descriptions = describe_characters(characters, args)
 
-    # user types visual descriptions for each character for stable diffusion
-    character_descriptions = {}
-    print("\n--- Image Prompt Descriptions ---\n")
-    for name, voice in selected_voices.items():
-        description = input(f"Please enter a visual description of [{name}] or leave blank to use their name: ({name}) ")
-        if(description == None or description.strip() == ""):
-            description = name
-        character_descriptions[name] = description
+    # generate the script for the video
+    lines = create_script(characters, args)
 
     # convert data into correct format for rest of process
-    for i, name in enumerate(selected_voices):
+    for i, name in enumerate(characters):
         characters[name]['description'] = character_descriptions[name]
-        characters[name]['voice_token'] = selected_voices[name]['model_token'] if args.high_quality_audio else ''
+        characters[name]['voice_token'] = characters[name]['model_token'] if args.high_quality_audio else ''
 
-
+    # generate the prompts used to generate images with stable diffusion
     prompts = generate_prompts(lines, characters, args.style)
+
+    # generating voice clips can take a LONG time if args.high_quality_audio == True
+    # because of long delays to avoid API timeouts on FakeYou.com
     audio_extension = "wav" if args.high_quality_audio else "mp3"
     generate_voice_clips(lines, characters, args.high_quality_audio)
+
+    # save generating images till last since it costs money
+    # don't want to crash afterward
     generate_images(prompts, args.img_quality)
+
+    # set up the filesystem to prepare for the movie generation
     movieData = []
     # sort the image files by create date to get them in order
     images = glob.glob('./tmp/*.png')
-    images.sort(key=os.path.getmtime, reverse=True)
-    print(images)
+    images.sort(key=os.path.getmtime)
     for i in range(len(lines)):
         data = {
             'caption': lines[i]["text"],
@@ -121,41 +61,19 @@ def create_sitcom(args):
         }
         movieData.append(data)
 
-    video_title = prompt
-    if(not os.path.exists(f'./renders/{video_title}')):
-        os.makedirs(f'./renders/{video_title}')
-    generate_movie(movieData, f"./renders/{video_title}/{video_title}.mp4")
+    if(not os.path.exists(f'./renders/{prompt}')):
+        os.makedirs(f'./renders/{prompt}')
 
-    # clean the tmp folder 
+    generate_movie(movieData, f"./renders/{prompt}/{prompt}.mp4")
+
+    # clean the tmp folder again
     shutil.rmtree('./tmp')
-
-    # all the commented sections below are auto-generated YouTube thumbnails and descriptions
-    # it works, but the youtube api restricts videos,
-    # so I've temporarily disabled this functionality
-    # while figuring out a better system
-
-    # generate description
-    # temporarily disabled
-    # description = generate_description(video_title)
-    # yt forces the video to be private. Looking into it.
-    # upload_to_yt(f"./renders/{video_title}.mp4", video_title, description, keywords, privacyStatus="public")
-    # file1 = open(f"./renders/{video_title}/description.txt", "w")  # append mode
-    # file1.write(description)
-    # file1.close()
-
-    # generate thumbnail for youtube
-    # temporarily disabled
-    # generate_image(f'{video_title} youtube centered clickbait', f'./renders/{video_title}/thumbnail', quality=args.img_quality, width=512, height=512)
-
 
 if(__name__ == "__main__"):
     print("\nSitcom Simulator\nBy Josh Moody\n")
 
-    # load environment variables from .env file
     load_dotenv(find_dotenv())
-
-    # process command line arguments
     args = parse_args()
-
+    
     # do the magic
     create_sitcom(args)

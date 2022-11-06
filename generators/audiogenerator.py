@@ -16,13 +16,16 @@ def generate_voice_clips(lines, characters, high_quality=False):
         job_delay = 52
         for i in tqdm(range(len(lines)), desc="Starting voice jobs"):
             entropy = str(uuid.uuid4())
+            voice_token = characters[lines[i]["speaker"]]["voice_token"]
+            # basic-sounding microsoft cortana voice
+            DEFAULT_VOICE = 'TM:5a3eejej7efk'
             headers = {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
             payload = {
                 "uuid_idempotency_token": entropy,
-                "tts_model_token": characters[lines[i]["speaker"]]["voice_token"],
+                "tts_model_token": voice_token if voice_token else DEFAULT_VOICE,
                 "inference_text": lines[i]["text"]
             }
             response = requests.post('https://api.fakeyou.com/tts/inference', headers=headers, json=payload)

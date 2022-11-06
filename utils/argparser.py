@@ -15,6 +15,7 @@ def parse_args():
     parser.add_argument('-s', '--style', type=str, help="a string that gets appended to image generation to customize image style")
     parser.add_argument('-f', '--script', type=str, help="use a custom TOML script file instead of generating one")
     parser.add_argument('-c', '--custom-voices', action="store_true", help="manually select voices instead of using the default for each character")
+    parser.add_argument('-y', '--yes', action="store_true", help="answer prompts automatically with 'yes' or default value")
 
     args = parser.parse_args()
     return args
