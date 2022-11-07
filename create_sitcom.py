@@ -18,29 +18,12 @@ def create_sitcom(args, config):
     if(args.prompt == None and args.script == None):
         args.prompt = input("Enter a prompt to generate the video script: ")
 
+    # if using an existing script file
     if(args.script):
         script = load_toml(args.script)
         args.style = script['global_style']
-
-    if(args.script):
         args.prompt = script['title']
-    
-    # clean prompt
-    prompt = args.prompt.replace('-', ' ')
-
-    if(not args.script):
-        possible_characters = get_characters_in_prompt(prompt)
-        characters = select_characters(possible_characters, args)
-        if(len(characters) <= 0):
-            print("No voices selected. Exiting.")
-            exit()
-    else:
         characters = {data['name']: data for data in script['characters']}
-
-    # generate the script for the video
-    if(not args.script):
-        lines = create_script(characters, args)
-    else:
         lines = []
         for line in script['lines']:
             lines.append({
@@ -48,14 +31,23 @@ def create_sitcom(args, config):
                 "text": line['speech'],
                 "action": "",
             })
-
-    # visually describe the character for image generation
-    if(not args.script):
-        character_descriptions = describe_characters(characters, args)
-    else:
+        # visually describe the character for image generation
         character_descriptions = dict()
         for name, data in characters.items():
             character_descriptions[name] = data['description']
+
+    # if generating a script with GPT-3
+    else:
+        # clean prompt
+        prompt = args.prompt.replace('-', ' ')
+        possible_characters = get_characters_in_prompt(prompt)
+        characters = select_characters(possible_characters, args)
+        if(len(characters) <= 0):
+            print("No voices selected. Exiting.")
+            exit()
+        lines = create_script(characters, args)
+        # visually describe the character for image generation
+        character_descriptions = describe_characters(characters, args)
 
     # convert data into correct format for rest of process
     for i, name in enumerate(characters):
@@ -92,7 +84,7 @@ def create_sitcom(args, config):
 
     filename = prompt
     if(len(filename) > 50):
-        filename = filename[:50]
+        filename = filename[:50].strip()
     if(not os.path.exists(f'./renders/{filename}')):
         os.makedirs(f'./renders/{filename}')
 
