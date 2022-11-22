@@ -8,7 +8,7 @@ def generate_prompts(lines, characters, style=None):
     prompts = []
     for line in lines:
         # randomSitcom = random.choice(RealLifeSitcom.objects.all())
-        prompt = characters[line['speaker']]['description']
+        prompt = characters[line['speaker']]['description'] if ('custom_prompt' not in line or line['custom_prompt'] == None) else line['custom_prompt']
         if(style):
             prompt += f", {style}"
         prompts.append(prompt)

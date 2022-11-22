@@ -30,6 +30,7 @@ def create_sitcom(args, config):
                 "speaker": line['speaker'],
                 "text": line['speech'],
                 "action": "",
+                "custom_prompt": line['custom_prompt'] if 'custom_prompt' in line else None,
             })
         # visually describe the character for image generation
         character_descriptions = dict()
