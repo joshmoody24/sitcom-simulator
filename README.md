@@ -23,9 +23,10 @@ IMAGEMAGICK_BINARY='path to magick.exe goes here' # needed on windows, optional 
 6. You're all set to start making terrible movies!
 
 ### YouTube API Setup
-Sitcom Simulator supports automated YouTube video uploads. The process for setting it up is a bit tricky, but here's a broad overview. Hit me up if you have any questions.
+Sitcom Simulator supports automated YouTube video uploads. The process for setting it up is a bit tricky, but here's a broad overview. I'll create a more in-depth tutorial if there's interest in that. Hit me up.
 1. Install the Google APIs Client Library for Python: `pip install --upgrade google-api-python-client google-auth-oauthlib google-auth-httplib2 oauth2client`
-2. In Google Cloud, create a new project that has access to the YouTube Data v3 API. Then downlaod your client_secrets csv, name it `client_secrets.json` and put it in the `social` directory
+2. In Google Cloud, create a new project that has access to the YouTube Data v3 API. Then download your client_secrets csv, name it `client_secrets.json` and put it in the `social` directory
+3. Use the -u flag to upload the final result to YouTube (it will prompt you to log in)
 
 ### Usage
 `python create_sitcom.py [-h] [-a] [-q IMG_QUALITY] [-l MAX_LENGTH] [-v] [-p PROMPT] [-s STYLE] [-y]`
