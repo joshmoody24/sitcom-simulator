@@ -43,6 +43,22 @@ default_voice = "TM:rawayafee2a2"
 image_prompt = "joey wheeler, male, anime, spiky hair, blond, bangs, jacket"
 default_voice = "TM:9ahjngw6xsc7"
 
+["Seto Kaiba"]
+image_prompt = "Seto Kaiba"
+default_voice = "TM:xa5e6b8z5y7q"
+
+["Tristan Taylor"]
+image_prompt = "Tristan Taylor, anime"
+default_voice = "TM:9z24nzyvc2r4"
+
+["Mokuba Kaiba"]
+image_prompt = "Mokuba Kaiba"
+default_voice = "TM:yvf2q0p6svsg"
+
+["Mai Valentine"]
+image_prompt = "Mai Valentine, anime"
+default_voice = "TM:2ffp1en0xd9f"
+
 [Mario]
 image_prompt = "Mario with red cap and mustache"
 default_voice = "TM:c7j599fz0pbg"
@@ -58,6 +74,9 @@ default_voice = "TM:3e0wsf4wqcpv"
 [Wario]
 image_prompt = "Wario"
 default_voice = "TM:pwwcbzscesd0"
+
+["Slippy Toad"]
+image_prompt = ""
 
 [Voldemort]
 image_prompt = "Voldemort"
@@ -118,3 +137,7 @@ default_voice = "TM:4jhmevqnrqp5"
 ["Elon Musk"]
 image_prompt = "Elon Musk"
 default_voice = "TM:sbkwx83wahb1"
+
+["TheOdd1sOut"]
+image_prompt = "TheOdd1sOut white round happy cartoon man smile"
+default_voice = "TM:1fayhyx6dcs4"
