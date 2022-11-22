@@ -90,3 +90,31 @@ default_voice = "TM:58vtv7x9f32c"
 ["Jack Sparrow"]
 image_prompt = "Jack Sparrow"
 default_voice = "TM:da7yzmfnb8f8"
+
+["Jaiden Animations"]
+image_prompt = "JaidenAnimations white background digital black and white drawing of young cartoon woman, adobe animate"
+default_voice = "TM:5dvdrx4rx66j"
+
+["Shaggy Rogers"]
+image_prompt = "Shaggy Rogers, scooby doo cartoon"
+default_voice = "TM:nafjqbyvq9jm"
+
+["Scooby Doo"]
+image_prompt = "Scooby Doo, cartoon dog"
+default_voice = "TM:3fcxdr8nyvgm"
+
+["Ash Ketchum"]
+image_prompt = "Ash Ketchum, cartoon, pokemon"
+default_voice = "TM:en3qrb031jz4"
+
+["Meowth"]
+image_prompt = "Meowth, pokemon"
+default_voice = "TM:cqa6nrcqhn8j"
+
+["Queen Elizabeth II"]
+image_prompt = "Queen Elizabeth II"
+default_voice = "TM:4jhmevqnrqp5"
+
+["Elon Musk"]
+image_prompt = "Elon Musk"
+default_voice = "TM:sbkwx83wahb1"

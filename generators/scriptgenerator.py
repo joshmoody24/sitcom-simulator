@@ -12,7 +12,7 @@ def generate_description(video_title):
         "Authorization": f"Bearer {api_key}"
     }
     json = {
-        "model": "text-davinci-002",
+        "model": "text-curie-001",
         "prompt": f"a youtube video description for a video titled \"{video_title}\"",
         "max_tokens": 256,
         "temperature": 1,
