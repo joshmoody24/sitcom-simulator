@@ -15,6 +15,7 @@ def parse_args():
     parser.add_argument('-s', '--style', type=str, help="a string that gets appended to image generation to customize image style")
     parser.add_argument('-f', '--script', metavar='PATH', type=str, help="use a custom TOML script file instead of generating one (see example script)")
     parser.add_argument('-y', '--yes', action="store_true", help="answer prompts automatically with 'yes' or default value")
+    parser.add_argument('-u', '--upload', action="store_true", help="upload the generated video to YouTube")
 
     args = parser.parse_args()
     return args

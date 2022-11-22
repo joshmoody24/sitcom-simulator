@@ -2,13 +2,15 @@ import os
 import shutil
 import glob
 from dotenv import load_dotenv, find_dotenv
-from generators.imagegenerator import generate_prompts, generate_images, generate_image
+from generators.imagegenerator import generate_prompts, generate_images
 from generators.audiogenerator import generate_voice_clips
 from generators.moviegenerator import generate_movie
+from generators.scriptgenerator import generate_description
 from utils.argparser import parse_args
 from utils.fakeyou import get_characters_in_prompt
 from utils.userinput import select_characters, create_script, describe_characters
 from utils.toml import load_toml
+from social.yt_uploader import upload_to_yt
 
 def create_sitcom(args, config):
     # clean the tmp folder to make sure we're starting fresh
@@ -83,7 +85,7 @@ def create_sitcom(args, config):
         }
         movieData.append(data)
 
-    filename = prompt
+    filename = args.prompt
     if(len(filename) > 50):
         filename = filename[:50].strip()
     if(not os.path.exists(f'./renders/{filename}')):
@@ -94,6 +96,8 @@ def create_sitcom(args, config):
     # clean the tmp folder again
     shutil.rmtree('./tmp')
 
+    return f"./renders/{filename}/{filename}.mp4"
+
 if(__name__ == "__main__"):
     print("\nSitcom Simulator\nBy Josh Moody\n")
 
@@ -102,4 +106,9 @@ if(__name__ == "__main__"):
     config = load_toml('config.toml')
     
     # do the magic
-    create_sitcom(args, config)
+    video_path = create_sitcom(args, config)
+    if(args.upload):
+        title = args.prompt
+        description = generate_description(title)
+        keywords = [word for word in description.split() if len(word) > 3]
+        upload_to_yt(video_path, title, description, keywords, "24", "public")

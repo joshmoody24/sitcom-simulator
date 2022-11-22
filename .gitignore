@@ -6,6 +6,7 @@ renders/
 client_secrets.json
 *-oauth2.json
 sitcomcli.sqlite3
+custom_scripts/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
