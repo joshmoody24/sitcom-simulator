@@ -45,7 +45,7 @@ def generate_image(prompt, filename, quality=25, width=512, height=512):
     }
 
     stability_api = StabilityInference(
-        STABILITY_HOST, STABILITY_KEY, engine='stable-diffusion-v1-5', verbose=True
+        STABILITY_HOST, STABILITY_KEY, engine='stable-diffusion-768-v2-1', verbose=True
     )
 
     answers = stability_api.generate(prompt, **request)

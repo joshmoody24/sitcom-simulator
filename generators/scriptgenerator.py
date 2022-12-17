@@ -53,7 +53,12 @@ def generate_line(script_so_far, next_speaker_name, max_tokens=default_max_token
         "stop": "\n",
     }
     next_line = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json)
-    raw_text = next_line.json()["choices"][0]['text']
+    try:
+        raw_text = next_line.json()["choices"][0]['text']
+    except Exception:
+        print("Error processing data from GPT-3")
+        print(next_line.json())
+        exit()
     split = raw_text.strip().split('\n')
     result = split[0]
     # was the ai trying to continue the script?
