@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+def upload_to_yt():
+    pass # uncomment this below eventually
+
+'''
 import http.client as httplib
 import httplib2
 import os
@@ -178,3 +182,5 @@ def upload_to_yt(videoPath, title, description, keywords=[], category="24", priv
     initialize_upload(youtube, args)
   except HttpError as e:
     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+
+    '''

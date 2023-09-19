@@ -1,5 +1,3 @@
-from moviepy.editor import *
-
 # example input
 '''
 [{
@@ -13,6 +11,7 @@ VIDEO_HEIGHT = 1280
 VIDEO_WIDTH = 720
 
 def generate_movie(font, dialogueData=[{}], output_path="output.mp4"):
+    return # TODO
     dialogue_clips = []
     for dialogue in dialogueData:
 

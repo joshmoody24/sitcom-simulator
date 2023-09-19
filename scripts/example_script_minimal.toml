@@ -1,0 +1,14 @@
+title="Mario sits there"
+description="He sittin there"
+global_image_style="photograph, living room"
+
+[[characters]]
+name = "Mario"
+default_image_prompt = "Mario with red cap and mustache"
+voice_token="TM:c7j599fz0pbg"
+
+# ----------------------------------
+
+[[lines]]
+character="Mario"
+speech="I wish I was eating a mushroom right now."
