@@ -4,7 +4,7 @@ load_dotenv()
 import os
 import shutil
 import glob
-from generator.models import Line, Character
+from generator.models import Line, Character, SpeechClip
 from generator.script_generator import generate_script
 from generator.audio_generator import generate_voice_clips
 from generator.image_generator import generate_images
@@ -55,32 +55,29 @@ def create_sitcom(args, config):
     ) for line in script['lines']]
 
     audio_extension = "wav" if args.high_quality_audio else "mp3"
-    generate_voice_clips(lines, characters, args.high_quality_audio, config)
+    generate_voice_clips(lines, characters, args.high_quality_audio and not args.debug, config)
 
-    # save generating images till last since it costs money
-    # don't want to crash afterward
-    generate_images(lines, args.img_quality, args.style)
+    # save generating images till last since it costs money - don't want something else to crash afterward
+    generate_images(lines=lines, quality=args.img_quality, global_style=args.style, debug=args.debug)
 
     # set up the filesystem to prepare for the movie generation
     movie_data = []
+    
     # sort the image files by create date to get them in order
     images = glob.glob('./tmp/*.png')
     images.sort(key=os.path.getmtime)
-    for i in range(len(lines)):
-        data = {
-            'caption': lines[i].speech,
-            'image': images[i],
-            'audio': f"./tmp/{i+1}.{audio_extension}"
-        }
-        movie_data.append(data)
+    voiceovers =  [f"./tmp/{i+1}.{audio_extension}" for i in range(len(images))]
+    movie_data = [SpeechClip(
+        caption=line.speech,
+        image=image,
+        audio=voiceover,
+    ) for line, image, voiceover in zip(lines, images, voiceovers)]
 
-    filename = args.prompt
-    if(len(filename) > 50):
-        filename = filename[:50].strip()
-    if(not os.path.exists(f'./renders/{filename}')):
-        os.makedirs(f'./renders/{filename}')
+    filename = args.prompt[:50].strip()
+    if(not os.path.exists(f'./renders/')):
+        os.makedirs(f'./renders/')
 
-    generate_movie(config['font'], movie_data, f"./renders/{filename}/{filename}.mp4")
+    generate_movie(movie_data, config['font'], f"./renders/{filename}.mp4")
 
     # clean the tmp folder again
     shutil.rmtree('./tmp')

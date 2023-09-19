@@ -6,3 +6,5 @@ fakeyou
 image
 ffmpeg-python
 gtts
+moviepy
+Pillow

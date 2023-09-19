@@ -1,15 +1,15 @@
-from .integrations.image import stability
+from .integrations.image import stability, pillow
 from tqdm import tqdm
 from typing import List
 from .models import Line
 
-def generate_image(line: Line, prefix: str, width=1024, height=1024, global_style=''):
-    stability.generate_image(prompt=line.image_prompt + ', ' + global_style, prefix=str(prefix) + '_', width=width, height=height)
-
-
 # TODO: make quality do something
-def generate_images(lines: List[Line], quality=25, global_style=''):
+def generate_images(lines: List[Line], quality=25, width=720, height=1280, global_style='', debug=True):
     counter = 1
     for line in tqdm(lines, desc="Generating images"):
-        generate_image(line, prefix=f"./tmp/{counter}_", global_style=global_style)
+        prefix = f"./tmp/{counter}_"
+        if not debug:
+            stability.generate_image(prompt=line.image_prompt + ', ' + global_style, prefix=str(prefix) + '_', width=width, height=height)
+        else:
+            pillow.generate_image(prefix + "empty.png")
         counter += 1

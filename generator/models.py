@@ -11,3 +11,9 @@ class Line:
     character: Character
     speech: str
     image_prompt: str
+
+@dataclass
+class SpeechClip:
+    caption: str
+    image: str
+    audio: str

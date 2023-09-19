@@ -16,6 +16,7 @@ def parse_args():
     parser.add_argument('-f', '--script', metavar='PATH', type=str, help="use a custom TOML script file instead of generating one (see example script)")
     parser.add_argument('-y', '--yes', action="store_true", help="answer prompts automatically with 'yes' or default value")
     parser.add_argument('-u', '--upload', action="store_true", help="upload the generated video to YouTube")
+    parser.add_argument('-d', '--debug', action="store_true", help="run the app with minimal integrations, to save time and money while debugging")
 
     args = parser.parse_args()
     return args
