@@ -3,7 +3,6 @@ A command-line tool for generating bad movies using GPT-3, Stable Diffusion, Fak
 
 ## Prerequisites
 - Python 3
-- ImageMagick executable (download [here](https://imagemagick.org/script/download.php#windows))
 - Stability API key (get one [here](https://beta.dreamstudio.ai/membership?tab=apiKeys))
 - OpenAI API key (get one [here](https://openai.com/api/))
 
@@ -17,7 +16,6 @@ A command-line tool for generating bad movies using GPT-3, Stable Diffusion, Fak
 ```
 OPENAI_KEY='openai api key goes here'
 STABILITY_KEY='stability api key goes here'
-IMAGEMAGICK_BINARY='path to magick.exe goes here' # needed on windows, optional on Linux/MacOS
 ```
 5. (Optional) Make sure the font variable in `config.toml` is a font installed on your computer
 6. You're all set to start making terrible movies!
@@ -29,18 +27,18 @@ Sitcom Simulator supports automated YouTube video uploads. The process for setti
 3. Use the -u flag to upload the final result to YouTube (it will prompt you to log in)
 
 ### Usage
-`python create_sitcom.py [-h] [-a] [-q IMG_QUALITY] [-l MAX_LENGTH] [-v] [-p PROMPT] [-s STYLE] [-y]`
+`python create_sitcom.py [-h] [-a] [-q IMG_QUALITY] [-t MAX_TOKENS] [-v] [-p PROMPT] [-s STYLE] [-y]`
 
 After some processing time, the video will be saved in the `renders` folder in the project directory
 
 #### Example Command
-`python create_sitcom.py --prompt "Luigi tells Mario about his service in the Vietnam war" --high-quality-audio --img-quality 30 --max-length 10 --validate-script --style "on the sitcom how I met your mother (1993)"`
+`python create_sitcom.py --prompt "Luigi tells Mario about his service in the Vietnam war" --high-quality-audio --img-quality 30 --max-tokens 2048 --validate-script --style "on the sitcom how I met your mother (1993)"`
 
 #### Arguments
 - -h, --help: view help message
 - -a, --high-quality-audio: use high quality deepfake audio instead of Google text-to-speech (significantly increases generation time)
 - -q N, --img-quality N: image quality for generated images (5-100)
-- -l N, --max-length N: max number of lines of dialogue in generated script
+- -t N, --max-tokens N: max number of tokens in generated script (token ~= 0.8 words)
 - -v, --validate-script: require user to approve generated script before creating video
 - -p PROMPT, --prompt PROMPT: the prompt for the script that gets send to GPT-3
 - -s STYLE, --style STYLE: a string that gets appended to image generation to customize image style
@@ -50,10 +48,10 @@ After some processing time, the video will be saved in the `renders` folder in t
 
 ## How it Works
 Sitcom Simulator is essentially duct tape that combines multiple different AI tools into one unholy abomination.
-- GPT-3 generates the video script
+- ChatGPT generates the video script
 - FakeYou generates voices for the characters
 - Stable Diffusion generates images for the characters
-- MoviePy connects the images and voices into a movie
+- FFmpeg connects the images and voices into a movie
 
 ## Contributions
 Want to help work on this project? I'm down! Feel free to contribute. Hit me up if you have any questions 😘

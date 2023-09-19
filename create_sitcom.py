@@ -102,6 +102,5 @@ if(__name__ == "__main__"):
     result = create_sitcom(args, config)
     if(args.upload):
         title = args.prompt
-        description = generate_description(title)
-        keywords = [word for word in description.split() if len(word) > 3]
+        keywords = [word for word in result.description.split() if len(word) > 3]
         upload_to_yt(result.path, result.title, result.description, keywords, "24", "public")
