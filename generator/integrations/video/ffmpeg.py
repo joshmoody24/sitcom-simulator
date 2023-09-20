@@ -14,7 +14,7 @@ def generate_movie(
         height:int=1280,
         clip_buffer_seconds=0.15,  # how much time to wait after characters finish talking
         min_clip_length=1.5,  # minimum time to hold on a clip
-        speaking_delay_seconds=0.08, # how long after the clip the audio kicks in
+        speaking_delay_seconds=0.12, # how long after the clip the audio kicks in
         caption_max_width=30,
     ):
 
@@ -124,4 +124,4 @@ def concatenate_videos(file_list, output_filename, background_music=None, bgm_vo
         concatenated_audio = ffmpeg.filter([concatenated_audio, bgm_input], 'amix')  # Mix concatenated audio and bgm
 
     # Output the concatenated streams
-    ffmpeg.output(concatenated_video, concatenated_audio, output_filename, vcodec='libx264', acodec='mp3').overwrite_output().run(quiet=True)
+    ffmpeg.output(concatenated_video, concatenated_audio, output_filename.replace(':', ''), vcodec='libx264', acodec='mp3').overwrite_output().run(quiet=True)

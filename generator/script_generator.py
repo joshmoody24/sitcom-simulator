@@ -19,7 +19,8 @@ def generate_script(characters: List[dict] | None, args) -> dict:
     while not approved:
         script = generate_script_draft(args.prompt, characters, args.max_tokens, args.max_lines)
         # TODO: show the image_prompt in the validation
-        print(script)
+        print(script) # DEBUG
+        print("Style: ", script.get('global_image_style', '(no global style)'))
         print("\nScript:\n", '\n'.join([f'{line["character"]}: ({line.get("image_prompt", "")}) {line["speech"]}' for line in script['lines']]))
         if(args.validate_script):
             validated = None
@@ -67,7 +68,7 @@ def generate_script_draft(
     lines (list of each line of dialog with the following attributes)
     \t- character (the name of the character talking)
     \t- speech (the words the character is saying - no asterisks or parentheticals)
-    \t- image_prompt (optional prompt for the AI image generator. Defaults to character default_image_prompt)
+    \t- image_prompt (prompt for the AI image generator. Gets combined with global_image_style)
 
     Image prompts should only depict one character at a time, to make it easier for the AI image generator.
 
