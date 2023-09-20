@@ -1,4 +1,5 @@
 import tomllib
+import random
 
 with open("./characters/characters.toml", "rb") as f:
     curated_characters = tomllib.load(f)
@@ -21,8 +22,12 @@ def select_characters(possible_characters, high_quality_audio:bool=False, full_a
                     if(voice['model_token'] == default_voice_token):
                         default_voice_index = i + 1
 
-            selection = None if full_auto == False else default_voice_index
+            selection = None
             error = None
+
+            if full_auto:
+                selection = default_voice_index or (random.choice(range(len(voices))) + 1)
+                
             while(selection == None):
                 if(error):
                     print(f"\nError: {error}\n")
