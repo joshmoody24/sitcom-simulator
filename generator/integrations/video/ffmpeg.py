@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 def generate_movie(
         dialogs: List[SpeechClip],
+        background_music: str | None,
         font: str,
         output_path="output.mp4",
         width:int=720,
@@ -23,8 +24,7 @@ def generate_movie(
     # If you want to add a transparent grey background box:
     box_style = ":box=1:boxcolor=black@0.4:boxborderw=10"
 
-    # Choose your style:
-    subtitle_style = shadow_style  # Change this to box_style to try the other style
+    subtitle_style = shadow_style # + box_style  # mix and match as desired
 
     intermediate_clips = []
     for i, dialog in enumerate(tqdm(dialogs, "Rendering intermediate video clips")):
@@ -44,7 +44,10 @@ def generate_movie(
         
         try:
             # create each clip of dialog as a separate video
-            video_input = ffmpeg.input(image_path, loop=1, framerate=24)
+            video_input = (
+                ffmpeg.input(image_path, loop=1, framerate=24)
+                .filter('scale', width, '-1')
+            )
             speaking_delay_ms =speaking_delay_seconds*1000
             audio_input = (
                 ffmpeg
@@ -54,23 +57,24 @@ def generate_movie(
             )
 
             # Modify the video input to include subtitles
-            subtitle_y_ratio_from_bottom = 7/24
+            subtitle_y_ratio_from_bottom = 6/24
+            scale_factor = width / 720
             video_with_subtitles = video_input.filter(
                 'drawtext',
                 text=wrapped_caption,
                 fontfile=font,
-                fontsize=42,
+                fontsize=42 * scale_factor, # scales the font size with 720px as the reference screen width
                 fontcolor='white',
                 text_align="M+C", # had to dig deep into FFmpeg source code to learn that you combine flags with a plus sign
                 x='(w - text_w) / 2',
                 y=f'(h - (text_h / 2)) - h*{subtitle_y_ratio_from_bottom}', **{
-                "shadowcolor": "black@0.7",
-                "shadowx": -4,
-                "shadowy": 4,
+                "shadowcolor": "black@0.6",
+                "shadowx": -4 * scale_factor,
+                "shadowy": 4 * scale_factor,
             } if subtitle_style == shadow_style else {
                 "box": 1,
-                "boxcolor": "black@0.4",
-                "boxborderw": 10
+                "boxcolor": "black@0.3",
+                "boxborderw": 10 * scale_factor
             })
 
             temp_clip_path = f'tmp/temp_{i}.mp4'
@@ -87,14 +91,15 @@ def generate_movie(
             continue
 
     print("Rendering final output...")
-    concatenate_videos(intermediate_clips, output_path)
+    concatenate_videos(intermediate_clips, output_path, background_music)
 
     # Cleanup temporary files
     for clip in intermediate_clips:
         os.remove(clip)
 
 
-def concatenate_videos(file_list, output_filename):
+def concatenate_videos(file_list, output_filename, background_music=None, bgm_volume=0.25):
+
     # Create input sets for each file in the list
     input_clips = [ffmpeg.input(f) for f in file_list]
     
@@ -105,6 +110,18 @@ def concatenate_videos(file_list, output_filename):
     # Concatenate each stream type separately
     concatenated_video = ffmpeg.concat(*video_streams, v=1, a=0)
     concatenated_audio = ffmpeg.concat(*audio_streams, v=0, a=1)
+
+    total_audio_duration = sum([float(ffmpeg.probe(f)['streams'][0]['duration']) for f in file_list])
     
+    # If background music is provided, adjust its volume and mix it with concatenated audio
+    if background_music:
+        bgm_input = (
+            ffmpeg
+            .input(background_music)
+            .filter('volume', str(bgm_volume))
+            .filter('atrim', duration=total_audio_duration)
+        )
+        concatenated_audio = ffmpeg.filter([concatenated_audio, bgm_input], 'amix')  # Mix concatenated audio and bgm
+
     # Output the concatenated streams
-    ffmpeg.output(concatenated_video, concatenated_audio, output_filename, acodec='mp3').overwrite_output().run(quiet=True)
+    ffmpeg.output(concatenated_video, concatenated_audio, output_filename, vcodec='libx264', acodec='mp3').overwrite_output().run(quiet=True)

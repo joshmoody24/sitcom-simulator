@@ -79,7 +79,7 @@ def generate_voice_clips(lines: List[Line], characters, config=None):
         time.sleep(job_delay)
     
     # poll the jobs until all are complete
-    poll_delay = config['poll_delay'] if 'poll_delay' in config else 12
+    poll_delay = config.get('poll_delay', 12)
     audio_urls = []
     for i in tqdm(range(len(job_tokens)), desc="Waiting for audio to render"):
         completed = False

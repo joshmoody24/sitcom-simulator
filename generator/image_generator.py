@@ -4,7 +4,7 @@ from typing import List
 from .models import Line
 
 # TODO: make quality do something
-def generate_images(lines: List[Line], quality=25, width=720, height=1280, global_style='', debug=True):
+def generate_images(lines: List[Line], quality=25, width=768, height=1344, global_style='', debug=True):
     counter = 1
     for line in tqdm(lines, desc="Generating images"):
         prefix = f"./tmp/{counter}_"

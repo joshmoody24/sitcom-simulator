@@ -8,3 +8,5 @@ ffmpeg-python
 gtts
 moviepy
 Pillow
+beautifulsoup4
+requests

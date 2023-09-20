@@ -6,13 +6,16 @@ import shutil
 import glob
 from generator.models import Line, Character, SpeechClip
 from generator.script_generator import generate_script
-from generator.audio_generator import generate_voice_clips
+from generator.tts_generator import generate_voice_clips
 from generator.image_generator import generate_images
 from generator.movie_generator import generate_movie
+from generator.music_generator import generate_music
+from generator.integrations.music.freepd import MusicCategory
 from utils.argparser import parse_args
 from social.yt_uploader import upload_to_yt
 import tomllib
 from dataclasses import dataclass
+import random
 
 @dataclass
 class VideoResult:
@@ -62,7 +65,7 @@ def create_sitcom(args, config):
 
     # set up the filesystem to prepare for the movie generation
     movie_data = []
-    
+
     # sort the image files by create date to get them in order
     images = glob.glob('./tmp/*.png')
     images.sort(key=os.path.getmtime)
@@ -77,10 +80,12 @@ def create_sitcom(args, config):
     if(not os.path.exists(f'./renders/')):
         os.makedirs(f'./renders/')
 
-    generate_movie(movie_data, config['font'], f"./renders/{filename}.mp4")
+    bgm = generate_music(script.get('bgm_category', None) or random.choice(MusicCategory.values()))
+    print(bgm)
+    generate_movie(movie_data, bgm, config['font'], f"./renders/{filename}.mp4")
 
     # clean the tmp folder again
-    shutil.rmtree('./tmp')
+    # shutil.rmtree('./tmp')
 
     return VideoResult(
         path=f"./renders/{filename}/{filename}.mp4",

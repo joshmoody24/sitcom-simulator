@@ -13,7 +13,7 @@ A command-line tool for generating bad movies using GPT-3, Stable Diffusion, Fak
 3. Install the dependencies: `pip install -r requirements.txt`
 4. Create a .env file in the root directory
 5. Put the following text into the .env file, replacing the variables with your API keys and file paths:
-```
+```bash
 OPENAI_KEY='openai api key goes here'
 STABILITY_KEY='stability api key goes here'
 ```

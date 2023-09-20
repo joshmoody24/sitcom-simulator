@@ -2,6 +2,7 @@ from .integrations.script import chatgpt
 from typing import List
 from .integrations.tts.fakeyou import get_possible_characters_from_prompt
 from .user_input import select_characters
+from .integrations.music.freepd import MusicCategory
 
 def generate_script(characters: List[dict] | None, args) -> dict:
     """Uses AI to generate a script matching the prompt.
@@ -14,7 +15,7 @@ def generate_script(characters: List[dict] | None, args) -> dict:
         characters = select_characters(possible_characters, high_quality_audio=args.high_quality_audio, full_auto=args.yes)
 
     # keep generating scripts until user approves
-    approved = not args.validate_script
+    approved = False
     while not approved:
         script = generate_script_draft(args.prompt, characters, args.max_tokens)
         # TODO: show the image_prompt in the validation
@@ -23,13 +24,10 @@ def generate_script(characters: List[dict] | None, args) -> dict:
             validated = None
             while validated not in ["y", "n", "q"]:
                 validated = input("Do you approve this script? (y/n/q): ").lower()
-                match validated:
-                    case "y": approved = True
-                    case "n": approved = False
-                    case "q": exit()
-                    case _:
-                        print("Unrecognized input. Try again.")
-                        continue
+                if validated == "y": approved = True
+                elif validated == "n": approved = False
+                elif validated == "q": exit()
+                else: print("Unrecognized input. Try again.")
         else:
             break
     return script
@@ -55,6 +53,7 @@ def generate_script_draft(
     title (title of the video)
     description (youtube description for the video)
     global_image_style (the visual style for the AI-generated images in the video)
+    bgm_category (genre of background music. Available categories are {", ".join(MusicCategory.values())})
     characters (list of characters with the following attributes)
     \t- name
     \t- default_image_prompt (default short visual prompt for the AI image generator)
@@ -68,7 +67,7 @@ def generate_script_draft(
 
     Example:
     title = "Mario slaps Luigi with a breadstick"
-    global_style = "in living room from the sitcom how I met your mother (1993)"
+    global_style = "photograph, in a living room from the sitcom how I met your mother (1993)"
 
     [[characters]]
     name = "Mario"
@@ -83,12 +82,12 @@ def generate_script_draft(
     [[lines]]
     character="Mario"
     speech="Hey Luigi, think fast!"
-    image_prompt="Mario with red cap and mustache, swinging breadstick aggressively with evil smirk"
+    image_prompt="close up photo of Mario with red cap and mustache, swinging breadstick aggressively with evil smirk"
 
     [[lines]]
     character="Luigi"
     speech="Ouch, I think you broke my nose! What did you do that for?"
-    image="Luigi in green cap, clutching his nose with both hands, eyes squeezed shut in agony"
+    image="dramatic photo of Luigi in green cap, clutching his nose with both hands, eyes squeezed shut in agony"
 
     ... etc.
     
