@@ -2,23 +2,29 @@ from moviepy.editor import *
 from ...models import SpeechClip
 from typing import List
 
-def generate_movie(dialogueData:List[SpeechClip], font:str, output_path="output.mp4", width:int=720, height:int=1280):
+def generate_movie(        
+        dialogs: List[SpeechClip],
+        font: str,
+        output_path="output.mp4",
+        width:int=720,
+        height:int=1280,
+        clip_buffer_seconds=0.35, # how much time to wait after characters finish talking
+        min_clip_length=1.5, # minimum time to hold on a clip
+        ):
     """
         MoviePy backend for generating videos.
         
-        While it still works, it is more limited in functionality than the FFmpeg backend and has thus been deprecated.
+        While it still mostly works, it is more limited in functionality than the FFmpeg backend and has thus been deprecated.
     """
-    dialogue_clips = []
-    for dialogue in dialogueData:
+    dialog_clips = []
+    for dialog in dialogs:
 
-        voiceover = AudioFileClip(dialogue['audio'])
+        voiceover = AudioFileClip(dialog.audio)
 
         # calculate the duration
-        hang_time = 0.35
-        duration = voiceover.duration + hang_time
-        min_length = 1.5
-        if(duration < min_length):
-            duration = min_length
+        duration = voiceover.duration + clip_buffer_seconds
+        if(duration < min_clip_length):
+            duration = min_clip_length
 
         # black background
         bg = ColorClip(size=(width,height), color=[0,0,0])
@@ -26,14 +32,14 @@ def generate_movie(dialogueData:List[SpeechClip], font:str, output_path="output.
         bg = bg.set_audio(voiceover)
 
         # the image
-        img_clip = ImageClip(dialogue['image'])
+        img_clip = ImageClip(dialog.image)
         img_clip = img_clip.resize(width/img_clip.w,height/img_clip.h)
         img_clip = img_clip.set_duration(duration)
         img_clip = img_clip.set_fps(24)
         img_clip = img_clip.set_position(('center', 'top'))
 
         # the caption
-        raw_caption = dialogue["caption"]
+        raw_caption = dialog.caption
         raw_caption_queue = raw_caption
         caption = ""
         # generate line breaks as necessary
@@ -56,7 +62,7 @@ def generate_movie(dialogueData:List[SpeechClip], font:str, output_path="output.
 
         video = CompositeVideoClip([bg, img_clip, txt_clip])
         video = video.set_fps(24)
-        dialogue_clips.append(video)
+        dialog_clips.append(video)
 
-    final_clip = concatenate_videoclips(dialogue_clips)
+    final_clip = concatenate_videoclips(dialog_clips)
     final_clip.write_videofile(output_path)

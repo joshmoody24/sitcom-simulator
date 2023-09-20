@@ -1,7 +1,6 @@
-from moviepy.editor import *
 from .models import SpeechClip
 from typing import List
-from .integrations.video import ffmpeg
+from .integrations.video import ffmpeg, moviepy
 
 # example input
 '''
