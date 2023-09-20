@@ -93,6 +93,7 @@ def generate_voice_clips(lines: List[Line], characters, config=None):
                 print("Some sort of polling error occurred", json)
                 break
             status = json["state"]["status"]
+            print(status)
             if(status == "pending" or status == "started"):
                 time.sleep(poll_delay)
                 continue

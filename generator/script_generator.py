@@ -41,8 +41,11 @@ def generate_script_draft(
         high_quality_audio:bool=False
         ) -> dict:
 
+    print("Generating script draft...")
+
     def character_string(name, voice) -> str:
-        return f"- {name} (voice_token = {voice if 'model_token' in voice else 'n/a'})"
+        model_token = ("'" + voice['model_token'] + "'") if 'model_token' in voice else 'n/a'
+        return f"- {name} (voice_token = {model_token})"
 
     available_characters_str = "\n".join(character_string(name, voice) for name, voice in characters.items())
 
@@ -95,10 +98,10 @@ def generate_script_draft(
     The characters at your disposal are:
     {available_characters_str}
     
+    Do not use any other characters.
     The provided character list is auto-generated and may contain innappropriate, irrelelvant, or duplicate characters.
-    Please filter these out according to your best judgement."""
+    Please filter these out according to your best judgement.
     
-    # debug
-    print("ChatGPT Prompt: ", chatgpt_prompt)
+    Do not output anything after the TOML."""
 
     return chatgpt.generate_script(chatgpt_prompt, temperature=temperature, max_tokens=max_tokens)

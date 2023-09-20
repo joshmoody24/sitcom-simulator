@@ -15,6 +15,9 @@ def generate_script(prompt, temperature: float, max_tokens:int=2048) -> dict:
     try:
         parsed_data = tomllib.loads(response)
     except tomllib.TOMLDecodeError:
-        parsed_data = tomllib.loads(response + '"')
+        try:
+            parsed_data = tomllib.loads(response + '"')
+        except tomllib.TOMLDecodeError:
+            raise tomllib.TOMLDecodeError("ChatGPT output was cut off midway through generation.", response)
 
     return parsed_data
