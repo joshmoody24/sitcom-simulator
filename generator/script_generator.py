@@ -19,7 +19,8 @@ def generate_script(characters: List[dict] | None, args) -> dict:
     while not approved:
         script = generate_script_draft(args.prompt, characters, args.max_tokens, args.max_lines)
         # TODO: show the image_prompt in the validation
-        print("\nScript:\n", '\n'.join([f'{line["character"]}: {line["speech"]}' for line in script['lines']]))
+        print(script)
+        print("\nScript:\n", '\n'.join([f'{line["character"]}: ({line.get("image_prompt", "")}) {line["speech"]}' for line in script['lines']]))
         if(args.validate_script):
             validated = None
             while validated not in ["y", "n", "q"]:
@@ -52,7 +53,7 @@ def generate_script_draft(
 
     chatgpt_prompt = f"""
     Write a script for a movie in which {prompt}.
-    No more than {max_lines} lines of dialog.
+    No more than {max_lines} lines of dialog. End it on a funny, unexpected twist.
     Your output should be TOML, with the following values. Each value is required unless specified to be optional.
 
     title (title of the video)
@@ -65,7 +66,7 @@ def generate_script_draft(
     \t- voice_token (provided for you)
     lines (list of each line of dialog with the following attributes)
     \t- character (the name of the character talking)
-    \t- speech (the words the character is saying)
+    \t- speech (the words the character is saying - no asterisks or parentheticals)
     \t- image_prompt (optional prompt for the AI image generator. Defaults to character default_image_prompt)
 
     Image prompts should only depict one character at a time, to make it easier for the AI image generator.
@@ -93,7 +94,7 @@ def generate_script_draft(
     
     Do not use any other characters.
     Filter out innappropriate, irrelelvant, or duplicate characters.
-    
+    Make sure all images are appropriate.
     Do not output anything after the TOML."""
 
     return chatgpt.generate_script(chatgpt_prompt, temperature=temperature, max_tokens=max_tokens)

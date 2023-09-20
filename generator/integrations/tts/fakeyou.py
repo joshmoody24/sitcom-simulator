@@ -19,7 +19,7 @@ def fetch_voicelist():
 def string_to_keywords(string: str, stop_at_first_paren=False) -> Set[str]:
     # don't match anything after the first parenthesis
     func = alphanumeric_to_first_paren if stop_at_first_paren else alphanumeric
-    return {keyword.lower() for keyword in func(string).split(' ') if len(keyword) > 3}
+    return {keyword.lower() for keyword in func(string).split(' ') if len(keyword) > 3 and keyword.lower() not in ['test', 'model']}
 
 def alphanumeric_to_first_paren(string: str) -> str:
     string = string.split('(')[0].strip().replace('-', ' ')

@@ -28,7 +28,7 @@ def create_sitcom(args, config):
     if(os.path.exists(f'./tmp')):
         shutil.rmtree('./tmp')
     os.makedirs('./tmp')
-
+    
     if(args.prompt == None and args.script == None):
         args.prompt = input("Enter a prompt to generate the video script: ")
 

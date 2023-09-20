@@ -90,7 +90,7 @@ def generate_movie(
             print(f"Error processing dialog: {e}")
             continue
 
-    print("Rendering final output...")
+    print("Rendering final output to", output_path, "...")
     concatenate_videos(intermediate_clips, output_path, background_music)
 
     # Cleanup temporary files
