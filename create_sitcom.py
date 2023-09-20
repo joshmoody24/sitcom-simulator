@@ -81,11 +81,10 @@ def create_sitcom(args, config):
         os.makedirs(f'./renders/')
 
     bgm = generate_music(script.get('bgm_category', None) or random.choice(MusicCategory.values()))
-    print(bgm)
     generate_movie(movie_data, bgm, config['font'], f"./renders/{filename}.mp4")
 
     # clean the tmp folder again
-    # shutil.rmtree('./tmp')
+    shutil.rmtree('./tmp')
 
     return VideoResult(
         path=f"./renders/{filename}/{filename}.mp4",

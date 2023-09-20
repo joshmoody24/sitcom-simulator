@@ -9,6 +9,7 @@ def parse_args():
 
     parser.add_argument('-a', '--high-quality-audio', action='store_true', help="use high quality deepfake audio instead of Google text-to-speech (significantly increases generation time)")
     parser.add_argument('-q', '--img-quality', metavar='N', type=int, default=35, help="image quality for generated images (5-100)")
+    parser.add_argument('-l', '--max-lines', metavar='N', type=int, default=15, help="max number of lines in generated script")
     parser.add_argument('-t', '--max-tokens', metavar='N', type=int, default=2048, help="max number of tokens in generated script")
     parser.add_argument('-v', '--validate-script', action='store_true', help="require user to approve generated script before creating video")
     parser.add_argument('-p', '--prompt', type=str, help="the prompt for the script that gets send to ChatGPT")

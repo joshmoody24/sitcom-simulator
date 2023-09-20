@@ -16,23 +16,27 @@ def fetch_voicelist():
         exit()
     return json['models']
 
-def string_to_keywords(string: str) -> Set[str]:
+def string_to_keywords(string: str, stop_at_first_paren=False) -> Set[str]:
     # don't match anything after the first parenthesis
-    return {keyword.lower() for keyword in alphanumeric_to_first_paren(string).split(' ') if len(keyword) > 3}
+    func = alphanumeric_to_first_paren if stop_at_first_paren else alphanumeric
+    return {keyword.lower() for keyword in func(string).split(' ') if len(keyword) > 3}
 
 def alphanumeric_to_first_paren(string: str) -> str:
     string = string.split('(')[0].strip().replace('-', ' ')
+    return alphanumeric(string)
+
+def alphanumeric(string: str):
     return re.sub(r'[^a-zA-Z0-9 ]', '', string)
 
 # scan the prompt for character names
 def get_possible_characters_from_prompt(prompt: str) -> List:
     possible_characters = dict()
     voices = fetch_voicelist()
-    prompt_keywords = string_to_keywords(prompt)
+    prompt_keywords = string_to_keywords(prompt, False)
     for voice in tqdm(voices, desc="Searching for characters in prompt:"):
         title = voice['title']
         character_name = alphanumeric_to_first_paren(title)
-        voice_keywords = string_to_keywords(title)
+        voice_keywords = string_to_keywords(title, True)
 
         if len(voice_keywords) == 0:
             continue
@@ -102,7 +106,7 @@ def generate_voice_clips(lines: List[Line], characters, config=None):
                 time.sleep(poll_delay)
                 continue
             else:
-                raise Exception("job failed, aborting")
+                raise Exception("job failed, aborting", json)
                 break
 
     # save to disk

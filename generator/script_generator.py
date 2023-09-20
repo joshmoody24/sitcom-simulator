@@ -17,7 +17,7 @@ def generate_script(characters: List[dict] | None, args) -> dict:
     # keep generating scripts until user approves
     approved = False
     while not approved:
-        script = generate_script_draft(args.prompt, characters, args.max_tokens)
+        script = generate_script_draft(args.prompt, characters, args.max_tokens, args.max_lines)
         # TODO: show the image_prompt in the validation
         print("\nScript:\n", '\n'.join([f'{line["character"]}: {line["speech"]}' for line in script['lines']]))
         if(args.validate_script):
@@ -36,6 +36,7 @@ def generate_script_draft(
         prompt: str,
         characters: List[dict],
         max_tokens: int,
+        max_lines: int,
         temperature: float=0.5,
         full_auto:bool=False,
         high_quality_audio:bool=False
@@ -50,7 +51,8 @@ def generate_script_draft(
     available_characters_str = "\n".join(character_string(name, voice) for name, voice in characters.items())
 
     chatgpt_prompt = f"""
-    Write a ~{round((max_tokens * 0.8)/10)*10}-word script for a movie in which {prompt}.
+    Write a script for a movie in which {prompt}.
+    No more than {max_lines} lines of dialog.
     Your output should be TOML, with the following values. Each value is required unless specified to be optional.
 
     title (title of the video)
@@ -59,12 +61,12 @@ def generate_script_draft(
     bgm_category (genre of background music. Available categories are {", ".join(MusicCategory.values())})
     characters (list of characters with the following attributes)
     \t- name
-    \t- default_image_prompt (default short visual prompt for the AI image generator)
-    \t- voice_token (this is provided for you)
+    \t- default_image_prompt (default visual prompt for the AI image generator)
+    \t- voice_token (provided for you)
     lines (list of each line of dialog with the following attributes)
     \t- character (the name of the character talking)
     \t- speech (the words the character is saying)
-    \t- image_prompt (an optional prompt for the AI image generator. Defaults to character default_image_prompt)
+    \t- image_prompt (optional prompt for the AI image generator. Defaults to character default_image_prompt)
 
     Image prompts should only depict one character at a time, to make it easier for the AI image generator.
 
@@ -77,30 +79,20 @@ def generate_script_draft(
     default_image_prompt = "Mario with red cap and mustache"
     voice_token="TM:c7j599fz0pbg"
 
-    [[characters]]
-    name = "Luigi"
-    default_image_prompt="Luigi with green cap and mustache"
-    voice_token="TM:fp4fcyja6mk1"
+    ... more characters.
 
     [[lines]]
     character="Mario"
     speech="Hey Luigi, think fast!"
     image_prompt="close up photo of Mario with red cap and mustache, swinging breadstick aggressively with evil smirk"
 
-    [[lines]]
-    character="Luigi"
-    speech="Ouch, I think you broke my nose! What did you do that for?"
-    image="dramatic photo of Luigi in green cap, clutching his nose with both hands, eyes squeezed shut in agony"
-
-    ... etc.
-    
+    ... more lines.
     
     The characters at your disposal are:
     {available_characters_str}
     
     Do not use any other characters.
-    The provided character list is auto-generated and may contain innappropriate, irrelelvant, or duplicate characters.
-    Please filter these out according to your best judgement.
+    Filter out innappropriate, irrelelvant, or duplicate characters.
     
     Do not output anything after the TOML."""
 

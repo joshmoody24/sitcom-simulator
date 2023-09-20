@@ -12,9 +12,9 @@ def generate_movie(
         output_path="output.mp4",
         width:int=720,
         height:int=1280,
-        clip_buffer_seconds=0.2,  # how much time to wait after characters finish talking
+        clip_buffer_seconds=0.15,  # how much time to wait after characters finish talking
         min_clip_length=1.5,  # minimum time to hold on a clip
-        speaking_delay_seconds=0.1, # how long after the clip the audio kicks in
+        speaking_delay_seconds=0.08, # how long after the clip the audio kicks in
         caption_max_width=30,
     ):
 
@@ -24,7 +24,7 @@ def generate_movie(
     # If you want to add a transparent grey background box:
     box_style = ":box=1:boxcolor=black@0.4:boxborderw=10"
 
-    subtitle_style = shadow_style # + box_style  # mix and match as desired
+    subtitle_style = box_style # + box_style  # mix and match as desired
 
     intermediate_clips = []
     for i, dialog in enumerate(tqdm(dialogs, "Rendering intermediate video clips")):
@@ -73,7 +73,7 @@ def generate_movie(
                 "shadowy": 4 * scale_factor,
             } if subtitle_style == shadow_style else {
                 "box": 1,
-                "boxcolor": "black@0.3",
+                "boxcolor": "black@0.5",
                 "boxborderw": 10 * scale_factor
             })
 
