@@ -1,6 +1,12 @@
 stability-sdk
 python-dotenv
-moviepy
 tqdm
+openai
+fakeyou
+image
+ffmpeg-python
 gtts
-toml
+moviepy
+Pillow
+beautifulsoup4
+requests

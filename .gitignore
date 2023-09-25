@@ -7,6 +7,10 @@ client_secrets.json
 *-oauth2.json
 sitcomcli.sqlite3
 custom_scripts/
+secrets.toml
+ffmpeg.exe
+ffprobe.exe
+*.ttf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

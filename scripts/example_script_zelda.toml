@@ -1,0 +1,74 @@
+title="Link and Zelda team up to pour spaghetti o's into King Harkinian's socks."
+global_image_style = "in a castle"
+
+[[characters]]
+name = "Zelda"
+default_image_prompt = "Princess Zelda, cartoon, Phillips CDI"
+voice_token = "TM:gtear4je4egc"
+
+[[characters]]
+name = "Link"
+default_image_prompt = "The hero Link, cartoon, happy, Phillips CDI"
+voice_token="TM:jx6qafqf8b1k"
+
+[[characters]]
+name = "King Harkinian"
+default_image_prompt = "king harkinian, yellow clothes and blond hair, with beard, cartoon, phillips CDI"
+voice_token = "TM:gp1sfafqmcwe"
+
+# -------------------------
+
+[[lines]]
+character="Link"
+speech="Hey there, Zelda! What're you up to?"
+
+[[lines]]
+character="Zelda"
+speech="Just pourin' some spaghetti o's into King Harkinian's socks. Wanna help?"
+
+[[lines]]
+character="King Harkinian"
+speech="What the-? Hey! My socks!"
+
+[[lines]]
+character="Zelda"
+speech="Oh, did we get your socks wet? We're sorry!"
+image_prompt="Princess Zelda, cartoon, Phillips CDI, laughing"
+
+[[lines]]
+character="King Harkinian"
+speech="No, no, it's quite all right. I just never knew that spaghetti o's could be so... slimy."
+
+[[lines]]
+character="Zelda"
+speech="They're not slimy, they're just wet."
+image_prompt="slimy cartoon socks covered in beans, gross, disgusting, slimy, wet, pasta sauce, juicy, moist, damp"
+
+[[lines]]
+character="Link"
+speech="Yeah, they're just wet. Anyways, we should probably get going."
+
+[[lines]]
+character="King Harkinian"
+speech="Yes, you two should probably be on your way. Thanks for the, uh, experience."
+
+[[lines]]
+character="Link"
+speech="No problem, your majesty. Come on, Zelda."
+
+[[lines]]
+character="King Harkinian"
+speech="Wait! What about my socks?"
+image_prompt="slimy cartoon socks covered in beans, gross, disgusting, slimy, wet, pasta sauce, juicy, moist, damp"
+
+[[lines]]
+character="Zelda"
+speech="Oh, don't worry about them. We'll take care of them."
+
+[[lines]]
+character="King Harkinian"
+speech="Oh, all right. Thanks!"
+
+[[lines]]
+character="Link"
+speech="I'm going to eat them."

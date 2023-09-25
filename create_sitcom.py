@@ -1,114 +1,107 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import os
 import shutil
 import glob
-from dotenv import load_dotenv, find_dotenv
-from generators.imagegenerator import generate_prompts, generate_images
-from generators.audiogenerator import generate_voice_clips
-from generators.moviegenerator import generate_movie
-from generators.scriptgenerator import generate_description
+from generator.models import Line, Character, SpeechClip
+from generator.script_generator import generate_script
+from generator.tts_generator import generate_voice_clips
+from generator.image_generator import generate_images
+from generator.movie_generator import generate_movie
+from generator.music_generator import generate_music
+from generator.integrations.music.freepd import MusicCategory
 from utils.argparser import parse_args
-from utils.fakeyou import get_characters_in_prompt
-from utils.userinput import select_characters, create_script, describe_characters
-from utils.toml import load_toml
 from social.yt_uploader import upload_to_yt
+import tomllib
+from dataclasses import dataclass
+import random
+
+@dataclass
+class VideoResult:
+    path: str
+    title: str
+    description: str
 
 def create_sitcom(args, config):
     # clean the tmp folder to make sure we're starting fresh
     if(os.path.exists(f'./tmp')):
         shutil.rmtree('./tmp')
-
+    os.makedirs('./tmp')
+    
     if(args.prompt == None and args.script == None):
         args.prompt = input("Enter a prompt to generate the video script: ")
 
-    # if using an existing script file
-    if(args.script):
-        script = load_toml(args.script)
-        args.style = script['global_style']
-        args.prompt = script['title']
-        characters = {data['name']: data for data in script['characters']}
-        lines = []
-        for line in script['lines']:
-            lines.append({
-                "speaker": line['speaker'],
-                "text": line['speech'],
-                "action": "",
-                "custom_prompt": line['custom_prompt'] if 'custom_prompt' in line else None,
-            })
-        # visually describe the character for image generation
-        character_descriptions = dict()
-        for name, data in characters.items():
-            character_descriptions[name] = data['description']
-
-    # if generating a script with GPT-3
+    ai_script = not args.script
+    if ai_script:
+        script = generate_script(None, args)
     else:
-        # clean prompt
-        prompt = args.prompt.replace('-', ' ')
-        possible_characters = get_characters_in_prompt(prompt)
-        characters = select_characters(possible_characters, args)
-        if(len(characters) <= 0):
-            print("No voices selected. Exiting.")
-            exit()
-        lines = create_script(characters, args)
-        # visually describe the character for image generation
-        character_descriptions = describe_characters(characters, args)
+        with open(args.script, "rb") as f: script = tomllib.load(f)
 
-    # convert data into correct format for rest of process
-    for i, name in enumerate(characters):
-        characters[name]['description'] = character_descriptions[name]
-        if(args.script):
-            characters[name]['voice_token'] = characters[name]['voice_token'] if args.high_quality_audio else ''
-        else:
-            characters[name]['voice_token'] = characters[name]['model_token'] if args.high_quality_audio else ''
+    # parse toml dict into objects
+    args.style = script.get('global_image_style', '')
+    args.prompt = script['title']
 
-    # generate the prompts used to generate images with stable diffusion
-    prompts = generate_prompts(lines, characters, args.style)
+    characters = [Character(
+        character['name'],
+        voice_token=character['voice_token'],
+        default_image_prompt=character['default_image_prompt']
+    ) for character in script['characters']]
 
-    # generating voice clips can take a LONG time if args.high_quality_audio == True
-    # because of long delays to avoid API timeouts on FakeYou.com
+    def find_character(name: str):
+        return next(filter(lambda character: character.name == name, characters))
+    
+    lines = [Line(
+        character=find_character(line['character']),
+        speech=line['speech'],
+        image_prompt=line.get('image_prompt', None) or find_character(line['character']).default_image_prompt
+    ) for line in script['lines']]
+
     audio_extension = "wav" if args.high_quality_audio else "mp3"
-    generate_voice_clips(lines, characters, args.high_quality_audio, config)
+    generate_voice_clips(lines, characters, args.high_quality_audio and not args.debug, config)
 
-    # save generating images till last since it costs money
-    # don't want to crash afterward
-    generate_images(prompts, args.img_quality)
+    # save generating images till last since it costs money - don't want something else to crash afterward
+    generate_images(lines=lines, quality=args.img_quality, global_style=args.style, debug=args.debug)
 
     # set up the filesystem to prepare for the movie generation
-    movieData = []
+    movie_data = []
+
     # sort the image files by create date to get them in order
     images = glob.glob('./tmp/*.png')
     images.sort(key=os.path.getmtime)
-    for i in range(len(lines)):
-        data = {
-            'caption': lines[i]["text"],
-            'image': images[i],
-            'audio': f"./tmp/{i+1}.{audio_extension}"
-        }
-        movieData.append(data)
+    voiceovers =  [f"./tmp/{i+1}.{audio_extension}" for i in range(len(images))]
+    movie_data = [SpeechClip(
+        caption=line.speech,
+        image=image,
+        audio=voiceover,
+    ) for line, image, voiceover in zip(lines, images, voiceovers)]
 
-    filename = args.prompt
-    if(len(filename) > 50):
-        filename = filename[:50].strip()
-    if(not os.path.exists(f'./renders/{filename}')):
-        os.makedirs(f'./renders/{filename}')
+    filename = args.prompt[:50].strip()
+    if(not os.path.exists(f'./renders/')):
+        os.makedirs(f'./renders/')
 
-    generate_movie(config['font'], movieData, f"./renders/{filename}/{filename}.mp4")
+    bgm = generate_music(script.get('bgm_category', None) or random.choice(MusicCategory.values()))
+    generate_movie(movie_data, bgm, config['font'], f"./renders/{filename}.mp4")
 
     # clean the tmp folder again
     shutil.rmtree('./tmp')
 
-    return f"./renders/{filename}/{filename}.mp4"
+    return VideoResult(
+        path=f"./renders/{filename}/{filename}.mp4",
+        title=script['title'],
+        description=script.get('description', args.prompt),
+    )
 
 if(__name__ == "__main__"):
     print("\nSitcom Simulator\nBy Josh Moody\n")
 
-    load_dotenv(find_dotenv())
+    with open("config.toml", "rb") as f:
+        config = tomllib.load(f)
     args = parse_args()
-    config = load_toml('config.toml')
     
     # do the magic
-    video_path = create_sitcom(args, config)
+    result = create_sitcom(args, config)
     if(args.upload):
         title = args.prompt
-        description = generate_description(title)
-        keywords = [word for word in description.split() if len(word) > 3]
-        upload_to_yt(video_path, title, description, keywords, "24", "public")
+        keywords = [word for word in result.description.split() if len(word) > 3]
+        upload_to_yt(result.path, result.title, result.description, keywords, "24", "public")
