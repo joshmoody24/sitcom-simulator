@@ -76,18 +76,19 @@ def create_sitcom(args, config):
         audio=voiceover,
     ) for line, image, voiceover in zip(lines, images, voiceovers)]
 
-    filename = args.prompt[:50].strip()
+    filename = args.prompt[:50].strip() or 'render'
     if(not os.path.exists(f'./renders/')):
         os.makedirs(f'./renders/')
 
     bgm = generate_music(script.get('bgm_category', None) or random.choice(MusicCategory.values()))
-    generate_movie(movie_data, bgm, config['font'], f"./renders/{filename}.mp4")
+    output_path = f"./renders/{filename}.mp4"
+    generate_movie(movie_data, bgm, config['font'], output_path)
 
     # clean the tmp folder again
     shutil.rmtree('./tmp')
 
     return VideoResult(
-        path=f"./renders/{filename}/{filename}.mp4",
+        path=output_path,
         title=script['title'],
         description=script.get('description', args.prompt),
     )

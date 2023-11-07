@@ -124,4 +124,18 @@ def concatenate_videos(file_list, output_filename, background_music=None, bgm_vo
         concatenated_audio = ffmpeg.filter([concatenated_audio, bgm_input], 'amix')  # Mix concatenated audio and bgm
 
     # Output the concatenated streams
-    ffmpeg.output(concatenated_video, concatenated_audio, output_filename.replace(':', ''), vcodec='libx264', acodec='mp3').overwrite_output().run(quiet=True)
+    (
+        ffmpeg
+        .output(
+            concatenated_video,
+            concatenated_audio,
+            output_filename.replace(':', '').replace('?',''),
+            vcodec='libx264',
+            pix_fmt='yuv420p', # necessary for compatibility
+            acodec='mp3',
+            r=24,
+            **{'b:v': '8000K'}
+            )
+        .overwrite_output()
+        .run()
+    )
