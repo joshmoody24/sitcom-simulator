@@ -53,9 +53,9 @@ def generate_script_draft(
     available_characters_str = "\n".join(character_string(name, voice) for name, voice in characters.items())
 
     chatgpt_prompt = f"""
-    Write a script for a movie in which {prompt}.
-    No more than {max_lines} lines of dialog. End it on a funny, unexpected twist.
-    Your output should be TOML, with the following values. Each value is required unless specified to be optional.
+    Write a script for a funny YouTube Short in which {prompt}.
+    No more than {max_lines} lines of dialog.
+    Your output should be TOML, with the following values. Values are required by default.
 
     title (title of the video)
     description (youtube description for the video)
@@ -93,7 +93,7 @@ def generate_script_draft(
     The characters at your disposal are:
     {available_characters_str}
     
-    Do not use any other characters.
+    Do not use any other characters, including narrators.
     Filter out innappropriate, irrelelvant, or duplicate characters.
     Make sure all images are appropriate.
     Do not output anything after the TOML."""
