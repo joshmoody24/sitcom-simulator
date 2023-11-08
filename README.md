@@ -3,22 +3,24 @@ A command-line tool for generating bad movies using GPT-3, Stable Diffusion, Fak
 
 ## Prerequisites
 - Python 3
+- ffmpeg (see setup for more details)
 - Stability API key (get one [here](https://beta.dreamstudio.ai/membership?tab=apiKeys))
 - OpenAI API key (get one [here](https://openai.com/api/))
 
 ## Getting Started
 ### Setup
 1. Download the source code (`git clone` or download zip and extract)
-2. Open a terminal window in the root folder of the project
-3. Install the dependencies: `pip install -r requirements.txt`
-4. Create a .env file in the root directory
-5. Put the following text into the .env file, replacing the variables with your API keys and file paths:
+2. [Download FFmpeg](https://ffmpeg.org/download.html). The essentials build should work. Put the ffmpeg and ffprobe binaries in the project directory (same directory level as create_sitcom.py)
+3. Open a terminal window in the root folder of the project
+4. Install the dependencies: `pip install -r requirements.txt`
+5. Create a .env file in the root directory
+6. Put the following text into the .env file, replacing the variables with your API keys and file paths:
 ```bash
 OPENAI_KEY='openai api key goes here'
 STABILITY_KEY='stability api key goes here'
 ```
-5. (Optional) Make sure the font variable in `config.toml` is a font installed on your computer
-6. You're all set to start making terrible movies!
+7. (Optional) Make sure the font variable in `config.toml` is a font installed on your computer
+8. You're all set to start making terrible movies!
 
 ### YouTube API Setup
 Sitcom Simulator supports automated YouTube video uploads. The process for setting it up is a bit tricky, but here's a broad overview. I'll create a more in-depth tutorial if there's interest in that. Hit me up.

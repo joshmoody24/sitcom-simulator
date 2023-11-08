@@ -31,10 +31,10 @@ def generate_movie(
         image_path = dialog.image
         
         try:
-            audio_duration = float(ffmpeg.probe(dialog.audio)['streams'][0]['duration'])
+            audio_duration = float(ffmpeg.probe(dialog.audio.replace('/', '\\'))['streams'][0]['duration'])
         except Exception as e:
-            print(f"Error probing audio duration: {e}")
-            continue
+            print(f"Error probing audio duration: {e}.\nHave you put ffmpeg and ffprobe binaries into the root project directory?")
+            raise e
 
         duration = audio_duration + clip_buffer_seconds + speaking_delay_seconds
         duration = max(duration, min_clip_length)
@@ -83,12 +83,12 @@ def generate_movie(
                 .output(video_with_subtitles, audio_input, temp_clip_path, t=duration, vcodec='libx264', acodec='mp3')
                 .run(quiet=True)
             )
-
+            raise Exception(temp_clip_path)
             intermediate_clips.append(temp_clip_path)
 
         except Exception as e:
             print(f"Error processing dialog: {e}")
-            continue
+            raise e
 
     print("Rendering final output to", output_path, "...")
     concatenate_videos(intermediate_clips, output_path, background_music)
