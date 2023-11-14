@@ -1,5 +1,5 @@
 # Sitcom Simulator
-A command-line tool for generating bad movies using GPT-3, Stable Diffusion, FakeYou, and MoviePy
+A command-line tool for generating bad movies using ChatGPT, Stable Diffusion, FakeYou, and FFmpeg
 
 ## Prerequisites
 - Python 3
