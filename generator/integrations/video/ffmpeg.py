@@ -83,7 +83,6 @@ def generate_movie(
                 .output(video_with_subtitles, audio_input, temp_clip_path, t=duration, vcodec='libx264', acodec='mp3')
                 .run(quiet=True)
             )
-            raise Exception(temp_clip_path)
             intermediate_clips.append(temp_clip_path)
 
         except Exception as e:
