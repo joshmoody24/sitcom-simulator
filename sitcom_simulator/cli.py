@@ -1,4 +1,6 @@
+from sitcom_simulator import create_sitcom
 import argparse
+import tomllib
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -18,3 +20,21 @@ def parse_args():
 
     args = parser.parse_args()
     return args
+
+def main():
+    print("\nSitcom Simulator\nBy Josh Moody\n")
+
+    with open("config.toml", "rb") as f:
+        config = tomllib.load(f)
+    args = parse_args()
+    
+    # do the magic
+    create_sitcom(
+        prompt=args.prompt,
+        style_override=args.style,
+        script_path=args.script_path,
+        debug=args.debug,
+        font=config["font"],
+        manual_select_characters=args.manual_select_characters,
+        max_tokens=args.max_tokens,
+    )
