@@ -1,0 +1,41 @@
+[project]
+name = "sitcom-simulator"
+version = "0.0.1"
+authors = [
+    { name = "Josh Moody", email = "josh@joshmoody.org" },
+]
+description = "A highly-cusotmizable tool that automatically creates AI-generated meme videos"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["ai", "video", "meme", "generator", "sitcom", "simulator"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent", 
+]
+
+[project.urls]
+homepage = "https://github.com/joshmoody24/sitcom-simulator"
+documentation = "https://github.com/joshmoody24/sitcom-simulator"
+repository = "https://github.com/joshmoody24/sitcom-simulator"
+
+
+[tool.hatch.envs.default]
+dependencies = [
+    "stability-sdk==0.8.4",
+    "python-dotenv==1.0.0",
+    "tqdm==4.66.1",
+    "openai==0.28.0",
+    "fakeyou==1.2.5",
+    "image==1.5.33",
+    "ffmpeg-python==0.2.0",
+    "gtts==2.3.2",
+    "moviepy==1.0.3",
+    "Pillow==10.0.1",
+    "beautifulsoup4==4.12.2",
+    "requests==2.31.0",
+    "mypy==1.8.0",
+]
+
+[tool.hatch.build.targets.wheel]
+include = ["sitcom_simulator/**/*"]

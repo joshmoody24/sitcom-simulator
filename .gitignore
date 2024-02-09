@@ -11,6 +11,7 @@ secrets.toml
 ffmpeg.exe
 ffprobe.exe
 *.ttf
+*.mp4
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

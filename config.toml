@@ -2,8 +2,8 @@
 font = "Roboto-Medium.ttf"
 
 # how long to wait between starting FakeYou voice jobs
-# (anything shorter than 52 seconds is likely to get rate limited and crash the app)
-job_delay = 52
+# (anything shorter than 30 seconds is likely to get rate limited and crash the app)
+job_delay = 30
 
-# how long to wait between polling pending FakeYou voice jobs
-poll_delay = 12
+# how long to wait between polling pending FakeYou voice jobsd
+poll_delay = 10
