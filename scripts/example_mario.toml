@@ -1,0 +1,36 @@
+[[clips]]
+speaker = "Mario"
+speech = "Luigi, I'm hungry. Do you mind if I have a bite of your soul?"
+image_prompt = "Mario with red cap and mustache attempting to eat Luigi's soul, horror"
+
+[[clips]]
+speaker = "Luigi"
+speech = "Absolutely not, Mario! My soul is not food!"
+image_prompt = "Luigi looking shocked and determined, surrounded by a glowing aura, epic"
+
+[[clips]]
+speaker = "Narrator"
+speech = "A fierce battle ensues as Luigi fights to protect his soul from Mario's unexpected craving."
+image_prompt = "Mario and Luigi in a dramatic battle, claymation style"
+
+[[clips]]
+speaker = "Luigi"
+speech = "Let's end this, Mario! No soul-eating, and let's find a peaceful solution."
+image_prompt = "Luigi offering a truce, Mario looking contemplative, comedy"
+
+[metadata]
+title = "A Soulful Snack Encounter"
+bgm_style = "upbeat"
+art_style = "cinematic bokeh blur"
+
+[[characters]]
+name = "Mario"
+voice_token = "TM:6c6d3a8tavv6"
+
+[[characters]]
+name = "Luigi"
+voice_token = "TM:fp4fcyja6mk1"
+
+[[characters]]
+name = "Narrator"
+voice_token = "TM:xrk8qhm6cb6r"
