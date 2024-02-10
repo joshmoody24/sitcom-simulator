@@ -1,6 +1,6 @@
 [project]
 name = "sitcom-simulator"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
     { name = "Josh Moody", email = "josh@joshmoody.org" },
 ]

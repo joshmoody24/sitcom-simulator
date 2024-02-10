@@ -1,22 +1,16 @@
-from dotenv import load_dotenv
-load_dotenv()
-
-import os
-from sitcom_simulator.models import Script, VideoResult
-from sitcom_simulator import (
-    write_script,
-    add_voices,
-    add_images,
-    add_music,
-    render_video,
-    script_from_file
-)
+from .models import Script, VideoResult
+from .script_generator import write_script
+from .speech_generator import add_voices
+from .image_generator import add_images
+from .music_generator import add_music
+from .video_generator import render_video
+from .script_generator import script_from_file
 from .social.yt_uploader import upload_to_yt
 
 def create_sitcom(
-        prompt: str | None,
-        style_override: str | None,
-        script_path: str | None,
+        prompt: str | None = None,
+        style_override: str | None = None,
+        script_path: str | None = None,
         debug: bool=False,
         font: str = '',
         max_tokens:int=2048,

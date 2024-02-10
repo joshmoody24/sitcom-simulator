@@ -1,4 +1,4 @@
-from sitcom_simulator import create_sitcom
+from .sitcom_creator import create_sitcom
 import argparse
 import tomllib
 
@@ -34,7 +34,7 @@ def main():
         style_override=args.style,
         script_path=args.script_path,
         debug=args.debug,
-        font=config["font"],
+        font=config.get("font", 'Arial'),
         manual_select_characters=args.manual_select_characters,
         max_tokens=args.max_tokens,
     )

@@ -1,5 +1,5 @@
 # video font
-font = "Roboto-Medium.ttf"
+font = "Arial"
 
 # how long to wait between starting FakeYou voice jobs
 # (anything shorter than 30 seconds is likely to get rate limited and crash the app)
