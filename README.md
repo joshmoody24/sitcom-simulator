@@ -127,7 +127,7 @@ First, acquire API keys for OpenAI and Stability AI (see [prerequisites](#prereq
 
 How you set the environment variables will depend on your use case:
 
-#### Comamnd Line
+#### Command Line
 
 Set the environments in the terminal, i.e., `export OPENAI_API_KEY=<value>` (Linux) `set OPENAI_API_KEY=<value>` (Windows)
 
