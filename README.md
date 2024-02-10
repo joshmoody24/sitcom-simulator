@@ -18,8 +18,6 @@ A highly-customizable tool that automatically creates AI-generated meme videos
     <a href="https://youtube.com/shorts/7zKuojhaZz4?si=pFHuyQ4uX6j0B9FU">
         <img src="https://joshmoody.org/sitcom-simulator/fred-tax-fraud.png" width="200" />
     </a>
-</p>
-<p float="left">
     <a href="https://youtube.com/shorts/IFsYPP_g92I?si=nmy1OKl1jyuB8wa2">
         <img src="https://joshmoody.org/sitcom-simulator/dagoth-ur-trump.png" width="200" />
     </a>
