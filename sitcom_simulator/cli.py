@@ -24,8 +24,12 @@ def parse_args():
 def main():
     print("\nSitcom Simulator\nBy Josh Moody\n")
 
-    with open("config.toml", "rb") as f:
-        config = tomllib.load(f)
+    try:
+        with open("config.toml", "rb") as f:
+            config = tomllib.load(f)
+    except FileNotFoundError:
+        # no big deal
+        config = {}
     args = parse_args()
     
     # do the magic
