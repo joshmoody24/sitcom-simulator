@@ -9,7 +9,7 @@ import atexit
 
 def render_clip(
         clip: Clip,
-        font_path: str,
+        font: str,
         width:int=720,
         height:int=1280,
         clip_buffer_seconds=0.15,  # how much time to wait after characters finish talking
@@ -69,7 +69,7 @@ def render_clip(
         video_input = video_input.filter(
             'drawtext',
             text=caption,
-            fontfile=font_path,
+            fontfile=font,
             fontsize=42 * scale_factor, # scales the font size with 720px as the reference screen width
             fontcolor='white',
             text_align="M+C", # had to dig deep into FFmpeg source code to learn that you combine flags with a plus sign
@@ -152,7 +152,7 @@ def concatenate_clips(
 # TODO: support aspect ratios 16:9 and 1:1
 def render_video(
         script: Script,
-        font_path: str,
+        font: str,
         output_path: str = 'output.mp4',
         width:int=720,
         height:int=1280,
@@ -165,7 +165,7 @@ def render_video(
     for clip in tqdm(script.clips, desc="Rendering intermediate video clips"):
         clip_file = render_clip(
             clip=clip,
-            font_path=font_path,
+            font=font,
             width=width,
             height=height,
             clip_buffer_seconds=clip_buffer_seconds,

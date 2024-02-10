@@ -9,7 +9,7 @@ from .social.yt_uploader import upload_to_yt
 
 def create_sitcom(
         prompt: str | None = None,
-        style_override: str | None = None,
+        art_style: str | None = None,
         script_path: str | None = None,
         debug: bool=False,
         font: str = '',
@@ -36,8 +36,8 @@ def create_sitcom(
     else:
         raise ValueError("You must provide a prompt or a script path, not both")
     
-    if style_override:
-        initial_script = initial_script.replace(metadata=initial_script.metadata.replace(style=style_override))
+    if art_style:
+        initial_script = initial_script.replace(metadata=initial_script.metadata.replace(art_style=art_style))
 
     script_with_voices = add_voices(initial_script, engine="fakeyou" if not debug else "gtts")
     script_with_images = add_images(script_with_voices, engine="stability" if not debug else "pillow") # could theoretically be done in parallel with the audio
@@ -47,7 +47,7 @@ def create_sitcom(
 
     filename = final_script.metadata.title[:50].strip() or 'render'
     output_path = f"./{filename}.mp4"
-    final_video_path = render_video(script=final_script, font_path=font, output_path=output_path)
+    final_video_path = render_video(script=final_script, font=font, output_path=output_path)
 
     result = VideoResult(
         path=final_video_path,

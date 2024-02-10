@@ -4,7 +4,7 @@ from .integrations import ffmpeg
 
 def render_video(
         script: Script,
-        font_path: str,
+        font: str,
         output_path="output.mp4",
         width:int=1080,
         height:int=1920,
@@ -13,7 +13,7 @@ def render_video(
     ):
     return ffmpeg.render_video(
         script=script,
-        font_path=font_path,
+        font=font,
         output_path=output_path,
         width=width,
         height=height,

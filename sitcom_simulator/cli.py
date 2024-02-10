@@ -31,7 +31,7 @@ def main():
     # do the magic
     create_sitcom(
         prompt=args.prompt,
-        style_override=args.style,
+        art_style=args.style,
         script_path=args.script_path,
         debug=args.debug,
         font=config.get("font", 'Arial'),
