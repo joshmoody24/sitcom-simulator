@@ -7,30 +7,30 @@ A highly-customizable tool that automatically creates AI-generated meme videos
 
 <p float="left">
     <a href="https://youtube.com/shorts/NQezju-_vtw?si=s2IcfYIhdK6oaE6o">
-        <img src="showcase/joe-biden-swole.png" width="200" />
+        <img src="https://joshmoody.org/sitcom-simulator/joe-biden-swole.png" width="200" />
     </a>
     <a href="https://youtube.com/shorts/QNAX7yAnEso?si=g6LtUvFu1_7VjjHJ">
-        <img src="showcase/mario-pyramid.png" width="200">
+        <img src="https://joshmoody.org/sitcom-simulator/mario-pyramid.png" width="200">
     </a>
     <a href="https://youtube.com/shorts/2JcaKnVGr8A?si=E9tg1SBv_VaHSVPo">
-        <img src="showcase/tom-cruise-mustard.png" width="200" />
+        <img src="https://joshmoody.org/sitcom-simulator/tom-cruise-mustard.png" width="200" />
     </a>
     <a href="https://youtube.com/shorts/7zKuojhaZz4?si=pFHuyQ4uX6j0B9FU">
-        <img src="showcase/fred-tax-fraud.png" width="200" />
+        <img src="https://joshmoody.org/sitcom-simulator/fred-tax-fraud.png" width="200" />
     </a>
 </p>
 <p float="left">
     <a href="https://youtube.com/shorts/IFsYPP_g92I?si=nmy1OKl1jyuB8wa2">
-        <img src="showcase/dagoth-ur-trump.png" width="200" />
+        <img src="https://joshmoody.org/sitcom-simulator/dagoth-ur-trump.png" width="200" />
     </a>
     <a href="https://youtube.com/shorts/TAWfdZyrV68?si=2fn3mAEZKEi8TVc6">
-        <img src="showcase/iron-man-sonic.png" width="200" />
+        <img src="https://joshmoody.org/sitcom-simulator/iron-man-sonic.png" width="200" />
     </a>
     <a href="https://youtube.com/shorts/OpU1KsHHJuo?si=L90HAA7cHTYdB-VN">
-        <img src="showcase/shrek-donald-left-arm.png" width="200" />
+        <img src="https://joshmoody.org/sitcom-simulator/shrek-donald-left-arm.png" width="200" />
     </a>
     <a href="https://youtube.com/shorts/KGtugZ4U7MA?si=cA6Uds3wOukBFeA4">
-        <img src="showcase/mario-cursed.png" width="200">
+        <img src="https://joshmoody.org/sitcom-simulator/mario-cursed.png" width="200">
     </a>
 </p>
 
