@@ -2,9 +2,16 @@ import tomllib
 import random
 from sitcom_simulator.models import Character
 
-# user selects which auto-detected characters to include in the script
-# debug only, fakeyou has another method for selecting characters
-def select_characters(possible_characters):
+
+def select_characters(possible_characters: dict[str, list[str]]):
+    """
+    Generic character selection procedure in which the user
+    selects which auto-detected characters to include in the script.
+
+    This function is currently unused since FakeYou has its own character selection procedure.
+
+    :param possible_characters: A dictionary of character names to a list of voice tokens
+    """
     print("--- Character Voice Selection ---")
     selected_characters = dict()
     for name, voices in possible_characters.items():
@@ -18,8 +25,14 @@ def select_characters(possible_characters):
     assert len(selected_characters) > 0, "No voices selected. Exiting."
     return [Character(name, voice) for name, voice in selected_characters.items()]
 
-def describe_characters(characters):
-    " get visual descriptions for each character from the user "
+def describe_characters(characters: dict[str, str]):
+    """
+    A procedure to prompt the user to visually describe the characters in the script.
+
+    This function is currently unused since the language model descriptions are used instead.
+
+    :param characters: A dictionary of character names to voice tokens (although this should change to a list of Character objects in the future)
+    """
 
     print("\n--- Image Prompt Descriptions ---\n")
     character_descriptions = {}

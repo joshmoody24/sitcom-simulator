@@ -1,8 +1,8 @@
-from .sitcom_creator import create_sitcom
+from .auto import create_sitcom
 import argparse
 import tomllib
 
-def parse_args():
+def _parse_args():
     parser = argparse.ArgumentParser(
         prog = "Sitcom Simulator",
         description = "A tool that creates bad sitcoms using AI tools",
@@ -22,6 +22,9 @@ def parse_args():
     return args
 
 def main():
+    """
+    The main entry point for the CLI, invoked when the module is run as a script.
+    """
     print("\nSitcom Simulator\nBy Josh Moody\n")
 
     try:
@@ -30,7 +33,7 @@ def main():
     except FileNotFoundError:
         # no big deal
         config = {}
-    args = parse_args()
+    args = _parse_args()
     
     # do the magic
     create_sitcom(

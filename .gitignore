@@ -12,11 +12,17 @@ ffmpeg.exe
 ffprobe.exe
 *.ttf
 *.mp4
+# Sphinx
+docs/_build/
+docs/_autosummary/
+docs/_static/
+docs/doctrees/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
 
 # C extensions
 *.so

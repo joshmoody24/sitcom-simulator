@@ -2,21 +2,45 @@ from dataclasses import dataclass, replace
 
 @dataclass(frozen=True)
 class Character:
+    """
+    A character in a script and information about their voice.
+
+    :param name: The name of the character
+    :param voice_token: The token for the character's voice
+    """
     name: str
     voice_token: str
 
     @staticmethod
-    def from_dict(data: dict):
+    def from_dict(data: dict[str, str]):
+        """
+        Creates a Character from a dictionary with the same shape.
+        """
         return Character(
             name=data['name'],
             voice_token=data['voice_token']
         )
     
     def replace(self, **kwargs):
+        """
+        Returns a new Character with the specified fields replaced.
+        """
         return replace(self, **kwargs)
 
 @dataclass(frozen=True)
 class Clip:
+    """
+    A clip in a script, including the speaker, speech, and audio.
+
+    :param speaker: The name of the speaker
+    :param speech: The speech for the clip
+    :param image_prompt: The prompt for the image
+    :param image_path: The path to the image
+    :param audio_url: The URL for the audio
+    :param audio_path: The path to the audio
+    :param title: The title of the clip
+    :param duration: The duration of the clip
+    """
     speaker: str | None
     speech: str | None
     image_prompt: str | None
@@ -28,14 +52,24 @@ class Clip:
 
     @property
     def needs_audio(self):
-        return self.speech and not (self.audio_path or self.audio_url)
+        """
+        Returns True if the clip needs audio, and False if it doesn't.
+        """
+        return bool(self.speech and not (self.audio_path or self.audio_url))
     
     @property
     def needs_image(self):
-        return self.image_prompt and not self.image_path
+        """
+        Returns True if the clip needs an image, and False if it doesn't.
+        """
+        return bool(self.image_prompt and not self.image_path)
 
     @staticmethod
     def from_dict(data: dict):
+        """
+        Creates a Clip from a dictionary with the same shape.
+        All fields are optional.
+        """
         return Clip(
             speaker=data.get('speaker'),
             speech=data.get('speech'),
@@ -48,10 +82,20 @@ class Clip:
         )
 
     def replace(self, **kwargs):
+        """
+        Returns a new Clip with the specified fields replaced.
+        """
         return replace(self, **kwargs)
 
 @dataclass(frozen=True)
 class ScriptMetadata:
+    """
+    Metadata for a script.
+
+    :param title: The title of the script
+    :param bgm_style: The style of the background music
+    :param art_style: The style of the art
+    """
     title: str
     bgm_style: str
     art_style: str
@@ -59,6 +103,10 @@ class ScriptMetadata:
 
     @staticmethod
     def from_dict(data: dict):
+        """
+        Creates a ScriptMetadata from a dictionary with the same shape.
+        All fields are required except for bgm_path.
+        """
         return ScriptMetadata(
             title=data['title'],
             bgm_style=data['bgm_style'],
@@ -67,16 +115,38 @@ class ScriptMetadata:
         )
     
     def replace(self, **kwargs):
+        """
+        Returns a new ScriptMetadata with the specified fields replaced.
+        """
         return replace(self, **kwargs)
 
 @dataclass(frozen=True)
 class Script:
+    """
+    Contains all the data for a script, including characters, clips, and metadata.
+    
+    The clips are ordered in the order they should be played.
+
+    In general, the fields should be populated in the following order:
+    1. characters
+    2. clips
+    3. metadata
+
+    Metadata is last to give the language model more context before summarizing the script.
+
+    :param characters: A list of characters in the script
+    :param clips: A list of clips in the script
+    :param metadata: The metadata for the script
+    """
     characters: list[Character]
     clips: list[Clip]
     metadata: ScriptMetadata
 
     @staticmethod
     def from_dict(data: dict):
+        """
+        Returns a Script from a dictionary with the same shape.
+        """
         return Script(
             characters=[Character.from_dict(character) for character in data['characters']],
             clips=[Clip.from_dict(clip) for clip in data['clips']],
@@ -84,10 +154,20 @@ class Script:
         )
     
     def replace(self, **kwargs):
+        """
+        Returns a new Script with the specified fields replaced.
+        """
         return replace(self, **kwargs)
     
 @dataclass(frozen=True)
 class VideoResult:
+    """
+    The result of rendering a video.
+
+    :param path: The path to the rendered video
+    :param title: The title of the video
+    :param description: The description of the video
+    """
     path: str
     title: str
     description: str

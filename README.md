@@ -3,7 +3,11 @@ A highly-customizable tool that automatically creates AI-generated meme videos
 
 `pip install sitcom-simulator`
 
-## Examples
+## Documentation
+
+[View the documentation](https://joshmoody24.github.io/sitcom-simulator/) for setup instructions and code samples.
+
+## Example Videos
 
 <p float="left">
     <a href="https://youtube.com/shorts/NQezju-_vtw?si=s2IcfYIhdK6oaE6o">
@@ -67,81 +71,6 @@ create_sitcom(
 )
 ```
 
-Power users can completely customize the video creation process:
-
-```python
-from sitcom_simulator import (
-    script_from_file,
-    add_voices,
-    add_images,
-    add_music,
-    render_video,
-)
-
-def upload_to_s3(index, file_path):
-    ... # arbitrary code
-
-initial_script = script_from_file("custom_script.toml")
-
-script_with_voices = add_voices(
-    initial_script,
-    engine="fakeyou",
-    on_voice_generated=upload_to_s3)
-
-script_with_images = add_images(
-    script_with_voices,
-    engine="stability",
-    on_image_generated=upload_to_s3)
-
-script_with_music = add_music(script_with_images)
-
-render_video(
-    script=final_script,
-    font="Papyrus",
-    output_path=f"./{final_script.metadata.title}.mp4")
-```
-
-More documentation on the advanced features will be coming soon.
-
-## Getting Started
-
-Several things must be completed before running Sitcom Simulator for the first time.
-
-### Prerequisites
-- Python 3
-- [ffmpeg](https://ffmpeg.org/download.html) (see below for more details)
-- Stability API key (get one [here](https://beta.dreamstudio.ai/membership?tab=apiKeys))
-- OpenAI API key (get one [here](https://openai.com/api/))
-
-#### FFmpeg
-
-The ffmpeg command must be accessible on your machine. This will vary depending on your system, but you can install it from the [official download page](https://ffmpeg.org/download.html) or various package managers, e.g., `apt install ffmpeg` on Debian/Ubuntu, `brew install ffmpeg` on Mac, etc.
-
-Alternatively, instead of installing ffmpeg on your system, you can place the `ffmpeg` and `ffprobe` binaries in your project's root directory, which will work equally well.
-
-### Environment Variables
-
-This package requires API keys from OpenAI and Stability AI to be stored in environment variables.
-
-First, acquire API keys for OpenAI and Stability AI (see [prerequisites](#prerequisites))
-
-How you set the environment variables will depend on your use case:
-
-#### Comamnd Line
-
-Set the environments in the terminal, i.e., `export OPENAI_API_KEY=<value>` (Linux) `set OPENAI_API_KEY=<value>` (Windows)
-
-#### Python Projects
-
-Create a `.env` file in your project's root directory, with the following structure:
-
-```bash
-STABILITY_API_KEY='your_key_here'
-OPENAI_API_KEY='your_key_here'
-```
-
-The `.env` file will be automatically detected by the program.
-
 ## How it Works
 
 Sitcom Simulator is essentially duct tape that combines multiple different AI tools into one unholy abomination.
@@ -153,6 +82,11 @@ Sitcom Simulator is essentially duct tape that combines multiple different AI to
 
 ## Contributions
 
-Want to help work on this project? I'm down! Feel free to reach out to me if you want to contribute or have any questions :)
+Want to help work on this project? I'm down! [Contact me](https://joshmoody.org/contact/) if you want to contribute or have any questions :)
 
 Have fun!!!
+
+## Links
+
+- [Documentation](https://joshmoody24.github.io/sitcom-simulator/)
+- Web App (coming soon)

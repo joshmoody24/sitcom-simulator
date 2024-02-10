@@ -1,0 +1,1 @@
+from sitcom_simulator.speech.speech_generator import generate_voices, add_voices
