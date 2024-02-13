@@ -35,8 +35,9 @@ class Clip:
     :param speaker: The name of the speaker
     :param speech: The speech for the clip
     :param image_prompt: The prompt for the image
+    :param image_url: The URL for the image (currently unused, but may be used in the future with a different image engine)
     :param image_path: The path to the image
-    :param audio_url: The URL for the audio
+    :param audio_url: The URL for the audio (currently unused, but may be used in the future with a different TTS engine)
     :param audio_path: The path to the audio
     :param title: The title of the clip
     :param duration: The duration of the clip
@@ -45,6 +46,7 @@ class Clip:
     speech: str | None
     image_prompt: str | None
     image_path: str | None
+    image_url: str | None
     audio_url: str | None
     audio_path: str | None
     title: str | None
@@ -62,7 +64,7 @@ class Clip:
         """
         Returns True if the clip needs an image, and False if it doesn't.
         """
-        return bool(self.image_prompt and not self.image_path)
+        return bool(self.image_prompt and not (self.image_path or self.image_url))
 
     @staticmethod
     def from_dict(data: dict):
@@ -75,6 +77,7 @@ class Clip:
             speech=data.get('speech'),
             image_prompt=data.get('image_prompt'),
             image_path=data.get('image_path'),
+            image_url=data.get('image_url'),
             audio_url=data.get('audio_url'),
             audio_path=data.get('audio_path'),
             title=data.get('title'),

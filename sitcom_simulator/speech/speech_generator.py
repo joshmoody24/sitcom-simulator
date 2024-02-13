@@ -9,7 +9,8 @@ Engine = Literal["fakeyou", "gtts"]
 def generate_voices(
         script: Script,
         engine:Engine="fakeyou",
-        on_voice_generated: Optional[Callable[[int, str], None]] = None
+        on_voice_downloaded: Optional[Callable[[int, str], None]] = None,
+        fakeyou_on_voice_url_generated: Optional[Callable[[int, str], None]] = None,
         ):
     """
     Generates and returns a list of voice clip paths for the given script using the given engine.
@@ -19,15 +20,23 @@ def generate_voices(
     
     :param script: The script to generate voice clips for
     :param engine: The engine to use for generating voice clips
-    :param on_voice_generated: A callback to call after each voice clip is generated which takes the clip index and path to the generated audio
+    :param on_voice_downloaded: A callback to call after each voice clip is downloaded which takes the clip index and path to the downloaded audio
+    :param fakeyou_on_voice_url_generated: A callback to call after each FakeYou voice clip is generated which takes the clip index and url of the generated audio
     """
     # generating voice clips can take a LONG time if args.high_quality_audio == True
     # because of long delays to avoid API timeouts on FakeYou.com
     if engine == "fakeyou":
-        audio_urls = fakeyou.generate_voices(script, on_voice_generated)
-        audio_paths = [fakeyou.download_voice(audio_url) if audio_url else None for audio_url in audio_urls]
+        audio_urls = fakeyou.generate_voices(script, fakeyou_on_voice_url_generated)
+        audio_paths = []
+        for i, audio_url in enumerate(audio_urls):
+            if audio_url is None: continue
+            audio_path = fakeyou.download_voice(audio_url)
+            audio_paths.append(audio_path)
+            if on_voice_downloaded:
+                on_voice_downloaded(i, audio_path)
+        return audio_paths
     else:
-        audio_paths = gtts.generate_voices(script, on_voice_generated)
+        audio_paths = gtts.generate_voices(script, on_voice_downloaded)
     return audio_paths
 
 
@@ -45,5 +54,5 @@ def add_voices(
     :param engine: The engine to use for generating voice clips
     :param on_voice_generated: A callback to call after each voice clip is generated which takes the clip index and path to the generated audio
     """
-    audio_paths = generate_voices(script, engine=engine, on_voice_generated=on_voice_generated)
+    audio_paths = generate_voices(script, engine=engine, fakeyou_on_voice_url_generated=on_voice_generated)
     return script.replace(clips=[clip.replace(audio_path=audio_path) for clip, audio_path in zip(script.clips, audio_paths)])

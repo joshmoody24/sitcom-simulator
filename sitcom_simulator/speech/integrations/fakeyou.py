@@ -100,8 +100,7 @@ def get_possible_characters_from_prompt(prompt: str) -> dict:
 
     return possible_characters
 
-# takes in array of line models
-def generate_voices(script: Script, on_voice_generated: Optional[Callable[[int, str], None]] = None) -> List[str | None]:
+def generate_voices(script: Script, on_voice_url_generated: Optional[Callable[[int, str], None]] = None) -> List[str | None]:
     """
     Sequentially generates voices for each line in the script using the FakeYou API.
     It is intentionally slow to avoid getting rate limited.
@@ -114,6 +113,9 @@ def generate_voices(script: Script, on_voice_generated: Optional[Callable[[int, 
         # skip if doesn't need audio, or if audio already exists (audio should never already exist, but just in case)
         if not clip.speaker:
             audio_urls.append(None)
+            continue
+        if clip.audio_url:
+            audio_urls.append(clip.audio_url)
             continue
         logging.debug(f'Starting voice job {i} ({clip.speaker}: {clip.speaker})')
         try:
@@ -169,8 +171,8 @@ def generate_voices(script: Script, on_voice_generated: Optional[Callable[[int, 
                 audio_path = json["state"]["maybe_public_bucket_wav_audio_path"]
                 audio_url = f'https://storage.googleapis.com/vocodes-public{audio_path}'
                 audio_urls.append(audio_url)
-                if(on_voice_generated):
-                    on_voice_generated(i, audio_url)
+                if(on_voice_url_generated):
+                    on_voice_url_generated(i, audio_url)
             else:
                 raise Exception("job failed, aborting", json)
                 break

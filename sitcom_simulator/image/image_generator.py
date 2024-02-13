@@ -26,10 +26,13 @@ def generate_images(
     :param engine: The engine to use for generating images
     """
     image_paths: List[str | None] = []
-    image_prompts = [clip.image_prompt for clip in script.clips]
-    for i, image_prompt in tqdm(enumerate(image_prompts), desc="Generating images", total=len(image_prompts)):
+    for i, clip in tqdm(enumerate(script.clips), desc="Generating images", total=len(script.clips)):
+        image_prompt = clip.image_prompt
         if not image_prompt:
             image_paths.append(None)
+            continue
+        if clip.image_path:
+            image_paths.append(clip.image_path)
             continue
         if engine == "stability":
             full_prompt = image_prompt + ', ' + script.metadata.art_style
