@@ -1,5 +1,3 @@
-from .integrations import fakeyou as fakeyou
-from .integrations import gtts as gtts
 from typing import List, Literal
 from sitcom_simulator.models import Script
 from typing import Optional, Callable
@@ -23,6 +21,8 @@ def generate_voices(
     :param on_voice_downloaded: A callback to call after each voice clip is downloaded which takes the clip index and path to the downloaded audio
     :param fakeyou_on_voice_url_generated: A callback to call after each FakeYou voice clip is generated which takes the clip index and url of the generated audio
     """
+    from .integrations import fakeyou as fakeyou
+    from .integrations import gtts as gtts
     # generating voice clips can take a LONG time if args.high_quality_audio == True
     # because of long delays to avoid API timeouts on FakeYou.com
     if engine == "fakeyou":

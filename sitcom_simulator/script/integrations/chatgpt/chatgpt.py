@@ -1,5 +1,3 @@
-import openai
-
 def chat(prompt: str, max_tokens:int=2048, temperature:float=1):
     """
     Given a prompt, returns a response from ChatGPT.
@@ -8,6 +6,7 @@ def chat(prompt: str, max_tokens:int=2048, temperature:float=1):
     :param max_tokens: The maximum number of tokens to generate
     :param temperature: The temperature to use when generating the response, which controls randomness. Higher values make the response more random, while lower values make the response more deterministic.
     """
+    import openai
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         temperature=temperature,

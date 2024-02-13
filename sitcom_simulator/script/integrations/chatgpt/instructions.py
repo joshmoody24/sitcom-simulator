@@ -1,3 +1,5 @@
+# I think textwrap has a feature to eliminate left padding, but I'm not sure how to use it.
+
 base_prompt = """You are a witty, avant-garde creative genius who writes short video scripts consisting of AI-generated still images and audio.
 Your output should be structured in TOML.
 

@@ -1,4 +1,3 @@
-from .integrations import freepd
 from typing import Literal, Callable, Optional
 import random
 from sitcom_simulator.models import Script
@@ -18,6 +17,7 @@ def generate_music(
     :param category: The category of music to generate
     :param engine: The engine to use for generating music
     """
+    from .integrations import freepd
     if engine == "freepd":
         logging.debug(f"Generating music: {category}")
         try:

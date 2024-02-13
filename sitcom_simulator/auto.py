@@ -1,12 +1,3 @@
-from .models import Script, VideoResult
-from .script import write_script
-from .speech import add_voices
-from .image import add_images
-from .music import add_music
-from .video import render_video
-from .script import script_from_file
-from .social.yt_uploader import upload_to_yt
-
 def create_sitcom(
         prompt: str | None = None,
         art_style: str | None = None,
@@ -32,6 +23,15 @@ def create_sitcom(
     :param manual_select_characters: If True, the user will be prompted to select the characters for the video. If False, the characters will be selected automatically by the language model.
     :param upload_to_yt: If True, the video will be uploaded to YouTube after it is generated. NOTE: currently does not work.
     """
+    from .models import Script, VideoResult
+    from .script import write_script
+    from .speech import add_voices
+    from .image import add_images
+    from .music import add_music
+    from .video import render_video
+    from .script import script_from_file
+    from .social.yt_uploader import upload_to_yt
+    
     if(prompt == None and script_path == None):
         prompt = input("Enter a prompt to generate the video script: ")
 

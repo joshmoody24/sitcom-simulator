@@ -1,5 +1,3 @@
-import requests
-from bs4 import BeautifulSoup
 import random
 import os
 from enum import Enum
@@ -33,6 +31,9 @@ def download_random_music(category: MusicCategory) -> str | None:
     
     :param category: The category of music to download
     """
+    from bs4 import BeautifulSoup
+    import requests
+
     # Send a GET request to the website
     url = f"https://freepd.com/{category.value}.php"
     response = requests.get(url)

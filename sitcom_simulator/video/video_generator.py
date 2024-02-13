@@ -1,6 +1,5 @@
 from typing import List
 from ..models import Script
-from .integrations import ffmpeg
 
 def render_video(
         script: Script,
@@ -22,6 +21,7 @@ def render_video(
     :param clip_buffer_seconds: How much time to wait after characters finish talking
     :param min_clip_length: The minimum time to hold on a clip
     """
+    from .integrations import ffmpeg
     return ffmpeg.render_video(
         script=script,
         font=font,

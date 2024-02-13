@@ -1,4 +1,3 @@
-import ffmpeg
 from ...models import Script, Clip
 from typing import List
 import os
@@ -29,6 +28,7 @@ def render_clip(
     :param speaking_delay_seconds: Delay before the audio kicks in
     :param caption_max_width: The maximum width of the captions, in characters
     """
+    import ffmpeg
     caption = clip.speech
     if caption:
         caption = textwrap.fill(caption, width=caption_max_width)

@@ -1,4 +1,3 @@
-from .integrations import stability, pillow
 from tqdm import tqdm
 from typing import List, Optional, Callable, Literal
 from sitcom_simulator.models import Script
@@ -25,6 +24,7 @@ def generate_images(
     :param on_image_generated: A callback to call after each image is generated which takes the clip index and path to the generated image
     :param engine: The engine to use for generating images
     """
+    from .integrations import stability, pillow
     image_paths: List[str | None] = []
     for i, clip in tqdm(enumerate(script.clips), desc="Generating images", total=len(script.clips)):
         image_prompt = clip.image_prompt

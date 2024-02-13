@@ -1,7 +1,4 @@
-import tomllib
-import random
 from sitcom_simulator.models import Character
-
 
 def select_characters(possible_characters: dict[str, list[str]]):
     """

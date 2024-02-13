@@ -1,5 +1,3 @@
-from stability_sdk.client import StabilityInference, process_artifacts_from_answers
-import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 import tempfile
 import mimetypes
 import os
@@ -16,6 +14,9 @@ def generate_image(prompt:str, width:int=1024, height:int=1024):
     :param width: The width of the image to generate
     :param height: The height of the image to generate
     """
+    # lazy load because this is a heavy dependency
+    import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
+    from stability_sdk.client import StabilityInference, process_artifacts_from_answers
 
     # customize engine here if desired (default is newest)
     # i.e. engine='stable-diffusion-v1-5'

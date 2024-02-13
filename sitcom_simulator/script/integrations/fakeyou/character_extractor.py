@@ -1,6 +1,4 @@
-from sitcom_simulator.script.llm import chat
 import json
-import requests
 import re
 import random
 from .narrators import BACKUP_NARRATORS
@@ -24,6 +22,8 @@ def generate_character_list(prompt: str) -> List[Character]:
     Keep the list short and focused.
     Structure your output as a JSON list of strings.
     """
+    from sitcom_simulator.script.llm import chat
+    import requests
     
     raw_response = chat(instructions)
     character_names = json.loads(raw_response)

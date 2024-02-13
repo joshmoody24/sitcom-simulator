@@ -1,4 +1,3 @@
-import requests
 from tqdm import tqdm
 from typing import List, Set, Callable, Optional, Dict
 import re
@@ -29,6 +28,7 @@ def download_voice(url: str):
     temp_audio_file = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
     atexit.register(os.remove, temp_audio_file.name)
     try:
+        # uses urllib because AWS lambda doesn't have requests (not that that matters anymore)
         with urllib.request.urlopen(url) as response, open(temp_audio_file.name, 'wb') as out_file:
             data = response.read()  # Read the content as bytes
             out_file.write(data)
@@ -44,6 +44,7 @@ def fetch_voicelist():
     """
     Fetches the list of available voices from the FakeYou API.
     """
+    import requests
     response = requests.get('https://api.fakeyou.com/tts/list')
     json = response.json()
     if(json['success'] != True):
