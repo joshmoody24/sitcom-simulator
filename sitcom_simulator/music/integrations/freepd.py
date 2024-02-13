@@ -59,6 +59,7 @@ def download_file(url: str):
 
     :param url: The URL of the file to download
     """
+    import requests
     response = requests.get(url)
     if response.status_code == 200:
         # Get the file name from the URL

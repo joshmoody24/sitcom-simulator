@@ -1,10 +1,4 @@
-from .integrations.chatgpt import chatgpt, instructions
-from .integrations.fakeyou.character_extractor import generate_character_list
 from typing import Callable
-from ..speech.integrations.fakeyou import get_possible_characters_from_prompt
-from ..user_input import select_characters as debug_select_characters
-from .integrations.fakeyou.character_selector import select_characters as fakeyou_select_characters
-from ..music import MusicCategory
 from ..models import Script
 import tomllib
 from dataclasses import asdict
@@ -31,7 +25,14 @@ def write_script(
     :param temperature: The temperature to use when generating the script
     :param fakeyou_characters: Whether to restrict character selection to only voices from fakeyou.com
     """
+    from ..speech.integrations.fakeyou import get_possible_characters_from_prompt
+    from .integrations.chatgpt import chatgpt, instructions
+    from .integrations.fakeyou.character_extractor import generate_character_list
+    from ..music.integrations.freepd import MusicCategory
+
     if manual_character_selection:
+        from .integrations.fakeyou.character_selector import select_characters as fakeyou_select_characters
+        from ..user_input import select_characters as debug_select_characters
         possible_characters = get_possible_characters_from_prompt(prompt)
         select_characters: Callable = fakeyou_select_characters if fakeyou_characters else debug_select_characters
         characters = select_characters(possible_characters)

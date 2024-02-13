@@ -25,7 +25,7 @@ def generate_music(
         except ValueError:
             freepd_category = None
         if freepd_category is None:
-            freepd_category = random.choice(list(MusicCategory))
+            freepd_category = random.choice(list(freepd.MusicCategory))
         return freepd.download_random_music(freepd_category)
     else:
         raise ValueError(f"Invalid engine: {engine}")
@@ -50,5 +50,3 @@ def add_music(
     if on_music_generated:
         on_music_generated(music_path)
     return script.replace(metadata=script.metadata.replace(bgm_path=music_path))
-
-MusicCategory = freepd.MusicCategory

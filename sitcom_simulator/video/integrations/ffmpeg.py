@@ -124,6 +124,7 @@ def concatenate_clips(
     :param background_music: The path to the background music file
     :param bgm_volume: The volume of the background music, between 0 and 1
     """
+    import ffmpeg
 
     # Create input sets for each file in the list
     input_clips = [ffmpeg.input(f) for f in filenames]

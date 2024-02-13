@@ -109,6 +109,7 @@ def generate_voices(script: Script, on_voice_url_generated: Optional[Callable[[i
     :param script: The script to generate voices for
     :param on_voice_generated: A callback function to call when a voice is generated which takes the clip index and the URL of the generated audio
     """
+    import requests
     audio_urls: List[str | None] = []
     for i, clip in tqdm(enumerate(script.clips), desc="Generating voices", total=len(script.clips)):
         # skip if doesn't need audio, or if audio already exists (audio should never already exist, but just in case)
