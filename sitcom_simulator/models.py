@@ -1,6 +1,6 @@
 from dataclasses import dataclass, replace
 
-@dataclass(frozen=True)
+@dataclass
 class Character:
     """
     A character in a script and information about their voice.
@@ -27,7 +27,7 @@ class Character:
         """
         return replace(self, **kwargs)
 
-@dataclass(frozen=True)
+@dataclass
 class Clip:
     """
     A clip in a script, including the speaker, speech, and audio.
@@ -90,7 +90,7 @@ class Clip:
         """
         return replace(self, **kwargs)
 
-@dataclass(frozen=True)
+@dataclass
 class ScriptMetadata:
     """
     Metadata for a script.
@@ -123,7 +123,7 @@ class ScriptMetadata:
         """
         return replace(self, **kwargs)
 
-@dataclass(frozen=True)
+@dataclass
 class Script:
     """
     Contains all the data for a script, including characters, clips, and metadata.
@@ -162,7 +162,7 @@ class Script:
         """
         return replace(self, **kwargs)
     
-@dataclass(frozen=True)
+@dataclass
 class VideoResult:
     """
     The result of rendering a video.
