@@ -21,6 +21,23 @@ def render_video(
     :param clip_buffer_seconds: How much time to wait after characters finish talking
     :param min_clip_length: The minimum time to hold on a clip
     """
+    # rely on image_path first, but if it's not there and image_url is, download the image
+    import requests
+    import tempfile
+    for i, clip in enumerate(script.clips):
+        if clip.image_path:
+            continue
+        if clip.image_url:
+            try:
+                response = requests.get(clip.image_url)
+                image_path = tempfile.NamedTemporaryFile(suffix=".png", delete=False).name
+                with open(image_path, 'wb') as f:
+                    f.write(response.content)
+                clip.image_path = image_path
+            except Exception as e:
+                import logging
+                logging.error(f"Failed to download image for clip {i}: {e}")
+
     from .integrations import ffmpeg
     return ffmpeg.render_video(
         script=script,
