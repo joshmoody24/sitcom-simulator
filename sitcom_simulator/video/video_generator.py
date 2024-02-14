@@ -44,8 +44,9 @@ def render_video(
             continue
         if clip.audio_url:
             try:
+                ext = clip.audio_url.split('.')[-1]
                 response = requests.get(clip.audio_url)
-                audio_path = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False).name
+                audio_path = tempfile.NamedTemporaryFile(suffix=ext, delete=False).name
                 with open(audio_path, 'wb') as f:
                     f.write(response.content)
                 clip.audio_path = audio_path

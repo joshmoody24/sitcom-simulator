@@ -101,7 +101,8 @@ def render_clip(
         with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_file:
             intermediate_clip = (
                 ffmpeg.output(*input_streams, temp_file.name, vcodec='libx264', preset='superfast', acodec='mp3', t=duration)
-                .run(overwrite_output=True, capture_stderr=True)
+                .overwrite_output()
+                .run()
             )
             atexit.register(os.remove, temp_file.name)
             return temp_file.name
