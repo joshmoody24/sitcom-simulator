@@ -38,6 +38,21 @@ def render_video(
                 import logging
                 logging.error(f"Failed to download image for clip {i}: {e}")
 
+    # same thing but with audio
+    for i, clip in enumerate(script.clips):
+        if clip.audio_path:
+            continue
+        if clip.audio_url:
+            try:
+                response = requests.get(clip.audio_url)
+                audio_path = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False).name
+                with open(audio_path, 'wb') as f:
+                    f.write(response.content)
+                clip.audio_path = audio_path
+            except Exception as e:
+                import logging
+                logging.error(f"Failed to download audio for clip {i}: {e}")
+
     from .integrations import ffmpeg
     return ffmpeg.render_video(
         script=script,
