@@ -43,10 +43,12 @@ def render_clip(
     subtitle_style = box_style # + box_style  # mix and match as desired
     
     try:
-        audio_duration = float(ffmpeg.probe(clip.audio_path.replace('/', '\\'))['streams'][0]['duration']) if clip.audio_path else 0
+        audio_path = clip.audio_path.replace('/', '\\') if os.name == 'nt' else clip.audio_path
+        audio_duration = float(ffmpeg.probe(audio_path)['streams'][0]['duration']) if clip.audio_path else 0
     except Exception as e:
         print(f"Error probing audio duration: {e}.\nHave you put ffmpeg and ffprobe binaries into the root project directory?")
-        raise e
+        print(clip.audio_path)
+        audio_duration = 0
 
     duration = audio_duration + clip_buffer_seconds + speaking_delay_seconds
     duration = max(duration, min_clip_seconds)
