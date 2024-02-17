@@ -17,7 +17,9 @@ def _parse_args():
     parser.add_argument('-u', '--upload', action="store_true", help="upload the generated video to YouTube")
     parser.add_argument('-m', '--manual-select-characters', action="store_true", help="manually select characters instead of using the AI to select them")
     parser.add_argument('-d', '--debug', action='store_true', help="skip expensive API calls, generating robotic TTS and blank images instead.")
-
+    parser.add_argument('--font', type=str, help="the font to use for the video", default='Arial')
+    parser.add_argument('--audio-job-delay', type=int, default=30, help="the number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited")
+    parser.add_argument('--audio-poll-delay', type=int, default=10, help="the number of seconds to wait between polling for audio generation job completion")
     args = parser.parse_args()
     return args
 
@@ -26,13 +28,6 @@ def main():
     The main entry point for the CLI, invoked when the module is run as a script.
     """
     print("\nSitcom Simulator\nBy Josh Moody\n")
-
-    try:
-        with open("config.toml", "rb") as f:
-            config = tomllib.load(f)
-    except FileNotFoundError:
-        # no big deal
-        config = {}
     args = _parse_args()
     
     # do the magic
@@ -41,7 +36,11 @@ def main():
         art_style=args.style,
         script_path=args.script_path,
         debug=args.debug,
-        font=config.get("font", 'Arial'),
+        font=args.font,
         manual_select_characters=args.manual_select_characters,
         max_tokens=args.max_tokens,
+        approve_script=args.approve_script,
+        upload_to_yt=args.upload,
+        audio_job_delay=args.audio_job_delay,
+        audio_poll_delay=args.audio_poll_delay,
     )

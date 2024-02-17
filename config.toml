@@ -1,9 +1,0 @@
-# video font
-font = "Arial"
-
-# how long to wait between starting FakeYou voice jobs
-# (anything shorter than 30 seconds is likely to get rate limited and crash the app)
-job_delay = 30 # this setting currently does nothing, working on it
-
-# how long to wait between polling pending FakeYou voice jobsd
-poll_delay = 10 # this setting currently does nothing, working on it

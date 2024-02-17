@@ -13,9 +13,7 @@ import urllib
 import tempfile
 import atexit
 
-JOB_DELAY = 20 # seconds
 JOB_RANDOMNESS = 3 # +- this value, might help bypass rate limiting
-POLL_DELAY = 8
 POLL_RANDOMNESS = 1
 
 def download_voice(url: str):
@@ -72,7 +70,7 @@ def alphanumeric(string: str):
 
     :param string: The input string
     """
-    return re.sub(r'[^a-zA-Z0-9 ]', '', string)
+    return re.sub(r'[^a-zA-Z0-9 ]', '_', string)
 
 def get_possible_characters_from_prompt(prompt: str) -> dict:
     """
@@ -101,7 +99,12 @@ def get_possible_characters_from_prompt(prompt: str) -> dict:
 
     return possible_characters
 
-def generate_voices(script: Script, on_voice_url_generated: Optional[Callable[[int, str], None]] = None) -> List[str | None]:
+def generate_voices(
+        script: Script,
+        on_voice_url_generated: Optional[Callable[[int, str], None]] = None,
+        job_delay:int=30,
+        poll_delay:int=10,
+    ) -> List[str | None]:
     """
     Sequentially generates voices for each line in the script using the FakeYou API.
     It is intentionally slow to avoid getting rate limited.
@@ -146,7 +149,7 @@ def generate_voices(script: Script, on_voice_url_generated: Optional[Callable[[i
             raise Exception("Some sort of FakeYou API error occured", json)
             break
         job_token = json['inference_job_token']
-        rand_job_delay = random.randrange(JOB_DELAY-JOB_RANDOMNESS, JOB_DELAY+JOB_RANDOMNESS)
+        rand_job_delay = random.randrange(job_delay-JOB_RANDOMNESS, job_delay+JOB_RANDOMNESS)
     
         # poll the job until complete
         logging.debug(f'Polling voice job {i}')
@@ -157,7 +160,7 @@ def generate_voices(script: Script, on_voice_url_generated: Optional[Callable[[i
             'Accept': 'application/json'
         }
         while not completed:
-            rand_delay = random.randrange(POLL_DELAY-POLL_RANDOMNESS, POLL_DELAY+POLL_RANDOMNESS)
+            rand_delay = random.randrange(poll_delay-POLL_RANDOMNESS, poll_delay+POLL_RANDOMNESS)
             time.sleep(rand_delay)
             response = requests.get(f'https://api.fakeyou.com/tts/job/{job_token}', headers=headers)
             json = response.json()

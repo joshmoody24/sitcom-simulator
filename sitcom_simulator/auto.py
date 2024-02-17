@@ -8,6 +8,8 @@ def create_sitcom(
         approve_script:bool=False,
         manual_select_characters:bool=True,
         upload_to_yt=False,
+        audio_job_delay:int=30,
+        audio_poll_delay:int=10,
 ): 
     """
     Generates a sitcom video based on a prompt or a script file.
@@ -22,6 +24,8 @@ def create_sitcom(
     :param approve_script: If True, the script must be approved by the user before generating the video.
     :param manual_select_characters: If True, the user will be prompted to select the characters for the video. If False, the characters will be selected automatically by the language model.
     :param upload_to_yt: If True, the video will be uploaded to YouTube after it is generated. NOTE: currently does not work.
+    :param audio_job_delay: The number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited. (FakeYou only)
+    :param audio_poll_delay: The number of seconds to wait between polling for audio generation job completion. (FakeYou only)
     """
     from .models import Script, VideoResult
     from .script import write_script
@@ -53,7 +57,12 @@ def create_sitcom(
     if art_style:
         initial_script = initial_script.replace(metadata=initial_script.metadata.replace(art_style=art_style))
 
-    script_with_voices = add_voices(initial_script, engine="fakeyou" if not debug else "gtts")
+    script_with_voices = add_voices(
+        initial_script,
+        engine="fakeyou" if not debug else "gtts",
+        audio_job_delay=audio_job_delay,
+        audio_poll_delay=audio_poll_delay,
+    )
     script_with_images = add_images(script_with_voices, engine="stability" if not debug else "pillow") # could theoretically be done in parallel with the audio
     script_with_music = add_music(script_with_images)
 

@@ -35,7 +35,7 @@ def generate_images(
             image_paths.append(clip.image_path)
             continue
         if engine == "stability":
-            full_prompt = f'{image_prompt}{', ' + script.metadata.art_style if script.metadata.art_style else ''}' 
+            full_prompt = f'{image_prompt}{", " + script.metadata.art_style if script.metadata.art_style else ""}' 
             image_path = stability.generate_image(prompt=full_prompt, width=width, height=height)
         else: # debug engine
             image_path = pillow.generate_image(width, height)
