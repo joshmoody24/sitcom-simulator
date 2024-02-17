@@ -60,8 +60,8 @@ def create_sitcom(
     script_with_voices = add_voices(
         initial_script,
         engine="fakeyou" if not debug else "gtts",
-        audio_job_delay=audio_job_delay,
-        audio_poll_delay=audio_poll_delay,
+        fakeyou_job_delay=audio_job_delay,
+        fakeyou_poll_delay=audio_poll_delay,
     )
     script_with_images = add_images(script_with_voices, engine="stability" if not debug else "pillow") # could theoretically be done in parallel with the audio
     script_with_music = add_music(script_with_images)

@@ -53,8 +53,8 @@ def add_voices(
         script: Script,
         engine:Engine="fakeyou",
         on_voice_generated: Optional[Callable[[int, str], None]] = None,
-        audio_job_delay:int=30,
-        audio_poll_delay:int=10,
+        fakeyou_job_delay:int=30,
+        fakeyou_poll_delay:int=10,
         ):
     """
     Given a script, returns the same script but with the audio paths filled in.
@@ -64,14 +64,14 @@ def add_voices(
     :param script: The script to add voices to
     :param engine: The engine to use for generating voice clips
     :param on_voice_generated: A callback to call after each voice clip is generated which takes the clip index and path to the generated audio
-    :param audio_job_delay: The number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited. (FakeYou only)
-    :param audio_poll_delay: The number of seconds to wait between polling for audio generation job completion. (FakeYou only)
+    :param fakeyou_job_delay: The number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited. (FakeYou only)
+    :param fakeyou_poll_delay: The number of seconds to wait between polling for audio generation job completion. (FakeYou only)
     """
     audio_paths = generate_voices(
         script,
         engine=engine,
         fakeyou_on_voice_url_generated=on_voice_generated,
-        fakeyou_job_delay=audio_job_delay,
-        fakeyou_poll_delay=audio_poll_delay,
+        fakeyou_job_delay=fakeyou_job_delay,
+        fakeyou_poll_delay=fakeyou_poll_delay,
     )
     return script.replace(clips=[clip.replace(audio_path=audio_path) for clip, audio_path in zip(script.clips, audio_paths)])
