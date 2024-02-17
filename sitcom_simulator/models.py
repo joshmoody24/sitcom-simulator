@@ -98,10 +98,14 @@ class ScriptMetadata:
     :param title: The title of the script
     :param bgm_style: The style of the background music
     :param art_style: The style of the art
+    :param prompt: The prompt for the script
+    :param bgm_path: The path to the background music
+    :param misc: Any additional metadata
     """
-    title: str
-    bgm_style: str
-    art_style: str
+    title: str | None
+    bgm_style: str | None
+    art_style: str | None
+    prompt: str | None
     bgm_path: str | None
 
     @staticmethod
@@ -110,10 +114,12 @@ class ScriptMetadata:
         Creates a ScriptMetadata from a dictionary with the same shape.
         All fields are required except for bgm_path.
         """
+        # creates misc from all data attributes besides the main ones
         return ScriptMetadata(
-            title=data['title'],
-            bgm_style=data['bgm_style'],
-            art_style=data['art_style'],
+            title=data.get('title'),
+            bgm_style=data.get('bgm_style'),
+            art_style=data.get('art_style'),
+            prompt=data.get('prompt'),
             bgm_path=data.get('bgm_path'),
         )
     

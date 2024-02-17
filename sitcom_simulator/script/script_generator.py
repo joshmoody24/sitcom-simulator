@@ -69,6 +69,6 @@ def script_from_file(path: str) -> Script:
         return script
     
 def formatted_script(script: Script) -> str:
-    metadata = f"Title: {script.metadata.title}\nStyle: {script.metadata.art_style}\n"
+    metadata = f"Title: {script.metadata.title or '<No Title>'}\nStyle: {script.metadata.art_style or '<No Art Style>'}\n"
     clips = "\n".join([f"{c.speaker}: {c.speech}" for c in script.clips if c.speaker])
     return metadata + clips

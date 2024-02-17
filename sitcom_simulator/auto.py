@@ -59,13 +59,13 @@ def create_sitcom(
 
     final_script = script_with_music
 
-    filename = final_script.metadata.title[:50].strip() or 'render'
+    filename = final_script.metadata.title[:50].strip() or 'render' if final_script.metadata.title else 'render'
     output_path = f"./{filename}.mp4"
     final_video_path = render_video(script=final_script, font=font, output_path=output_path)
 
     result = VideoResult(
         path=final_video_path,
-        title=final_script.metadata.title,
+        title=final_script.metadata.title if final_script.metadata.title else filename,
         description=prompt or 'an AI-generated meme video created with Sitcom Simulator'
     )
 
