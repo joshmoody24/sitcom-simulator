@@ -6,26 +6,34 @@ from sitcom_simulator.models import Character
 import logging
 from typing import List
 
-def generate_character_list(prompt: str) -> List[Character]:
+def generate_character_list(prompt: str, custom_instructions: str | None=None) -> List[Character]:
     """
     Uses a large language model to generate a list of possible famous characters related to the prompt.
 
     :param prompt: The user-submitted prompt
+    :param custom_instructions: A string containing custom instructions for the language model. Must contain the placeholder '{prompt}'.
     """
-    
-    instructions = f"""Generate a list of potential characters to use in a short video of this prompt:
 
-    {prompt}
-    
-    Your results will be searched for in the FakeYou database for potential AI voices to use.
-    The characters must be likely to have an AI voice on the internet somewhere.
-    Keep the list short and focused.
-    Structure your output as a JSON list of strings.
-    """
+
+    if custom_instructions:
+        instructions = custom_instructions
+    else:
+        from pathlib import Path
+        current_file_path = Path(__file__).resolve()
+        current_dir = current_file_path.parent
+        instructions_path = current_dir / 'character_extraction_instructions.txt'
+        with open(instructions_path, 'r') as f:
+            instructions = f.read()
+
+    if "{prompt}" not in instructions:
+        raise ValueError("Custom instructions file must contain the placeholder '{prompt}'")
+    instructions = instructions.format(prompt=prompt)
+
     from sitcom_simulator.script.llm import chat
     import requests
     
     raw_response = chat(instructions)
+    logging.debug("Raw character extractor response from LLM:", raw_response)
     character_names = json.loads(raw_response)
     print("Characters proposed:", ", ".join(character_names))
     

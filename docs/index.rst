@@ -20,6 +20,7 @@ Sitcom Simulator
    :maxdepth: 2
    :caption: Reference
 
+   llm_instructions
    api
 
 Index
