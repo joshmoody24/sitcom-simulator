@@ -1,6 +1,7 @@
 from typing import List, Literal
 from sitcom_simulator.models import Script
 from typing import Optional, Callable
+import os
 
 Engine = Literal["fakeyou", "gtts"]
 
@@ -30,11 +31,17 @@ def generate_voices(
     # generating voice clips can take a LONG time if args.high_quality_audio == True
     # because of long delays to avoid API timeouts on FakeYou.com
     if engine == "fakeyou":
+        username_or_email = os.environ.get('FAKEYOU_USERNAME')
+        password = os.environ.get('FAKEYOU_PASSWORD')
+        fakeyou_cookie = None
+        if username_or_email and password:
+            fakeyou_cookie = fakeyou.sign_in(username_or_email, password)
         audio_urls = fakeyou.generate_voices(
             script,
             fakeyou_on_voice_url_generated,
             fakeyou_job_delay,
             fakeyou_poll_delay,
+            cookie=fakeyou_cookie,
         )
         audio_paths = []
         for i, audio_url in enumerate(audio_urls):

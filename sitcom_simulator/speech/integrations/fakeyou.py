@@ -99,11 +99,30 @@ def get_possible_characters_from_prompt(prompt: str) -> dict:
 
     return possible_characters
 
+def sign_in(username_or_email: str, password: str) -> str:
+    """
+    Signs in to the FakeYou API and returns the session cookie.
+    """
+    import requests
+    response = requests.post('https://api.fakeyou.com/v1/login',
+        json={"username_or_email": username_or_email, "password": password}
+    )
+    auth_data = response.json()
+    if not auth_data['success']:
+        logging.exception("Failed to log in to FakeYou API")
+    else:
+        logging.info("Logged in to FakeYou API")
+        print("Logged in to FakeYou API")
+    cookie = response.headers.get('Set-Cookie')
+    cookie = re.search(r'\w+.=([^;]+)', cookie).group(1)
+    return cookie
+
 def generate_voices(
         script: Script,
         on_voice_url_generated: Optional[Callable[[int, str], None]] = None,
         job_delay:int=30,
         poll_delay:int=10,
+        cookie:str|None=None,
     ) -> List[str | None]:
     """
     Sequentially generates voices for each line in the script using the FakeYou API.
@@ -114,28 +133,9 @@ def generate_voices(
     :param on_voice_generated: A callback function to call when a voice is generated which takes the clip index and the URL of the generated audio
     :param job_delay: The number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited
     :param poll_delay: The number of seconds to wait between polling for audio generation job completion
-    :param username_or_email: The username or email to use for the FakeYou API (optional, but increases render speed)
-    :param password: The password to use for the FakeYou API (optional, but increases render speed)
+    :param cookie: The session cookie to use for the FakeYou API (acquired from sign_in)
     """
-
-    username_or_email = os.environ.get('FAKEYOU_USERNAME')
-    password = os.environ.get('FAKEYOU_PASSWORD')
-    
     import requests
-    cookie = None
-    if username_or_email and password:
-        response = requests.post('https://api.fakeyou.com/v1/login',
-            json={"username_or_email": username_or_email, "password": password}
-        )
-        auth_data = response.json()
-        if not auth_data['success']:
-            logging.exception("Failed to log in to FakeYou API")
-        else:
-            logging.info("Logged in to FakeYou API")
-            print("Logged in to FakeYou API")
-        cookie = response.headers.get('Set-Cookie')
-        cookie = re.search(r'\w+.=([^;]+)', cookie).group(1)
-
     audio_urls: List[str | None] = []
     for i, clip in tqdm(enumerate(script.clips), desc="Generating voices", total=len(script.clips)):
         # skip if doesn't need audio, or if audio already exists (audio should never already exist, but just in case)
