@@ -108,11 +108,34 @@ def generate_voices(
     """
     Sequentially generates voices for each line in the script using the FakeYou API.
     It is intentionally slow to avoid getting rate limited.
+    It can be sped up by having FAKEYOU_USERNAME and FAKEYOU_PASSWORD set as environment variables.
 
     :param script: The script to generate voices for
     :param on_voice_generated: A callback function to call when a voice is generated which takes the clip index and the URL of the generated audio
+    :param job_delay: The number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited
+    :param poll_delay: The number of seconds to wait between polling for audio generation job completion
+    :param username_or_email: The username or email to use for the FakeYou API (optional, but increases render speed)
+    :param password: The password to use for the FakeYou API (optional, but increases render speed)
     """
+
+    username_or_email = os.environ.get('FAKEYOU_USERNAME')
+    password = os.environ.get('FAKEYOU_PASSWORD')
+    
     import requests
+    cookie = None
+    if username_or_email and password:
+        response = requests.post('https://api.fakeyou.com/v1/login',
+            json={"username_or_email": username_or_email, "password": password}
+        )
+        auth_data = response.json()
+        if not auth_data['success']:
+            logging.exception("Failed to log in to FakeYou API")
+        else:
+            logging.info("Logged in to FakeYou API")
+            print("Logged in to FakeYou API")
+        cookie = response.headers.get('Set-Cookie')
+        cookie = re.search(r'\w+.=([^;]+)', cookie).group(1)
+
     audio_urls: List[str | None] = []
     for i, clip in tqdm(enumerate(script.clips), desc="Generating voices", total=len(script.clips)):
         # skip if doesn't need audio, or if audio already exists (audio should never already exist, but just in case)
@@ -131,8 +154,12 @@ def generate_voices(
         voice_token = character.voice_token
         headers = {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
+        if cookie:
+            headers['cookie'] = f"session={cookie}"
+            headers["credentials"] = "include"
+
         payload = {
             "uuid_idempotency_token": entropy,
             "tts_model_token": voice_token,

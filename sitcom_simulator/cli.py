@@ -1,6 +1,5 @@
 from .auto import create_sitcom
 import argparse
-import tomllib
 
 def _parse_args():
     parser = argparse.ArgumentParser(
@@ -17,10 +16,13 @@ def _parse_args():
     parser.add_argument('-u', '--upload', action="store_true", help="upload the generated video to YouTube")
     parser.add_argument('-m', '--manual-select-characters', action="store_true", help="manually select characters instead of using the AI to select them")
     parser.add_argument('-d', '--debug', action='store_true', help="skip expensive API calls, generating robotic TTS and blank images instead.")
+    parser.add_argument('--debug-images', action='store_true', help="skip expensive image generation API calls, generating blank images instead.")
+    parser.add_argument('--debug-audio', action='store_true', help="skip slow voice generation API calls, generating robotic TTS instead.")
     parser.add_argument('--font', type=str, help="the font to use for the video", default='Arial')
     parser.add_argument('--audio-job-delay', type=int, default=30, help="the number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited")
     parser.add_argument('--audio-poll-delay', type=int, default=10, help="the number of seconds to wait between polling for audio generation job completion")
     parser.add_argument('--text-shadow', action='store_true', help="use text shadow for captions instead of box background")
+    parser.add_argument('--save-script', action='store_true', help="save the generated script to a file")
     args = parser.parse_args()
     return args
 
@@ -36,7 +38,8 @@ def main():
         prompt=args.prompt,
         art_style=args.style,
         script_path=args.script_path,
-        debug=args.debug,
+        debug_images=args.debug_images or args.debug,
+        debug_audio=args.debug_audio or args.debug,
         font=args.font,
         manual_select_characters=args.manual_select_characters,
         max_tokens=args.max_tokens,
@@ -44,5 +47,6 @@ def main():
         upload_to_yt=args.upload,
         audio_job_delay=args.audio_job_delay,
         audio_poll_delay=args.audio_poll_delay,
-        caption_bg_style="text_shadow" if args.text_shadow else "box_shadow"
+        caption_bg_style="text_shadow" if args.text_shadow else "box_shadow",
+        save_script=args.save_script,
     )

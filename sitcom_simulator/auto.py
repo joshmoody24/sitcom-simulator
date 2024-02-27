@@ -2,7 +2,8 @@ def create_sitcom(
         prompt: str | None = None,
         art_style: str | None = None,
         script_path: str | None = None,
-        debug: bool=False,
+        debug_images: bool=False,
+        debug_audio: bool=False,
         font: str = 'Arial',
         max_tokens:int=2048,
         approve_script:bool=False,
@@ -11,6 +12,7 @@ def create_sitcom(
         audio_job_delay:int=30,
         audio_poll_delay:int=10,
         caption_bg_style:str="box_shadow",
+        save_script:bool=False,
 ): 
     """
     Generates a sitcom video based on a prompt or a script file.
@@ -49,7 +51,7 @@ def create_sitcom(
             manual_character_selection=manual_select_characters,
             max_tokens=max_tokens,
             require_approval=approve_script,
-            fakeyou_characters=not debug,
+            fakeyou_characters=not debug_audio,
         )
     elif script_path and not prompt:
         initial_script = script_from_file(script_path)
@@ -61,11 +63,11 @@ def create_sitcom(
 
     script_with_voices = add_voices(
         initial_script,
-        engine="fakeyou" if not debug else "gtts",
+        engine="fakeyou" if not debug_audio else "gtts",
         fakeyou_job_delay=audio_job_delay,
         fakeyou_poll_delay=audio_poll_delay,
     )
-    script_with_images = add_images(script_with_voices, engine="stability" if not debug else "pillow") # could theoretically be done in parallel with the audio
+    script_with_images = add_images(script_with_voices, engine="stability" if not debug_images else "pillow") # could theoretically be done in parallel with the audio
     script_with_music = add_music(script_with_images)
 
     final_script = script_with_music
@@ -86,6 +88,13 @@ def create_sitcom(
     )
 
     print(f"Video generated at {final_video_path}")
+
+    if save_script:
+        import toml
+        from dataclasses import asdict
+        with open(f"./{filename}.toml", 'w') as f:
+            f.write(toml.dumps(asdict(final_script)))
+        print(f"Script saved at ./{filename}.toml")
 
     # if upload_to_yt:
     #     title = prompt

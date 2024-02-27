@@ -8,3 +8,4 @@ Pillow~=10.0.1
 beautifulsoup4~=4.12.2
 requests~=2.31.0
 mypy~=1.8.0
+toml

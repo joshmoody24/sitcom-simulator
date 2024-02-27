@@ -1,6 +1,6 @@
 from typing import Callable
 from ..models import Script
-import tomllib
+import toml
 from dataclasses import asdict
 import logging
 
@@ -67,7 +67,7 @@ def write_script(
     while not approved:
         raw_script= chatgpt.chat(full_prompt, temperature=temperature, max_tokens=max_tokens, model=model)
         logging.debug("Raw script", raw_script)
-        toml_script = tomllib.loads(raw_script)
+        toml_script = toml.loads(raw_script)
         toml_script["characters"] = [asdict(c) for c in characters] # from characters to dict back to character. Refactor at some point.
         script = Script.from_dict(toml_script)
         logging.debug("TOML script", script)
@@ -86,7 +86,7 @@ def write_script(
 
 def script_from_file(path: str) -> Script:
     with open(path, "rb") as f:
-        script = Script.from_dict(tomllib.load(f))
+        script = Script.from_dict(toml.load(f))
         print(type(script))
         return script
     

@@ -1,6 +1,6 @@
 [project]
 name = "sitcom-simulator"
-version = "0.2.0"
+version = "0.3.0"
 authors = [
     { name = "Josh Moody", email = "josh@joshmoody.org" },
 ]
@@ -23,6 +23,7 @@ dependencies = [
     "Pillow~=10.0.1",
     "beautifulsoup4~=4.12.2",
     "requests~=2.31.0",
+    "toml",
     # "fakeyou==1.2.5", Currently using raw HTTP requests instead
     # "moviepy==1.0.3", No longer supported due to lack of features. Using ffmpeg-python instead
 ]

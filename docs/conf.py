@@ -6,13 +6,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import tomllib
+import toml
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..')) # enable importing sitcom_simulator
 
 with open('../pyproject.toml', 'rb') as pyproject:
-    pyproject = tomllib.load(pyproject)
+    pyproject = toml.load(pyproject)
 
 project = pyproject['project']['name']
 author = pyproject['project']['authors'][0]['name']
