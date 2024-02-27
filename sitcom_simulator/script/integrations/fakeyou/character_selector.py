@@ -5,8 +5,7 @@ import os
 # Get the directory of the current script file
 script_dir = os.path.dirname(os.path.realpath(__file__))
 characters_path = os.path.join(script_dir, 'characters.toml')
-with open(characters_path, "rb") as f:
-    curated_characters = toml.load(f)
+curated_characters = toml.load(characters_path)
 
 # user selects which auto-detected characters to include in the script
 # (including their voices if generating high-quality audio)

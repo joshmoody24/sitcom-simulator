@@ -85,10 +85,9 @@ def write_script(
     return script
 
 def script_from_file(path: str) -> Script:
-    with open(path, "rb") as f:
-        script = Script.from_dict(toml.load(f))
-        print(type(script))
-        return script
+    script = Script.from_dict(toml.load(path))
+    print(type(script))
+    return script
     
 def formatted_script(script: Script) -> str:
     metadata = f"Title: {script.metadata.title or '<No Title>'}\nStyle: {script.metadata.art_style or '<No Art Style>'}\n"

@@ -11,8 +11,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..')) # enable importing sitcom_simulator
 
-with open('../pyproject.toml', 'rb') as pyproject:
-    pyproject = toml.load(pyproject)
+pyproject = toml.load('../pyproject.toml')
 
 project = pyproject['project']['name']
 author = pyproject['project']['authors'][0]['name']
