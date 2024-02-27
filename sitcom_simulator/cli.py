@@ -20,6 +20,7 @@ def _parse_args():
     parser.add_argument('--font', type=str, help="the font to use for the video", default='Arial')
     parser.add_argument('--audio-job-delay', type=int, default=30, help="the number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited")
     parser.add_argument('--audio-poll-delay', type=int, default=10, help="the number of seconds to wait between polling for audio generation job completion")
+    parser.add_argument('--text-shadow', action='store_true', help="use text shadow for captions instead of box background")
     args = parser.parse_args()
     return args
 
@@ -43,4 +44,5 @@ def main():
         upload_to_yt=args.upload,
         audio_job_delay=args.audio_job_delay,
         audio_poll_delay=args.audio_poll_delay,
+        caption_bg_style="text_shadow" if args.text_shadow else "box_shadow"
     )

@@ -10,6 +10,7 @@ def create_sitcom(
         upload_to_yt=False,
         audio_job_delay:int=30,
         audio_poll_delay:int=10,
+        caption_bg_style:str="box_shadow",
 ): 
     """
     Generates a sitcom video based on a prompt or a script file.
@@ -26,8 +27,9 @@ def create_sitcom(
     :param upload_to_yt: If True, the video will be uploaded to YouTube after it is generated. NOTE: currently does not work.
     :param audio_job_delay: The number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited. (FakeYou only)
     :param audio_poll_delay: The number of seconds to wait between polling for audio generation job completion. (FakeYou only)
+    :param caption_bg_style: The style of the background behind the captions.
     """
-    from .models import Script, VideoResult
+    from .models import VideoResult
     from .script import write_script
     from .speech import add_voices
     from .image import add_images
@@ -70,13 +72,20 @@ def create_sitcom(
 
     filename = final_script.metadata.title[:50].strip() or 'render' if final_script.metadata.title else 'render'
     output_path = f"./{filename}.mp4"
-    final_video_path = render_video(script=final_script, font=font, output_path=output_path)
+    final_video_path = render_video(
+        script=final_script,
+        font=font,
+        output_path=output_path,
+        caption_bg_style=caption_bg_style,
+    )
 
     result = VideoResult(
         path=final_video_path,
         title=final_script.metadata.title if final_script.metadata.title else filename,
         description=prompt or 'an AI-generated meme video created with Sitcom Simulator'
     )
+
+    print(f"Video generated at {final_video_path}")
 
     # if upload_to_yt:
     #     title = prompt

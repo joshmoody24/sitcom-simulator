@@ -10,6 +10,7 @@ def write_script(
         max_tokens:int=2048,
         require_approval:bool=False,
         temperature:float=0.5,
+        model:str="gpt-3.5-turbo",
         custom_script_instructions: str | None=None,
         custom_character_instructions: str | None=None,
         fakeyou_characters:bool=True,
@@ -25,6 +26,7 @@ def write_script(
     :param max_tokens: The maximum number of tokens to generate
     :param require_approval: Whether to prompt the user to approve the generated script
     :param temperature: The temperature to use when generating the script
+    :param model: The language model to use
     :param custom_script_instructions: A string containing custom instructions for the language model writing the script. Must contain the placeholders '{prompt}', '{music_categories}', and '{characters}'.
     :param custom_character_instructions: A string containing custom instructions for the language model extracting the characters from the prompt. Must contain the placeholder '{prompt}'.
     :param fakeyou_characters: Whether to restrict character selection to only voices from fakeyou.com
@@ -63,7 +65,7 @@ def write_script(
     full_prompt = instructions.format(prompt=prompt, characters=characters_str, max_tokens=max_tokens, music_categories=music_categories_str)
     approved = False
     while not approved:
-        raw_script= chatgpt.chat(full_prompt, temperature=temperature, max_tokens=max_tokens)
+        raw_script= chatgpt.chat(full_prompt, temperature=temperature, max_tokens=max_tokens, model=model)
         logging.debug("Raw script", raw_script)
         toml_script = tomllib.loads(raw_script)
         toml_script["characters"] = [asdict(c) for c in characters] # from characters to dict back to character. Refactor at some point.

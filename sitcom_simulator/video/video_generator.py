@@ -1,5 +1,7 @@
-from typing import List
+from typing import List, Literal
 from ..models import Script
+
+CaptionBg = Literal['box_shadow', 'text_shadow', 'none']
 
 def render_video(
         script: Script,
@@ -8,7 +10,13 @@ def render_video(
         width:int=1080,
         height:int=1920,
         clip_buffer_seconds=0.35,
-        min_clip_length=1.5,
+        min_clip_seconds=1.5,
+        speaking_delay_seconds=0.12,
+        caption_bg_style:CaptionBg='box_shadow',
+        caption_bg_alpha=0.6,
+        caption_bg_color="black",
+        caption_bg_shadow_distance_x=5,
+        caption_bg_shadow_distance_y=5,
     ):
     """
     Renders a video from the given script and returns the path to the rendered video.
@@ -20,6 +28,12 @@ def render_video(
     :param height: The height of the video to render
     :param clip_buffer_seconds: How much time to wait after characters finish talking
     :param min_clip_length: The minimum time to hold on a clip
+    :param speaking_delay_seconds: How much time to wait after a character starts talking
+    :param caption_bg_style: The style of the background behind the captions
+    :param caption_bg_alpha: The alpha of the background behind the captions
+    :param caption_bg_color: The color of the background behind the captions
+    :param caption_bg_shadow_distance_x: The x distance of the shadow behind the captions
+    :param caption_bg_shadow_distance_y: The y distance of the shadow behind the captions
     """
     # rely on image_path first, but if it's not there and image_url is, download the image
     import requests
@@ -55,12 +69,34 @@ def render_video(
                 logging.error(f"Failed to download audio for clip {i}: {e}")
 
     from .integrations import ffmpeg
+    from .integrations.ffmpeg import ClipSettings, CaptionSettings, BoxSettings, ShadowSettings
+
+    caption_bg_settings = None
+    if caption_bg_style == 'box_shadow':
+        caption_bg_settings = BoxSettings(
+            alpha=caption_bg_alpha,
+            color=caption_bg_color,
+        )
+    elif caption_bg_style == 'text_shadow':
+        caption_bg_settings = ShadowSettings(
+            alpha=caption_bg_alpha,
+            color='black',
+            x=caption_bg_shadow_distance_x,
+            y=caption_bg_shadow_distance_y,
+        )
+
     return ffmpeg.render_video(
         script=script,
-        font=font,
         output_path=output_path,
         width=width,
         height=height,
-        clip_buffer_seconds=clip_buffer_seconds,
-        min_clip_length=min_clip_length
+        caption_settings=CaptionSettings(
+            font=font,
+        ),
+        clip_settings=ClipSettings(
+            clip_buffer_seconds=clip_buffer_seconds,
+            min_clip_seconds=min_clip_seconds,
+            speaking_delay_seconds=speaking_delay_seconds,
+        ),
+        caption_bg_settings=caption_bg_settings,
     )
