@@ -5,6 +5,24 @@ from .narrators import BACKUP_NARRATORS
 from sitcom_simulator.models import Character
 import logging
 from typing import List
+import os
+import csv
+
+def load_curated_voices():
+    """
+    Loads the curated voices from the 'curated_voices.csv' file in the same directory as this script.
+    Important for when fakeyou's ratings get wiped (which has happened before), we still have our own records.
+    """
+    curated_voices: dict[str, float] = {}
+    # note: needs to be in the same directory as this script, not the current working directory
+    path_to_curated_voices = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'curated_voices.csv')
+    with open(path_to_curated_voices, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            name = row['model_name'].strip()
+            rating = row['rating'].strip()
+            curated_voices[name] = float(rating)
+    return curated_voices
 
 def generate_character_list(prompt: str, custom_instructions: str | None=None) -> List[Character]:
     """
@@ -42,6 +60,7 @@ def generate_character_list(prompt: str, custom_instructions: str | None=None) -
     fakeyou_character_list = res.json()['models']
     name_to_model = pure_name_to_model(fakeyou_character_list)
     
+    curated_characters = load_curated_voices()
     chosen_characters = []
     for name in character_names:
         # TODO (big maybe) if tts doesn't exist but vtv does, render tts in someone else's voice and then use vtv
@@ -49,7 +68,7 @@ def generate_character_list(prompt: str, custom_instructions: str | None=None) -
             continue
         matches = name_to_model[name.lower()]
         # find the highest-rated match
-        highest_rated_voice = max(matches, key=calculate_star_rating)
+        highest_rated_voice = max(matches, key=lambda model: calculate_star_rating(model, curated_characters))
         chosen_characters.append(Character(name=name, voice_token=highest_rated_voice['model_token']))
     logging.info("Selected voices:", ", ".join([c.name for c in chosen_characters]))
     
@@ -90,12 +109,16 @@ def pure_character_name(raw_name: str):
     if match:
         return match.group(1)
     return None
-    
+
 DEFAULT_RATING = 2 # not the worst possible, but pretty bad
-def calculate_star_rating(model):
+def calculate_star_rating(model, curated_voices: dict[str, float] | None=None):
     """
     Estimates the true ratio of positive to negative reviews. Intuition: 5 stars from 10 reviews is worse than 4.8 stars from 1000 reviews.
     """
+
+    curated_rating = curated_voices.get(model['title'])
+    if curated_rating:
+        return curated_rating
     
     if 'user_ratings' not in model: return DEFAULT_RATING
     positive_count = model['user_ratings']['positive_count']
@@ -106,4 +129,5 @@ def calculate_star_rating(model):
     beta_posterior = 1 + negative_count  # Prior beta = 1
     mean_proportion = alpha_posterior / (alpha_posterior + beta_posterior)
     star_rating = 1 + 4 * mean_proportion
-    return mean_proportion, star_rating
+
+    return star_rating

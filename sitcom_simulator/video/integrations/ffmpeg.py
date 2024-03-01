@@ -95,9 +95,9 @@ class ClipSettings:
     clip_buffer_seconds:float=0.15
     min_clip_seconds:float=1.5
     speaking_delay_seconds:float=0.12
-    max_zoom_factor:float=1.2
+    max_zoom_factor:float=1.1
     min_zoom_factor:float=1.0
-    max_pan_speed:float=0.15
+    max_pan_speed:float=0.1
     min_pan_speed:float=0.0
 
 failed_image_captions = [
