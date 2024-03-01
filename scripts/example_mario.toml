@@ -1,3 +1,15 @@
+[[characters]]
+name = "Mario"
+voice_token = "TM:6c6d3a8tavv6"
+
+[[characters]]
+name = "Luigi"
+voice_token = "TM:fp4fcyja6mk1"
+
+[[characters]]
+name = "Narrator"
+voice_token = "TM:xrk8qhm6cb6r"
+
 [[clips]]
 speaker = "Mario"
 speech = "Luigi, I'm hungry. Do you mind if I have a bite of your soul?"
@@ -22,15 +34,3 @@ image_prompt = "Luigi offering a truce, Mario looking contemplative, comedy"
 title = "A Soulful Snack Encounter"
 bgm_style = "upbeat"
 art_style = "cinematic bokeh blur"
-
-[[characters]]
-name = "Mario"
-voice_token = "TM:6c6d3a8tavv6"
-
-[[characters]]
-name = "Luigi"
-voice_token = "TM:fp4fcyja6mk1"
-
-[[characters]]
-name = "Narrator"
-voice_token = "TM:xrk8qhm6cb6r"

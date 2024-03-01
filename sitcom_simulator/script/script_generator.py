@@ -86,7 +86,6 @@ def write_script(
 
 def script_from_file(path: str) -> Script:
     script = Script.from_dict(toml.load(path))
-    print(type(script))
     return script
     
 def formatted_script(script: Script) -> str:

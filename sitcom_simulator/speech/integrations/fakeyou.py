@@ -44,6 +44,7 @@ def fetch_voicelist():
     """
     import requests
     response = requests.get('https://api.fakeyou.com/tts/list')
+    logging.info("Fetching voice list from fakeyou")
     json = response.json()
     if(json['success'] != True):
         print("Error fetching voice list from fakeyou. Exiting.")
@@ -120,8 +121,8 @@ def sign_in(username_or_email: str, password: str) -> str:
 def generate_voices(
         script: Script,
         on_voice_url_generated: Optional[Callable[[int, str], None]] = None,
-        job_delay:int=30,
-        poll_delay:int=10,
+        job_delay:float=30,
+        poll_delay:float=10,
         cookie:str|None=None,
     ) -> List[str | None]:
     """

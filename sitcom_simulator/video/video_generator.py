@@ -9,14 +9,16 @@ def render_video(
         output_path="output.mp4",
         width:int=1080,
         height:int=1920,
-        clip_buffer_seconds=0.35,
-        min_clip_seconds=1.5,
-        speaking_delay_seconds=0.12,
+        speed:float=1.0,
+        pan_and_zoom:bool=True,
+        clip_buffer_seconds:float=0.35,
+        min_clip_seconds:float=1.5,
+        speaking_delay_seconds:float=0.12,
         caption_bg_style:CaptionBg='box_shadow',
-        caption_bg_alpha=0.6,
-        caption_bg_color="black",
-        caption_bg_shadow_distance_x=5,
-        caption_bg_shadow_distance_y=5,
+        caption_bg_alpha:float=0.6,
+        caption_bg_color:str="black",
+        caption_bg_shadow_distance_x:float=5,
+        caption_bg_shadow_distance_y:float=5,
     ):
     """
     Renders a video from the given script and returns the path to the rendered video.
@@ -26,6 +28,8 @@ def render_video(
     :param output_path: The path to save the rendered video to
     :param width: The width of the video to render
     :param height: The height of the video to render
+    :param speed: The speed of the final video. 1.0 is normal speed.
+    :param pan_and_zoom: If True, the pan and zoom effect on images will be enabled.
     :param clip_buffer_seconds: How much time to wait after characters finish talking
     :param min_clip_length: The minimum time to hold on a clip
     :param speaking_delay_seconds: How much time to wait after a character starts talking
@@ -90,6 +94,8 @@ def render_video(
         output_path=output_path,
         width=width,
         height=height,
+        speed=speed,
+        pan_and_zoom=pan_and_zoom,
         caption_settings=CaptionSettings(
             font=font,
         ),

@@ -13,6 +13,10 @@ def create_sitcom(
         audio_poll_delay:int=10,
         caption_bg_style:str="box_shadow",
         save_script:bool=False,
+        speed:float=1,
+        pan_and_zoom:bool=True,
+        width:int=720,
+        height:int=1280,
 ): 
     """
     Generates a sitcom video based on a prompt or a script file.
@@ -30,6 +34,11 @@ def create_sitcom(
     :param audio_job_delay: The number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited. (FakeYou only)
     :param audio_poll_delay: The number of seconds to wait between polling for audio generation job completion. (FakeYou only)
     :param caption_bg_style: The style of the background behind the captions.
+    :param save_script: If True, the generated script will be saved to a file.
+    :param speed: The speed of the final video. 1.0 is normal speed.
+    :param disable_pan_and_zoom: If True, the pan and zoom effect on images will be disabled.
+    :param width: The width of the video to render.
+    :param height: The height of the video to render.
     """
     from .models import VideoResult
     from .script import write_script
@@ -67,18 +76,31 @@ def create_sitcom(
         fakeyou_job_delay=audio_job_delay,
         fakeyou_poll_delay=audio_poll_delay,
     )
-    script_with_images = add_images(script_with_voices, engine="stability" if not debug_images else "pillow") # could theoretically be done in parallel with the audio
+
+    # image gen could theoretically be done in parallel with the audio
+    script_with_images = add_images(
+        script_with_voices,
+        engine="stability" if not debug_images else "pillow",
+        width=width,
+        height=height,
+    )
+    
     script_with_music = add_music(script_with_images)
 
     final_script = script_with_music
 
     filename = final_script.metadata.title[:50].strip() or 'render' if final_script.metadata.title else 'render'
     output_path = f"./{filename}.mp4"
+
     final_video_path = render_video(
         script=final_script,
         font=font,
         output_path=output_path,
         caption_bg_style=caption_bg_style,
+        width=width,
+        height=height,
+        speed=speed,
+        pan_and_zoom=pan_and_zoom,
     )
 
     result = VideoResult(

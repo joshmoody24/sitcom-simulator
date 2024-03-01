@@ -19,7 +19,7 @@ def generate_image(prompt:str, width:int=1024, height:int=1024):
     from stability_sdk.client import StabilityInference, process_artifacts_from_answers
 
     # customize engine here if desired (default is newest)
-    # i.e. engine='stable-diffusion-v1-5'
+    # e.g., engine='stable-diffusion-v1-5'
     stability_api = StabilityInference(
         STABILITY_HOST,
         key=os.getenv('STABILITY_API_KEY'),
@@ -33,7 +33,7 @@ def generate_image(prompt:str, width:int=1024, height:int=1024):
         )
         
     artifacts = process_artifacts_from_answers(
-        prefix="", prompt=prompt, answers=answers, write=False, verbose=False
+        prefix="", prompt=prompt, answers=answers, write=False, verbose=False,
     )
     
     img_path = None

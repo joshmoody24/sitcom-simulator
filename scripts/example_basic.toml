@@ -1,0 +1,14 @@
+[[characters]]
+name = "Mario"
+voice_token = "TM:6c6d3a8tavv6"
+
+[[clips]]
+speaker = "Mario"
+speech = "Luigi, I'm hungry. Do you mind if I have a bite of your soul?"
+image_prompt = "Mario with red cap and mustache attempting to eat Luigi's soul, horror"
+image_path = "C:\\Users\\joshm\\Pictures\\fb photo.jpg"
+
+[metadata]
+title = "A Soulful Snack Encounter"
+bgm_style = "upbeat"
+art_style = "cinematic bokeh blur"

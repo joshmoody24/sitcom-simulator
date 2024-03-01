@@ -23,6 +23,10 @@ def _parse_args():
     parser.add_argument('--audio-poll-delay', type=int, default=10, help="the number of seconds to wait between polling for audio generation job completion")
     parser.add_argument('--text-shadow', action='store_true', help="use text shadow for captions instead of box background")
     parser.add_argument('--save-script', action='store_true', help="save the generated script to a file")
+    parser.add_argument('--speed', type=float, default=1, help="speed up the final video by this factor (1.0 is normal speed)")
+    parser.add_argument('--no-pan-and-zoom', action='store_true', help="disable pan and zoom effect on images")
+    parser.add_argument('--width', type=int, default=720, help="width of the video in pixels. Only 16:9 and 9:16 aspect ratios are supported.")
+    parser.add_argument('--height', type=int, default=1280, help="height of the video in pixels. Only 16:9 and 9:16 aspect ratios are supported.")
     args = parser.parse_args()
     return args
 
@@ -49,4 +53,8 @@ def main():
         audio_poll_delay=args.audio_poll_delay,
         caption_bg_style="text_shadow" if args.text_shadow else "box_shadow",
         save_script=args.save_script,
+        speed=args.speed,
+        pan_and_zoom=not args.no_pan_and_zoom,
+        width=args.width,
+        height=args.height,
     )

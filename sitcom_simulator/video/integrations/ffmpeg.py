@@ -8,6 +8,8 @@ import tempfile
 import atexit
 from dataclasses import dataclass
 
+FRAME_RATE = 24
+
 @dataclass
 class ShadowSettings:
     """
@@ -87,10 +89,16 @@ class ClipSettings:
     :param clip_buffer_seconds: How much time to wait after characters finish talking
     :param min_clip_seconds: The minimum time to hold on a clip
     :param speaking_delay_seconds: Delay before the audio kicks in
+    :param max_zoom_factor: The maximum zoom factor for the pan and zoom effect
+    :param max_pan_speed: The maximum speed of the pan and zoom effect
     """
     clip_buffer_seconds:float=0.15
     min_clip_seconds:float=1.5
     speaking_delay_seconds:float=0.12
+    max_zoom_factor:float=1.2
+    min_zoom_factor:float=1.0
+    max_pan_speed:float=0.15
+    min_pan_speed:float=0.0
 
 failed_image_captions = [
     "This image has been seized by the FBI",
@@ -112,6 +120,8 @@ def render_clip(
         clip: Clip,
         width:int=720,
         height:int=1280,
+        speed:float=1.0,
+        pan_and_zoom:bool=True,
         clip_settings:ClipSettings=ClipSettings(),
         caption_settings:CaptionSettings=CaptionSettings(),
         caption_bg_settings:BoxSettings|ShadowSettings=BoxSettings(),
@@ -123,6 +133,8 @@ def render_clip(
     :param font: The path to the font file to use for the captions
     :param width: The width of the video
     :param height: The height of the video
+    :param speed: The speed of the final video. 1.0 is normal speed
+    :param pan_and_zoom: If True, the pan and zoom effect on images will be enabled
     :param clip_settings: The settings for rendering the video clip
     :param caption_max_width: The maximum width of the captions, in characters
     :param caption_settings: The settings for the captions
@@ -134,18 +146,22 @@ def render_clip(
     if caption:
         caption = caption_settings.formatted_caption(caption)
 
-    scale_factor = width / 720 # 720 is the reference screen width
+    scale_factor = min(width, height) / 720 # 720 is the reference screen width
     
-    try:
-        audio_path = clip.audio_path.replace('/', '\\') if os.name == 'nt' else clip.audio_path
-        audio_duration = float(ffmpeg.probe(audio_path)['streams'][0]['duration']) if clip.audio_path else 0
-    except Exception as e:
-        print(f"Error probing audio duration: {e}.\nHave you put ffmpeg and ffprobe binaries into the root project directory?")
-        print(clip.audio_path)
+    if clip.audio_path:
+        try:
+            audio_path = clip.audio_path.replace('/', '\\') if os.name == 'nt' else clip.audio_path
+            audio_duration = float(ffmpeg.probe(audio_path)['streams'][0]['duration']) if clip.audio_path else 0
+        except Exception as e:
+            print(f"Error probing audio duration: {e}.\nHave you put ffmpeg and ffprobe binaries into the root project directory?")
+            print(clip.audio_path)
+            audio_duration = 0
+    else:
         audio_duration = 0
 
     duration = audio_duration + clip_settings.clip_buffer_seconds + clip_settings.speaking_delay_seconds
     duration = max(duration, clip_settings.min_clip_seconds)
+    duration = duration / speed
     if clip.duration and not clip.speaker: # 'not speaker' in case the llm forgets proper syntax
         duration = clip.duration
     
@@ -155,11 +171,48 @@ def render_clip(
     if no_image or seized_image:
         video_input = ffmpeg.input(f'color=c=black:s={width}x{height}:d=5', f='lavfi')
     else:
+        video_input = ffmpeg.input(clip.image_path, loop=1, framerate=FRAME_RATE)
+        # the zoom effect is jittery for some strange reason
+        # but if we upscale the image first, the jitter is less noticeable
+        # at the cost of slower rendering
+        prezoom_scale_factor = 3 if pan_and_zoom else 1
+        prezoom_scale_width = int(width * prezoom_scale_factor)
+        prezoom_scale_height = int(height * prezoom_scale_factor)
         video_input = (
-            ffmpeg.input(clip.image_path, loop=1, framerate=24)
-            .filter('scale', width, height, force_original_aspect_ratio="increase")
-            .filter('crop', width, height)
+            video_input
+            .filter('scale', prezoom_scale_width, prezoom_scale_height, force_original_aspect_ratio="increase")
+            .filter('crop', prezoom_scale_width, prezoom_scale_height)
         )
+        if pan_and_zoom:
+            zoom_start = 1.0  # Start with no zoom
+            zoom_end = random.uniform(clip_settings.min_zoom_factor, clip_settings.max_zoom_factor)  # Target end zoom level, adjust as needed
+            zoom_out = random.choice([True, False])  # Randomly zoom in or out
+            if zoom_out:
+                zoom_start, zoom_end = zoom_end, zoom_start  # Reverse the zoom levels for a zoom out effect
+            total_frames = int(duration * FRAME_RATE)  # Total frames based on video duration and frame rate
+
+            # Ensure zoom continues smoothly for the entire duration
+            zoom_expr = f'{zoom_start}+(on/{total_frames})*{zoom_end-zoom_start}'
+
+            # Randomly pan the image 
+            max_pan = clip_settings.max_pan_speed
+
+            # These expressions pan the image randomly but are weirdly jittery when they start from the center (iw/2-(iw/zoom/2))
+            x_expr = f'(iw/2.0-(iw/zoom/2.0))+{random.uniform(-max_pan, max_pan)}*on*iw/{total_frames}'
+            y_expr = f'(ih/2.0-(ih/zoom/2.0))+{random.uniform(-max_pan, max_pan)}*on*ih/{total_frames}'
+
+            # instead, we'll use a static value that represents one of the four corners of the image
+            # x_expr = random.choice([0, width])
+            # y_expr = random.choice([0, height])
+
+            video_input = video_input.zoompan(
+                z=zoom_expr, 
+                x=x_expr, 
+                y=y_expr, 
+                d=1,  # Apply the effect continuously across frames
+                s=f'{width}x{height}', 
+                fps=FRAME_RATE,
+                )
 
     speaking_delay_ms = clip_settings.speaking_delay_seconds * 1000
 
@@ -172,6 +225,7 @@ def render_clip(
             .input(clip.audio_path)
             .filter('adelay', f'{speaking_delay_ms}|{speaking_delay_ms}')
             .filter('apad', pad_dur=duration)
+            .filter('atempo', speed)
         )
 
     caption_bg_dict = caption_bg_settings.to_dict() if isinstance(caption_bg_settings, BoxSettings) else caption_bg_settings.to_dict()
@@ -189,6 +243,8 @@ def render_clip(
             **caption_bg_dict,
         )
 
+    video_input = video_input.filter('setpts', f'PTS/{speed}')
+
     try:
         input_streams = [video_input] if audio_input is None else [video_input, audio_input]
         with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_file:
@@ -201,7 +257,7 @@ def render_clip(
             return temp_file.name
     except ffmpeg.Error as e:
         print('FFmpeg Error:', e.stderr.decode() if e.stderr else str(e))  # Decoding the stderr for better readability
-        raise Exception("ffmpeg error:", e.stderr if e.stderr else str(e))
+        raise Exception(f"ffmpeg error: {e.stderr.decode() if e.stderr else str(e)}")
 
 
 def concatenate_clips(
@@ -255,7 +311,7 @@ def concatenate_clips(
             vcodec='libx264',
             pix_fmt='yuv420p', # necessary for compatibility
             acodec='mp3',
-            r=24,
+            r=FRAME_RATE,
             **{'b:v': '8000K'}
             )
         .overwrite_output()
@@ -270,6 +326,8 @@ def render_video(
         output_path: str = 'output.mp4',
         width:int=720,
         height:int=1280,
+        speed:float=1.0,
+        pan_and_zoom:bool=True,
         clip_settings:ClipSettings=ClipSettings(),
         caption_settings:CaptionSettings=CaptionSettings(),
         caption_bg_settings:BoxSettings|ShadowSettings=BoxSettings(),
@@ -283,6 +341,8 @@ def render_video(
     :param output_path: The path to save the rendered video
     :param width: The width of the video
     :param height: The height of the video
+    :param speed: The speed of the final video. 1.0 is normal speed
+    :param pan_and_zoom: If True, the pan and zoom effect on images will be enabled
     :param clip_settings: The settings for rendering the video clip
     :param caption_settings: The settings for the captions
     :param caption_bg_settings: The settings for the caption background
@@ -296,6 +356,8 @@ def render_video(
             clip_settings=clip_settings,
             caption_settings=caption_settings,
             caption_bg_settings=caption_bg_settings,
+            speed=speed,
+            pan_and_zoom=pan_and_zoom,
         )
         intermediate_clips.append(clip_file)
         
