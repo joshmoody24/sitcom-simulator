@@ -14,6 +14,7 @@ def write_script(
         custom_script_instructions: str | None=None,
         custom_character_instructions: str | None=None,
         fakeyou_characters:bool=True,
+        narrator_dropout:bool=False,
         ) -> Script:
     """
     Uses AI to generate a script matching the prompt.
@@ -30,6 +31,7 @@ def write_script(
     :param custom_script_instructions: A string containing custom instructions for the language model writing the script. Must contain the placeholders '{prompt}', '{music_categories}', and '{characters}'.
     :param custom_character_instructions: A string containing custom instructions for the language model extracting the characters from the prompt. Must contain the placeholder '{prompt}'.
     :param fakeyou_characters: Whether to restrict character selection to only voices from fakeyou.com
+    :param narrator_dropout: Whether to forcibly remove narrators from the script (ChatGPT often goes heavy on the narrators)
     """
     from ..speech.integrations.fakeyou import get_possible_characters_from_prompt
     from .integrations.chatgpt import chatgpt
@@ -70,6 +72,10 @@ def write_script(
         toml_script = toml.loads(raw_script)
         toml_script["characters"] = [asdict(c) for c in characters] # from characters to dict back to character. Refactor at some point.
         script = Script.from_dict(toml_script)
+        if narrator_dropout:
+            script = script.replace(clips=[c for c in script.clips if c.speaker.lower().strip() != "narrator"])
+            if len(script.clips) == 0:
+                raise ValueError("Narrator dropout resulted in an empty script. Please try again.")
         logging.debug("TOML script", script)
         print(formatted_script(script))
         if(require_approval):

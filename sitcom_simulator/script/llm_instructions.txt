@@ -44,14 +44,11 @@ Pro Tips:
 - Be bold and avante garde.
 - Censor anything truly inappropriate like racism, but do not censor things like horror or dark themes.
 - Scripts should be approximately 30-60 seconds in duration, and have at least 4-6 clips of dialog unless otherwise specified.
-- Take yourself seriously, but also crank it up to ELEVEN on the wierdness scale, baby.
 - Keep famous characters in character
-- End with a twist. NO generic, boring happy endings.
-- The last clip should always be an unexpected, wacky twist.
 - Do not use narrators unless absolutely necessary.
 - No TOML comments (#) or markdown. Just pure TOML.
 
-Now, take a deep breath and a shot of whiskey, and write a script for the following video:
+Now write a script for the following video:
 
 "{prompt}"
 

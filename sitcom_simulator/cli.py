@@ -27,6 +27,7 @@ def _parse_args():
     parser.add_argument('--no-pan-and-zoom', action='store_true', help="disable pan and zoom effect on images")
     parser.add_argument('--width', type=int, default=720, help="width of the video in pixels. Only 16:9 and 9:16 aspect ratios are supported.")
     parser.add_argument('--height', type=int, default=1280, help="height of the video in pixels. Only 16:9 and 9:16 aspect ratios are supported.")
+    parser.add_argument('--no-narrators', action='store_true', help="disable narrator characters")
     args = parser.parse_args()
     return args
 
@@ -57,4 +58,5 @@ def main():
         pan_and_zoom=not args.no_pan_and_zoom,
         width=args.width,
         height=args.height,
+        narrator_dropout=args.no_narrators,
     )

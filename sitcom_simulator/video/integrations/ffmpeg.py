@@ -116,6 +116,32 @@ failed_image_captions = [
     "Image seized by the government",
 ]
 
+
+def analyze_loudness(audio_path):
+    """
+    Analyzes the loudness of the given audio file and returns its integrated loudness in LUFS.
+    """
+    import subprocess
+    try:
+        cmd = [
+            'ffmpeg', '-nostats', '-i', audio_path, 
+            '-filter_complex', 'ebur128=peak=true', 
+            '-f', 'null', '-'
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        print(result)
+        # Parse the output for loudness information - this example may need adjustment
+        # to properly extract the loudness value from your FFmpeg version's output
+        for line in result.stderr.split('\n'):
+            if 'Integrated loudness:' in line:
+                # Example line: "Integrated loudness:    I: -23.1 LUFS"
+                loudness_value = float(line.split()[-2])
+                return loudness_value
+    except Exception as e:
+        print(f"Error analyzing loudness: {e}")
+    return None
+
+
 def render_clip(
         clip: Clip,
         width:int=720,
@@ -226,6 +252,7 @@ def render_clip(
             .filter('adelay', f'{speaking_delay_ms}|{speaking_delay_ms}')
             .filter('apad', pad_dur=duration)
             .filter('atempo', speed)
+            .filter('speechnorm')
         )
 
     caption_bg_dict = caption_bg_settings.to_dict() if isinstance(caption_bg_settings, BoxSettings) else caption_bg_settings.to_dict()
@@ -264,7 +291,7 @@ def concatenate_clips(
         filenames: List[str],
         output_filename: str,
         background_music:str|None=None,
-        bgm_volume:float=0.25,
+        bgm_volume:float=-24,
         ):
     """
     Combines the given video clips into a single video file and returns the path to the concatenated video file.
@@ -294,7 +321,8 @@ def concatenate_clips(
         bgm_input = (
             ffmpeg
             .input(background_music)
-            .filter('volume', str(bgm_volume))
+            # .filter('volume', str(bgm_volume)) # old way, ~.25 worked well
+            .filter('loudnorm', i=bgm_volume) # new way, more consistent
             .filter('atrim', duration=total_audio_duration)
         )
         concatenated_audio = ffmpeg.filter([concatenated_audio, bgm_input], 'amix')  # Mix concatenated audio and bgm
@@ -331,6 +359,7 @@ def render_video(
         clip_settings:ClipSettings=ClipSettings(),
         caption_settings:CaptionSettings=CaptionSettings(),
         caption_bg_settings:BoxSettings|ShadowSettings=BoxSettings(),
+        bgm_volume:float=-24,
     ):
     """
     Renders a video from the given script and returns the path to the rendered video file.
@@ -346,6 +375,7 @@ def render_video(
     :param clip_settings: The settings for rendering the video clip
     :param caption_settings: The settings for the captions
     :param caption_bg_settings: The settings for the caption background
+    :param bgm_volume: The volume of the background music, good values are between -24 and -16
     """
     intermediate_clips = []    
     for clip in tqdm(script.clips, desc="Rendering intermediate video clips"):
@@ -361,6 +391,10 @@ def render_video(
         )
         intermediate_clips.append(clip_file)
         
-    final_video_path = concatenate_clips(intermediate_clips, output_path, background_music=script.metadata.bgm_path)
+    final_video_path = concatenate_clips(
+        intermediate_clips,
+        output_path,
+        background_music=script.metadata.bgm_path
+    )
     
     return final_video_path

@@ -17,6 +17,7 @@ def create_sitcom(
         pan_and_zoom:bool=True,
         width:int=720,
         height:int=1280,
+        narrator_dropout:bool=False,
 ): 
     """
     Generates a sitcom video based on a prompt or a script file.
@@ -39,6 +40,7 @@ def create_sitcom(
     :param disable_pan_and_zoom: If True, the pan and zoom effect on images will be disabled.
     :param width: The width of the video to render.
     :param height: The height of the video to render.
+    :param narrator_dropout: If True, the narrator will be forcibly removed from the script (ChatGPT often goes heavy on the narrators).
     """
     from .models import VideoResult
     from .script import write_script
@@ -61,6 +63,7 @@ def create_sitcom(
             max_tokens=max_tokens,
             require_approval=approve_script,
             fakeyou_characters=not debug_audio,
+            narrator_dropout=narrator_dropout,
         )
     elif script_path and not prompt:
         initial_script = script_from_file(script_path)

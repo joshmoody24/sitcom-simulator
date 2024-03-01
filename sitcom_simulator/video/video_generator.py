@@ -19,6 +19,9 @@ def render_video(
         caption_bg_color:str="black",
         caption_bg_shadow_distance_x:float=5,
         caption_bg_shadow_distance_y:float=5,
+        max_zoom_factor:float=1.1,
+        max_pan_speed:float=0.1,
+        bgm_volume:float=-24,
     ):
     """
     Renders a video from the given script and returns the path to the rendered video.
@@ -38,6 +41,9 @@ def render_video(
     :param caption_bg_color: The color of the background behind the captions
     :param caption_bg_shadow_distance_x: The x distance of the shadow behind the captions
     :param caption_bg_shadow_distance_y: The y distance of the shadow behind the captions
+    :param max_zoom_factor: The maximum zoom factor for pan and zoom
+    :param max_pan_speed: The maximum pan speed for pan and zoom
+    :param bgm_volume: The volume of the background music
     """
     # rely on image_path first, but if it's not there and image_url is, download the image
     import requests
@@ -103,6 +109,9 @@ def render_video(
             clip_buffer_seconds=clip_buffer_seconds,
             min_clip_seconds=min_clip_seconds,
             speaking_delay_seconds=speaking_delay_seconds,
+            max_zoom_factor=max_zoom_factor,
+            max_pan_speed=max_pan_speed,
         ),
         caption_bg_settings=caption_bg_settings,
+        bgm_volume=bgm_volume,
     )
