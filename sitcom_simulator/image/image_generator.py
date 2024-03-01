@@ -5,11 +5,11 @@ import os
 import atexit
 
 Engine = Literal["stability", "pillow"]
+Orientation = Literal["landscape", "portrait", "square"]
 
 def generate_images(
         script: Script,
-        width=768,
-        height=1344,
+        orientation:Orientation="portrait",
         on_image_generated: Optional[Callable[[int, str], None]] = None,
         engine:Engine="stability",
     ):
@@ -19,11 +19,15 @@ def generate_images(
     More procedural in nature than add_images.
     
     :param script: The script to generate images for
-    :param width: The width of the images to generate
-    :param height: The height of the images to generate
+    :param orientation: The orientation of the images to generate
     :param on_image_generated: A callback to call after each image is generated which takes the clip index and path to the generated image
     :param engine: The engine to use for generating images
     """
+    width, height = {
+        "landscape": (1344, 768),
+        "portrait": (768, 1344),
+        "square": (1024, 1024),
+    }[orientation]
     from .integrations import stability, pillow
     image_paths: List[str | None] = []
     for i, clip in tqdm(enumerate(script.clips), desc="Generating images", total=len(script.clips)):
@@ -48,8 +52,7 @@ def generate_images(
 
 def add_images(
         script: Script,
-        width=768,
-        height=1344,
+        orientation:Orientation="portrait",
         on_image_generated: Optional[Callable[[int, str], None]] = None,
         engine:Engine="stability",
     ) -> Script:
@@ -59,15 +62,16 @@ def add_images(
     More functional in nature than generate_images.
 
     :param script: The script to add images to
-    :param width: The width of the images to generate
-    :param height: The height of the images to generate
+    :param orientation: The orientation of the images to generate
     :param on_image_generated: A callback to call after each image is generated which takes the clip index and path to the generated image
     :param engine: The engine to use for generating images
     """
     image_paths = generate_images(
         script=script,
-        width=width,
-        height=height,
+        orientation=orientation,
         on_image_generated=on_image_generated,
         engine=engine)
-    return script.replace(clips=[clip.replace(image_path=image_path) for clip, image_path in zip(script.clips, image_paths)])
+    return script.replace(
+        clips=[clip.replace(image_path=image_path) for clip, image_path in zip(script.clips, image_paths)],
+        metadata=script.metadata.replace(orientation=orientation)
+        )

@@ -7,6 +7,7 @@ from tqdm import tqdm
 import tempfile
 import atexit
 from dataclasses import dataclass
+import math
 
 FRAME_RATE = 24
 
@@ -90,15 +91,15 @@ class ClipSettings:
     :param min_clip_seconds: The minimum time to hold on a clip
     :param speaking_delay_seconds: Delay before the audio kicks in
     :param max_zoom_factor: The maximum zoom factor for the pan and zoom effect
+    :param min_zoom_factor: The minimum zoom factor for the pan and zoom effect. At least some zoom is necessary for panning.
     :param max_pan_speed: The maximum speed of the pan and zoom effect
     """
     clip_buffer_seconds:float=0.15
     min_clip_seconds:float=1.5
     speaking_delay_seconds:float=0.12
-    max_zoom_factor:float=1.1
-    min_zoom_factor:float=1.0
-    max_pan_speed:float=0.1
-    min_pan_speed:float=0.0
+    max_zoom_factor:float=1.3 # magic number that seems to work well
+    min_zoom_factor:float=1.05 # magic number that seems to work well
+    max_pan_speed:float=6 # magic number that seems to work well
 
 failed_image_captions = [
     "This image has been seized by the FBI",
@@ -115,32 +116,6 @@ failed_image_captions = [
     "[Scandalous Content]",
     "Image seized by the government",
 ]
-
-
-def analyze_loudness(audio_path):
-    """
-    Analyzes the loudness of the given audio file and returns its integrated loudness in LUFS.
-    """
-    import subprocess
-    try:
-        cmd = [
-            'ffmpeg', '-nostats', '-i', audio_path, 
-            '-filter_complex', 'ebur128=peak=true', 
-            '-f', 'null', '-'
-        ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        print(result)
-        # Parse the output for loudness information - this example may need adjustment
-        # to properly extract the loudness value from your FFmpeg version's output
-        for line in result.stderr.split('\n'):
-            if 'Integrated loudness:' in line:
-                # Example line: "Integrated loudness:    I: -23.1 LUFS"
-                loudness_value = float(line.split()[-2])
-                return loudness_value
-    except Exception as e:
-        print(f"Error analyzing loudness: {e}")
-    return None
-
 
 def render_clip(
         clip: Clip,
@@ -166,6 +141,9 @@ def render_clip(
     :param caption_settings: The settings for the captions
     :param caption_bg_settings: The settings for the caption background
     """
+    width = int(round(width))
+    height = int(round(height))
+
     import ffmpeg
     caption = clip.speech or clip.title
     title_clip = not not clip.title
@@ -210,7 +188,7 @@ def render_clip(
             .filter('crop', prezoom_scale_width, prezoom_scale_height)
         )
         if pan_and_zoom:
-            zoom_start = 1.0  # Start with no zoom
+            zoom_start = clip_settings.min_zoom_factor  # Start with no zoom
             zoom_end = random.uniform(clip_settings.min_zoom_factor, clip_settings.max_zoom_factor)  # Target end zoom level, adjust as needed
             zoom_out = random.choice([True, False])  # Randomly zoom in or out
             if zoom_out:
@@ -221,15 +199,13 @@ def render_clip(
             zoom_expr = f'{zoom_start}+(on/{total_frames})*{zoom_end-zoom_start}'
 
             # Randomly pan the image 
-            max_pan = clip_settings.max_pan_speed
-
-            # These expressions pan the image randomly but are weirdly jittery when they start from the center (iw/2-(iw/zoom/2))
-            x_expr = f'(iw/2.0-(iw/zoom/2.0))+{random.uniform(-max_pan, max_pan)}*on*iw/{total_frames}'
-            y_expr = f'(ih/2.0-(ih/zoom/2.0))+{random.uniform(-max_pan, max_pan)}*on*ih/{total_frames}'
-
-            # instead, we'll use a static value that represents one of the four corners of the image
-            # x_expr = random.choice([0, width])
-            # y_expr = random.choice([0, height])
+            max_pan = clip_settings.max_pan_speed * (min(width, height) / 720) * prezoom_scale_factor  # Maximum pan speed (pixels per frame, scaled to 720p reference screen width
+            # the sqrt(total_frames) is to make the pan speed scale with the duration of the clip
+            # so that shorter clips are punchier and longer clips are smoother
+            frame_offset = f"((on-{total_frames/2})/{math.sqrt(total_frames)})"
+            x_expr = f'(iw/2.0-(iw/zoom/2.0))+{random.uniform(-max_pan, max_pan)}*{frame_offset}'
+            y_expr = f'(ih/2.0-(ih/zoom/2.0))+{random.uniform(-max_pan, max_pan)}*{frame_offset}'
+            print("x_expr", x_expr, "y_expr", y_expr)
 
             video_input = video_input.zoompan(
                 z=zoom_expr, 
@@ -343,15 +319,14 @@ def concatenate_clips(
             **{'b:v': '8000K'}
             )
         .overwrite_output()
-        .run()
+        .run(capture_stderr=True)
     )
 
     return sanitized_filename
 
-# TODO: support aspect ratios 16:9 and 1:1
 def render_video(
         script: Script,
-        output_path: str = 'output.mp4',
+        output_path: str='output.mp4',
         width:int=720,
         height:int=1280,
         speed:float=1.0,
@@ -390,11 +365,13 @@ def render_video(
             pan_and_zoom=pan_and_zoom,
         )
         intermediate_clips.append(clip_file)
-        
+
+    print("Rendering final video...")
     final_video_path = concatenate_clips(
         intermediate_clips,
         output_path,
-        background_music=script.metadata.bgm_path
+        background_music=script.metadata.bgm_path,
+        bgm_volume=bgm_volume,
     )
     
     return final_video_path

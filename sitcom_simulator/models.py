@@ -100,15 +100,14 @@ class ScriptMetadata:
     :param art_style: The style of the art
     :param prompt: The prompt for the script
     :param bgm_path: The path to the background music
-    :param misc: Any additional metadata
-    :param landscape: If True, the video is 16:9 instead of 9:16
+    :param orientation: The orientation of the video
     """
     title: str | None
     bgm_style: str | None
     art_style: str | None
     prompt: str | None
     bgm_path: str | None
-    landscape: bool | None
+    orientation: str | None
 
     @staticmethod
     def from_dict(data: dict):
@@ -123,7 +122,7 @@ class ScriptMetadata:
             art_style=data.get('art_style'),
             prompt=data.get('prompt'),
             bgm_path=data.get('bgm_path'),
-            landscape=data.get('landscape')
+            orientation=data.get('orientation'),
         )
     
     def replace(self, **kwargs):

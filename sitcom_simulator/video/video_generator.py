@@ -7,8 +7,8 @@ def render_video(
         script: Script,
         font: str,
         output_path="output.mp4",
-        width:int=1080,
-        height:int=1920,
+        resolution:int=1080,
+        orientation:str="portrait",
         speed:float=1.0,
         pan_and_zoom:bool=True,
         clip_buffer_seconds:float=0.35,
@@ -19,8 +19,9 @@ def render_video(
         caption_bg_color:str="black",
         caption_bg_shadow_distance_x:float=5,
         caption_bg_shadow_distance_y:float=5,
-        max_zoom_factor:float=1.1,
-        max_pan_speed:float=0.1,
+        max_zoom_factor:float=1.3,
+        min_zoom_factor:float=1.05,
+        max_pan_speed:float=6,
         bgm_volume:float=-24,
     ):
     """
@@ -29,8 +30,8 @@ def render_video(
     :param script: The script to render
     :param font: The path to the font file to use
     :param output_path: The path to save the rendered video to
-    :param width: The width of the video to render
-    :param height: The height of the video to render
+    :param resolution: The width of the video to render assuming portrait mode. This takes into account the orientation parameter.
+    :param orientation: The orientation of the video. "landscape", "portrait", or "square".
     :param speed: The speed of the final video. 1.0 is normal speed.
     :param pan_and_zoom: If True, the pan and zoom effect on images will be enabled.
     :param clip_buffer_seconds: How much time to wait after characters finish talking
@@ -42,9 +43,11 @@ def render_video(
     :param caption_bg_shadow_distance_x: The x distance of the shadow behind the captions
     :param caption_bg_shadow_distance_y: The y distance of the shadow behind the captions
     :param max_zoom_factor: The maximum zoom factor for pan and zoom
+    :param min_zoom_factor: The minimum zoom factor for pan and zoom
     :param max_pan_speed: The maximum pan speed for pan and zoom
     :param bgm_volume: The volume of the background music
     """
+
     # rely on image_path first, but if it's not there and image_url is, download the image
     import requests
     import tempfile
@@ -95,6 +98,14 @@ def render_video(
             y=caption_bg_shadow_distance_y,
         )
 
+    aspect_ratio = 16 / 9
+
+    width, height = {
+        "landscape": (resolution * aspect_ratio, resolution),
+        "portrait": (resolution, resolution * aspect_ratio),
+        "square": (resolution, resolution),
+    }[orientation]
+
     return ffmpeg.render_video(
         script=script,
         output_path=output_path,
@@ -110,6 +121,7 @@ def render_video(
             min_clip_seconds=min_clip_seconds,
             speaking_delay_seconds=speaking_delay_seconds,
             max_zoom_factor=max_zoom_factor,
+            min_zoom_factor=min_zoom_factor,
             max_pan_speed=max_pan_speed,
         ),
         caption_bg_settings=caption_bg_settings,

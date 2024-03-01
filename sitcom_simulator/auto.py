@@ -15,8 +15,8 @@ def create_sitcom(
         save_script:bool=False,
         speed:float=1,
         pan_and_zoom:bool=True,
-        width:int=720,
-        height:int=1280,
+        orientation:str="portrait",
+        resolution:int=1080,
         narrator_dropout:bool=False,
 ): 
     """
@@ -37,9 +37,9 @@ def create_sitcom(
     :param caption_bg_style: The style of the background behind the captions.
     :param save_script: If True, the generated script will be saved to a file.
     :param speed: The speed of the final video. 1.0 is normal speed.
-    :param disable_pan_and_zoom: If True, the pan and zoom effect on images will be disabled.
-    :param width: The width of the video to render.
-    :param height: The height of the video to render.
+    :param pan_and_zoom: If True, the pan and zoom effect on images will be enabled.
+    :param orientation: The orientation of the video. "landscape", "portrait", or "square".
+    :param resolution: The width of the video to render assuming portrait mode. This takes into account the orientation parameter.
     :param narrator_dropout: If True, the narrator will be forcibly removed from the script (ChatGPT often goes heavy on the narrators).
     """
     from .models import VideoResult
@@ -55,6 +55,7 @@ def create_sitcom(
         prompt = input("Enter a prompt to generate the video script: ")
 
     assert prompt or script_path, "You must provide a prompt or a script path"
+    assert orientation in ["landscape", "portrait", "square"], "Orientation must be 'landscape', 'portrait', or 'square'"
 
     if prompt and not script_path:
         initial_script = write_script(
@@ -84,8 +85,7 @@ def create_sitcom(
     script_with_images = add_images(
         script_with_voices,
         engine="stability" if not debug_images else "pillow",
-        width=width,
-        height=height,
+        orientation=orientation,
     )
     
     script_with_music = add_music(script_with_images)
@@ -100,8 +100,8 @@ def create_sitcom(
         font=font,
         output_path=output_path,
         caption_bg_style=caption_bg_style,
-        width=width,
-        height=height,
+        resolution=resolution,
+        orientation=orientation,
         speed=speed,
         pan_and_zoom=pan_and_zoom,
     )

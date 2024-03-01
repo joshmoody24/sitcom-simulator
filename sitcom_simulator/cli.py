@@ -25,8 +25,8 @@ def _parse_args():
     parser.add_argument('--save-script', action='store_true', help="save the generated script to a file")
     parser.add_argument('--speed', type=float, default=1, help="speed up the final video by this factor (1.0 is normal speed)")
     parser.add_argument('--no-pan-and-zoom', action='store_true', help="disable pan and zoom effect on images")
-    parser.add_argument('--width', type=int, default=720, help="width of the video in pixels. Only 16:9 and 9:16 aspect ratios are supported.")
-    parser.add_argument('--height', type=int, default=1280, help="height of the video in pixels. Only 16:9 and 9:16 aspect ratios are supported.")
+    parser.add_argument('--resolution', type=int, default=1080, help="the resolution of the video (passing in 1080 means 1080p)")
+    parser.add_argument('--orientation', type=str, default='portrait', help="the orientation of the video (landscape, portrait, or square)")
     parser.add_argument('--no-narrators', action='store_true', help="disable narrator characters")
     args = parser.parse_args()
     return args
@@ -56,7 +56,7 @@ def main():
         save_script=args.save_script,
         speed=args.speed,
         pan_and_zoom=not args.no_pan_and_zoom,
-        width=args.width,
-        height=args.height,
+        orientation=args.orientation,
+        resolution=args.resolution,
         narrator_dropout=args.no_narrators,
     )
