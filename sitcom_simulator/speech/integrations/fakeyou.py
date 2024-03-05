@@ -149,7 +149,7 @@ def generate_voices(
         logging.debug(f'Starting voice job {i} ({clip.speaker}: {clip.speaker})')
         try:
             character = next((character for character in script.characters if character.name == clip.speaker))
-        except Exception as e: # probably because character not in characters list
+        except: # probably because character not in characters list
             character = random.choice(BACKUP_NARRATORS)
         entropy = str(uuid.uuid4())
         voice_token = character.voice_token

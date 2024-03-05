@@ -131,13 +131,11 @@ def render_clip(
     Renders a video clip from the given clip object and returns the path to the rendered video file.
 
     :param clip: The clip to render
-    :param font: The path to the font file to use for the captions
     :param width: The width of the video
     :param height: The height of the video
     :param speed: The speed of the final video. 1.0 is normal speed
     :param pan_and_zoom: If True, the pan and zoom effect on images will be enabled
     :param clip_settings: The settings for rendering the video clip
-    :param caption_max_width: The maximum width of the captions, in characters
     :param caption_settings: The settings for the captions
     :param caption_bg_settings: The settings for the caption background
     """
