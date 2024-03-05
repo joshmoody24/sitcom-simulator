@@ -58,6 +58,8 @@ def download_file(url: str):
     Given a URL, downloads the file and returns the path to the downloaded file.
 
     :param url: The URL of the file to download
+
+    :return: The path to the downloaded file
     """
     import requests
     response = requests.get(url)

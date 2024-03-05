@@ -203,7 +203,6 @@ def render_clip(
             frame_offset = f"((on-{total_frames/2})/{math.sqrt(total_frames)})"
             x_expr = f'(iw/2.0-(iw/zoom/2.0))+{random.uniform(-max_pan, max_pan)}*{frame_offset}'
             y_expr = f'(ih/2.0-(ih/zoom/2.0))+{random.uniform(-max_pan, max_pan)}*{frame_offset}'
-            print("x_expr", x_expr, "y_expr", y_expr)
 
             video_input = video_input.zoompan(
                 z=zoom_expr, 

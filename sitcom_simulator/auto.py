@@ -18,6 +18,7 @@ def create_sitcom(
         orientation:str="portrait",
         resolution:int=1080,
         narrator_dropout:bool=False,
+        music_url:str|None=None,
 ): 
     """
     Generates a sitcom video based on a prompt or a script file.
@@ -41,6 +42,7 @@ def create_sitcom(
     :param orientation: The orientation of the video. "landscape", "portrait", or "square".
     :param resolution: The width of the video to render assuming portrait mode. This takes into account the orientation parameter.
     :param narrator_dropout: If True, the narrator will be forcibly removed from the script (ChatGPT often goes heavy on the narrators).
+    :param music_url: A URL to a music track to use for the video.
     """
     from .models import VideoResult
     from .script import write_script
@@ -88,7 +90,10 @@ def create_sitcom(
         orientation=orientation,
     )
     
-    script_with_music = add_music(script_with_images)
+    script_with_music = add_music(
+        script=script_with_images,
+        music_url=music_url,
+    )
 
     final_script = script_with_music
 

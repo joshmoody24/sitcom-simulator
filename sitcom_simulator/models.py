@@ -97,6 +97,8 @@ class ScriptMetadata:
 
     :param title: The title of the script
     :param bgm_style: The style of the background music
+    :param bgm_path: The path to the background music
+    :param bgm_url: The URL to the background music
     :param art_style: The style of the art
     :param prompt: The prompt for the script
     :param bgm_path: The path to the background music
@@ -104,9 +106,10 @@ class ScriptMetadata:
     """
     title: str | None
     bgm_style: str | None
+    bgm_path: str | None
+    bgm_url: str | None
     art_style: str | None
     prompt: str | None
-    bgm_path: str | None
     orientation: str | None
 
     @staticmethod
@@ -119,9 +122,10 @@ class ScriptMetadata:
         return ScriptMetadata(
             title=data.get('title'),
             bgm_style=data.get('bgm_style'),
+            bgm_path=data.get('bgm_path'),
+            bgm_url=data.get('bgm_url'),
             art_style=data.get('art_style'),
             prompt=data.get('prompt'),
-            bgm_path=data.get('bgm_path'),
             orientation=data.get('orientation'),
         )
     

@@ -28,6 +28,7 @@ def _parse_args():
     parser.add_argument('--resolution', type=int, default=1080, help="the resolution of the video (passing in 1080 means 1080p)")
     parser.add_argument('--orientation', type=str, default='portrait', help="the orientation of the video (landscape, portrait, or square)")
     parser.add_argument('--no-narrators', action='store_true', help="disable narrator characters")
+    parser.add_argument('--music-url', type=str, help="a URL to a music track to use for the video")
     args = parser.parse_args()
     return args
 
@@ -59,4 +60,5 @@ def main():
         orientation=args.orientation,
         resolution=args.resolution,
         narrator_dropout=args.no_narrators,
+        music_url=args.music_url,
     )
