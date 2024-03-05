@@ -43,8 +43,8 @@ Create a ``.env`` file in your project's root directory, with the following stru
 
 .. code-block:: bash
 
-    STABILITY_API_KEY='your_key_here
-    OPENAI_API_KEY='your_key_here
+    STABILITY_API_KEY='your_key_here'
+    OPENAI_API_KEY='your_key_here'
 
 The ``.env`` file will be automatically detected by the program.
 
