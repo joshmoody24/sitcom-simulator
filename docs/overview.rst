@@ -19,11 +19,11 @@ Sitcom Simulator design is focused on the following goals:
 How does it work?
 -----------------------------
 
-Sitcom Simulator is essentially duct tape that combines multiple different AI tools into one unholy abomination.
+Sitcom Simulator is essentially duct tape that combines various AI tools into one unholy abomination.
 
 #. `ChatGPT <https://chat.openai.com/>`_ generates the video script
 #. `FakeYou <https://fakeyou.com>`_ generates voices for the characters
-#. `Stable Diffusion <https://stability.ai/stable-image>`_ generates images for the characters
+#. `Stable Diffusion <https://stability.ai/stable-image>`_ generates images of the characters
 #. `Freepd <https://freepd.com/>`_ provides the background music
 #. `FFmpeg <https://ffmpeg.org/>`_ connects the images and voices into a movie
 

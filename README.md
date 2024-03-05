@@ -73,10 +73,10 @@ create_sitcom(
 
 ## How it Works
 
-Sitcom Simulator is essentially duct tape that combines multiple different AI tools into one unholy abomination.
+Sitcom Simulator is essentially duct tape that combines various AI tools into one unholy abomination.
 1. [ChatGPT](https://chat.openai.com/) generates the video script
 2. [FakeYou](https://fakeyou.com) generates voices for the characters
-3. [Stable Diffusion](https://stability.ai/stable-image) generates images for the characters
+3. [Stable Diffusion](https://stability.ai/stable-image) generates images of the characters
 4. [Freepd](https://freepd.com/) provides the background music
 5. [FFmpeg](https://ffmpeg.org/) connects the images and voices into a movie
 
