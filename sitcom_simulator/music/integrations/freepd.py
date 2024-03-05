@@ -25,11 +25,13 @@ class MusicCategory(Enum):
         """
         return [str(member.value) for name, member in cls.__members__.items()]
 
-def download_random_music(category: MusicCategory) -> str | None:
+def download_random_music(category: MusicCategory) -> tuple[str | None, str]:
     """
     Given a category, downloads a random song from FreePD in that category and returns the path to the downloaded file.
     
     :param category: The category of music to download
+
+    :return: The path to the downloaded file
     """
     from bs4 import BeautifulSoup
     import requests
@@ -51,7 +53,7 @@ def download_random_music(category: MusicCategory) -> str | None:
     song_name = selected_song.find("b").text
     download_link = "https://freepd.com" + selected_song.find("a", class_="downloadButton")["href"]
 
-    return download_file(download_link)
+    return download_file(download_link), download_link
 
 def download_file(url: str):
     """

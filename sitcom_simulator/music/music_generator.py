@@ -9,7 +9,7 @@ def generate_music(
         category: str | None,
         engine:Engine="freepd",
         music_url: str | None = None,
-        ) -> tuple[str, str | None]:
+        ) -> tuple[str, str]:
     """
     Generates and returns a path to a music file using the given engine.
 
@@ -33,7 +33,7 @@ def generate_music(
             freepd_category = None
         if freepd_category is None:
             freepd_category = random.choice(list(freepd.MusicCategory))
-        return freepd.download_random_music(freepd_category), None
+        return freepd.download_random_music(freepd_category)
     else:
         raise ValueError(f"Invalid engine: {engine}")
 
