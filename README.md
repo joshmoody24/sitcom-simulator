@@ -52,7 +52,7 @@ Sitcom Simulator is designed to be simple to use, but also supports extreme cust
 
 ### Command Line
 
-The most basic usage is simply running the `sitcom-simulator` command with no arguments. Many optional arguments are supported as well. Note that you must [set your API key environment variables](#environment-variables) before it will work.
+The most basic usage is simply running the `sitcom-simulator` command with no arguments. Many optional arguments are supported as well. Note that you must [set your API key environment variables](https://joshmoody24.github.io/sitcom-simulator/installation.html#environment-variables) before it will work.
 
 ```bash
 sitcom-simulator --prompt "Elon Musk teleports a toaster into the ocean" --style "beautiful renaissance oil painting" 
