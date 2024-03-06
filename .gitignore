@@ -17,6 +17,7 @@ docs/_build/
 docs/_autosummary/
 docs/_static/
 docs/doctrees/
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
