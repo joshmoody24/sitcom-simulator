@@ -8,6 +8,7 @@ import tempfile
 import atexit
 from dataclasses import dataclass
 import math
+from typing import Literal
 
 FRAME_RATE = 24
 
@@ -126,6 +127,7 @@ def render_clip(
         clip_settings:ClipSettings=ClipSettings(),
         caption_settings:CaptionSettings=CaptionSettings(),
         caption_bg_settings:BoxSettings|ShadowSettings=BoxSettings(),
+        audio_codec:Literal['mp3', 'aac']='mp3',
     ):
     """
     Renders a video clip from the given clip object and returns the path to the rendered video file.
@@ -138,6 +140,7 @@ def render_clip(
     :param clip_settings: The settings for rendering the video clip
     :param caption_settings: The settings for the captions
     :param caption_bg_settings: The settings for the caption background
+    :param audio_codec: The audio codec to use for the output video
     """
     width = int(round(width))
     height = int(round(height))
@@ -249,7 +252,7 @@ def render_clip(
         input_streams = [video_input] if audio_input is None else [video_input, audio_input]
         with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_file:
             intermediate_clip = (
-                ffmpeg.output(*input_streams, temp_file.name, vcodec='libx264', preset='superfast', acodec='mp3', t=duration)
+                ffmpeg.output(*input_streams, temp_file.name, vcodec='libx264', preset='superfast', acodec=audio_codec, t=duration)
                 .overwrite_output()
                 .run(capture_stderr=True, overwrite_output=True)
             )
@@ -265,6 +268,7 @@ def concatenate_clips(
         output_filename: str,
         background_music:str|None=None,
         bgm_volume:float=-24,
+        audio_codec:Literal['mp3', 'aac']='mp3',
         ):
     """
     Combines the given video clips into a single video file and returns the path to the concatenated video file.
@@ -273,6 +277,7 @@ def concatenate_clips(
     :param output_filename: The name of the output file
     :param background_music: The path to the background music file
     :param bgm_volume: The volume of the background music, between 0 and 1
+    :param audio_codec: The audio codec to use for the output video
     """
     import ffmpeg
 
@@ -311,7 +316,7 @@ def concatenate_clips(
             sanitized_filename,
             vcodec='libx264',
             pix_fmt='yuv420p', # necessary for compatibility
-            acodec='mp3',
+            acodec=audio_codec,
             r=FRAME_RATE,
             **{'b:v': '8000K'}
             )
@@ -332,6 +337,7 @@ def render_video(
         caption_settings:CaptionSettings=CaptionSettings(),
         caption_bg_settings:BoxSettings|ShadowSettings=BoxSettings(),
         bgm_volume:float=-24,
+        audio_codec:Literal['mp3', 'aac']='mp3',
     ):
     """
     Renders a video from the given script and returns the path to the rendered video file.
@@ -348,6 +354,7 @@ def render_video(
     :param caption_settings: The settings for the captions
     :param caption_bg_settings: The settings for the caption background
     :param bgm_volume: The volume of the background music, good values are between -24 and -16
+    :param audio_codec: The audio codec to use for the output video
     """
     intermediate_clips = []    
     for clip in tqdm(script.clips, desc="Rendering intermediate video clips"):
@@ -360,6 +367,7 @@ def render_video(
             caption_bg_settings=caption_bg_settings,
             speed=speed,
             pan_and_zoom=pan_and_zoom,
+            audio_codec=audio_codec,
         )
         intermediate_clips.append(clip_file)
 
@@ -369,6 +377,7 @@ def render_video(
         output_path,
         background_music=script.metadata.bgm_path,
         bgm_volume=bgm_volume,
+        audio_codec=audio_codec,
     )
     
     return final_video_path

@@ -1,8 +1,6 @@
 from typing import List, Literal
 from ..models import Script
 
-CaptionBg = Literal['box_shadow', 'text_shadow', 'none']
-
 def render_video(
         script: Script,
         font: str,
@@ -14,7 +12,7 @@ def render_video(
         clip_buffer_seconds:float=0.35,
         min_clip_seconds:float=1.5,
         speaking_delay_seconds:float=0.12,
-        caption_bg_style:CaptionBg='box_shadow',
+        caption_bg_style:Literal['box_shadow', 'text_shadow', 'none']='box_shadow',
         caption_bg_alpha:float=0.6,
         caption_bg_color:str="black",
         caption_bg_shadow_distance_x:float=5,
@@ -23,6 +21,7 @@ def render_video(
         min_zoom_factor:float=1.05,
         max_pan_speed:float=6,
         bgm_volume:float=-24,
+        audio_codec:Literal['mp3', 'aac']='mp3',
     ):
     """
     Renders a video from the given script and returns the path to the rendered video.
@@ -46,6 +45,7 @@ def render_video(
     :param min_zoom_factor: The minimum zoom factor for pan and zoom
     :param max_pan_speed: The maximum pan speed for pan and zoom
     :param bgm_volume: The volume of the background music
+    :param audio_codec: The audio codec to use for the video. mp3 seems to be more compatible with more video players, but aac is higher quality and is necessary for viewing videos in an iPhone browser.
     """
 
     # rely on image_path first, but if it's not there and image_url is, download the image
@@ -126,4 +126,5 @@ def render_video(
         ),
         caption_bg_settings=caption_bg_settings,
         bgm_volume=bgm_volume,
+        audio_codec=audio_codec,
     )

@@ -1,24 +1,27 @@
+from typing import Literal
+
 def create_sitcom(
-        prompt: str | None = None,
-        art_style: str | None = None,
-        script_path: str | None = None,
-        debug_images: bool=False,
-        debug_audio: bool=False,
-        font: str = 'Arial',
+        prompt:str | None = None,
+        art_style:str | None = None,
+        script_path:str | None = None,
+        debug_images:bool=False,
+        debug_audio:bool=False,
+        font:str = 'Arial',
         max_tokens:int=2048,
         approve_script:bool=False,
         manual_select_characters:bool=True,
         upload_to_yt=False,
         audio_job_delay:int=30,
         audio_poll_delay:int=10,
-        caption_bg_style:str="box_shadow",
+        caption_bg_style:Literal['box_shadow', 'text_shadow', 'none']='box_shadow',
         save_script:bool=False,
         speed:float=1,
         pan_and_zoom:bool=True,
-        orientation:str="portrait",
+        orientation:Literal["landscape", "portrait", "square"]="portrait",
         resolution:int=1080,
         narrator_dropout:bool=False,
         music_url:str|None=None,
+        audio_codec:Literal['mp3', 'aac']='mp3',
 ): 
     """
     Generates a sitcom video based on a prompt or a script file.
@@ -43,6 +46,7 @@ def create_sitcom(
     :param resolution: The width of the video to render assuming portrait mode. This takes into account the orientation parameter.
     :param narrator_dropout: If True, the narrator will be forcibly removed from the script (ChatGPT often goes heavy on the narrators).
     :param music_url: A URL to a music track to use for the video.
+    :param audio_codec: The audio codec to use for the video. mp3 seems to be more compatible with more video players, but aac is higher quality and is necessary for viewing videos in an iPhone browser.
     """
     from .models import VideoResult
     from .script import write_script
@@ -109,6 +113,7 @@ def create_sitcom(
         orientation=orientation,
         speed=speed,
         pan_and_zoom=pan_and_zoom,
+        audio_codec=audio_codec,
     )
 
     result = VideoResult(
