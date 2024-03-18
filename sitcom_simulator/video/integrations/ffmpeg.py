@@ -11,6 +11,8 @@ import math
 from typing import Literal
 
 FRAME_RATE = 24
+MAX_CLIP_SECONDS = 15
+FFMPEG_QUALITY:Literal["ultrafast", "superfast", "veryfast", "faster", "fast", "medium", "slow", "slower", "veryslow"] = "slow"
 
 @dataclass
 class ShadowSettings:
@@ -166,6 +168,7 @@ def render_clip(
 
     duration = audio_duration + clip_settings.clip_buffer_seconds + clip_settings.speaking_delay_seconds
     duration = max(duration, clip_settings.min_clip_seconds)
+    duration = min(duration, MAX_CLIP_SECONDS) # maximum duration for a clip (to prevent long AI audio glitches)
     duration = duration / speed
     if clip.duration and not clip.speaker: # 'not speaker' in case the llm forgets proper syntax
         duration = clip.duration
@@ -180,7 +183,7 @@ def render_clip(
         # the zoom effect is jittery for some strange reason
         # but if we upscale the image first, the jitter is less noticeable
         # at the cost of slower rendering
-        prezoom_scale_factor = 3 if pan_and_zoom else 1
+        prezoom_scale_factor = 2 if pan_and_zoom else 1
         prezoom_scale_width = int(width * prezoom_scale_factor)
         prezoom_scale_height = int(height * prezoom_scale_factor)
         video_input = (
@@ -318,6 +321,7 @@ def concatenate_clips(
             pix_fmt='yuv420p', # necessary for compatibility
             acodec=audio_codec,
             r=FRAME_RATE,
+            preset=FFMPEG_QUALITY,
             **{'b:v': '8000K'}
             )
         .overwrite_output()

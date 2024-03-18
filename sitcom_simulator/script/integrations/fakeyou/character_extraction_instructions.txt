@@ -4,5 +4,5 @@ Generate a list of potential characters to use in a short video of this prompt:
 
 Your results will be searched for in the FakeYou database for potential AI voices to use.
 The characters must be likely to have an AI voice on the internet somewhere, e.g., famous people/characters.
-Keep the list short and focused.
+Keep the list short and focused on the user's prompt.
 Structure your output as a pure JSON list of strings, no markdown.

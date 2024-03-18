@@ -8,6 +8,9 @@ from typing import List
 import os
 import csv
 
+def normalize_string(s):
+    return re.sub(r'\W+', '', s).lower()
+
 def load_curated_voices():
     """
     Loads the curated voices from the 'curated_voices.csv' file in the same directory as this script.
@@ -31,8 +34,6 @@ def generate_character_list(prompt: str, custom_instructions: str | None=None) -
     :param prompt: The user-submitted prompt
     :param custom_instructions: A string containing custom instructions for the language model. Must contain the placeholder '{prompt}'.
     """
-
-
     if custom_instructions:
         instructions = custom_instructions
     else:
@@ -53,7 +54,7 @@ def generate_character_list(prompt: str, custom_instructions: str | None=None) -
     raw_response = chat(instructions)
     logging.debug("Raw character extractor response from LLM:", raw_response)
     character_names = json.loads(raw_response)
-    print("Characters proposed:", ", ".join(character_names))
+    logging.debug("Characters proposed:", ", ".join(character_names), "\n")
     
     # TODO: cache data from fakeyou to avoid lots of hits?
     res = requests.get('https://api.fakeyou.com/tts/list')
@@ -64,16 +65,24 @@ def generate_character_list(prompt: str, custom_instructions: str | None=None) -
     chosen_characters = []
     for name in character_names:
         # TODO (big maybe) if tts doesn't exist but vtv does, render tts in someone else's voice and then use vtv
-        if name.lower() not in name_to_model:
-            continue
-        matches = name_to_model[name.lower()]
-        # find the highest-rated match
-        highest_rated_voice = max(matches, key=lambda model: calculate_star_rating(model, curated_characters))
-        chosen_characters.append(Character(name=name, voice_token=highest_rated_voice['model_token']))
+        from thefuzz import process
+        SIMILARITY_CUTOFF = 75 # out of 100
+        match, score = process.extractOne(normalize_string(name), list(name_to_model.keys()), score_cutoff=SIMILARITY_CUTOFF)
+        if match:
+            logging.debug(f"Matched {name} to {match} with score {score}")
+            voices = name_to_model[match.lower()]
+            # find the highest-rated match
+            highest_rated_voice = max(voices, key=lambda model: calculate_star_rating(model, curated_characters))
+            chosen_characters.append(Character(name=name, voice_token=highest_rated_voice['model_token']))
     logging.info("Selected voices:", ", ".join([c.name for c in chosen_characters]))
     
     # guarantee at least one voice (narrator)
-    chosen_characters.append(random.choice(BACKUP_NARRATORS))
+    if len(chosen_characters) == 0:
+        print("No voices selected. Defaulting to narrator.")
+        logging.info("No voices selected. Defaulting to narrator.")
+        chosen_characters.append(random.choice(BACKUP_NARRATORS))
+
+    print("Characters selected:", ", ".join([c.name for c in chosen_characters]), "\n")
         
     return chosen_characters
         
@@ -107,7 +116,7 @@ def pure_character_name(raw_name: str):
     """
     match = NAME_PATTERN.search(raw_name)
     if match:
-        return match.group(1)
+        return normalize_string(match.group(1))
     return None
 
 DEFAULT_RATING = 2 # not the worst possible, but pretty bad

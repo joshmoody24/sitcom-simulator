@@ -77,7 +77,7 @@ def write_script(
             if len(script.clips) == 0:
                 raise ValueError("Narrator dropout resulted in an empty script. Please try again.")
         logging.debug("TOML script", script)
-        print(formatted_script(script))
+        print(formatted_script(script), "\n")
         if(require_approval):
             validated = None
             while validated not in ["y", "n", "q"]:
