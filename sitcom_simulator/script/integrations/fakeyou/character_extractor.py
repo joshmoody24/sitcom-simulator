@@ -67,8 +67,9 @@ def generate_character_list(prompt: str, custom_instructions: str | None=None) -
         # TODO (big maybe) if tts doesn't exist but vtv does, render tts in someone else's voice and then use vtv
         from thefuzz import process
         SIMILARITY_CUTOFF = 75 # out of 100
-        match, score = process.extractOne(normalize_string(name), list(name_to_model.keys()), score_cutoff=SIMILARITY_CUTOFF)
-        if match:
+        extraction = process.extractOne(normalize_string(name), list(name_to_model.keys()), score_cutoff=SIMILARITY_CUTOFF)
+        if extraction:
+            match, score = extraction
             logging.debug(f"Matched {name} to {match} with score {score}")
             voices = name_to_model[match.lower()]
             # find the highest-rated match
