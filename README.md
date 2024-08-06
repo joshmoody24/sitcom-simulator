@@ -89,4 +89,4 @@ Have fun!!!
 ## Links
 
 - [Documentation](https://joshmoody24.github.io/sitcom-simulator/)
-- [Web app] (https://sitcom-simulator.com)
+- [Web app](https://sitcom-simulator.com)
