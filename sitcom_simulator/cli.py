@@ -30,6 +30,7 @@ def _parse_args():
     parser.add_argument('--no-narrators', action='store_true', help="disable narrator characters")
     parser.add_argument('--music-url', type=str, help="a URL to a music track to use for the video")
     parser.add_argument('--audio-codec', type=str, help="the audio codec to use for the video: mp3 or aac", default='mp3')
+    parser.add_argument('--auto-prompt', action='store_true', help="let the AI generate its own prompt")
     args = parser.parse_args()
     return args
 
@@ -63,4 +64,5 @@ def main():
         narrator_dropout=args.no_narrators,
         music_url=args.music_url,
         audio_codec=args.audio_codec,
+        auto_prompt=args.auto_prompt,
     )

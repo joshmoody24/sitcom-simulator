@@ -58,6 +58,12 @@ The most basic usage is simply running the `sitcom-simulator` command with no ar
 sitcom-simulator --prompt "Elon Musk teleports a toaster into the ocean" --style "beautiful renaissance oil painting" 
 ```
 
+Alternatively, have ChatGPT generate its own script idea. Fully automated video production, baby 👈😎👈
+
+```bash
+sitcom-simulator --auto-prompt
+```
+
 ### Python
 
 Sitcom Simulator can also be imported in Python scripts:

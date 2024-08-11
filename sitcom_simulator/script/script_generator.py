@@ -4,21 +4,33 @@ import toml
 from dataclasses import asdict
 import logging
 
+
+def read_text_file(file_path: str) -> str:
+    from pathlib import Path
+
+    current_file_path = Path(__file__).resolve()
+    current_dir = current_file_path.parent
+    instructions_path = current_dir / file_path
+    with open(instructions_path, "r") as f:
+        instructions = f.read()
+    return instructions
+
+
 def write_script(
-        prompt: str,
-        manual_character_selection=False,
-        max_tokens:int=2048,
-        require_approval:bool=False,
-        temperature:float=0.5,
-        model:str="gpt-3.5-turbo",
-        custom_script_instructions: str | None=None,
-        custom_character_instructions: str | None=None,
-        fakeyou_characters:bool=True,
-        narrator_dropout:bool=False,
-        ) -> Script:
+    prompt: str,
+    manual_character_selection=False,
+    max_tokens: int = 2048,
+    require_approval: bool = False,
+    temperature: float = 0.5,
+    model: str = "gpt-3.5-turbo",
+    custom_script_instructions: str | None = None,
+    custom_character_instructions: str | None = None,
+    fakeyou_characters: bool = True,
+    narrator_dropout: bool = False,
+) -> Script:
     """
     Uses AI to generate a script matching the prompt.
-    
+
     If characters are passed in, the resulting dialog is constrained to those characters.
     Otherwise, it prompts the user to select the appropriate characters.
 
@@ -39,62 +51,102 @@ def write_script(
     from ..music.integrations.freepd import MusicCategory
 
     if manual_character_selection:
-        from .integrations.fakeyou.character_selector import select_characters as fakeyou_select_characters
+        from .integrations.fakeyou.character_selector import (
+            select_characters as fakeyou_select_characters,
+        )
         from ..user_input import select_characters as debug_select_characters
+
         possible_characters = get_possible_characters_from_prompt(prompt)
-        select_characters: Callable = fakeyou_select_characters if fakeyou_characters else debug_select_characters
+        select_characters: Callable = (
+            fakeyou_select_characters if fakeyou_characters else debug_select_characters
+        )
         characters = select_characters(possible_characters)
     else:
-        characters = generate_character_list(prompt, custom_instructions=custom_character_instructions)
+        characters = generate_character_list(
+            prompt, custom_instructions=custom_character_instructions
+        )
 
     characters_str = ", ".join([c.name for c in characters])
     music_categories_str = ", ".join(MusicCategory.values())
 
-    if custom_script_instructions:
-        instructions = custom_script_instructions
-    else:
-        from pathlib import Path
-        current_file_path = Path(__file__).resolve()
-        current_dir = current_file_path.parent
-        instructions_path = current_dir / "llm_instructions.txt"
-        with open(instructions_path, 'r') as f:
-            instructions = f.read()
-    
-    # check for placeholders
-    if "{prompt}" not in instructions or "{music_categories}" not in instructions or "{characters}" not in instructions:
-        raise ValueError("Custom instructions file must contain the placeholders '{prompt}', '{music_categories}', and '{characters}'")
+    instructions = custom_script_instructions or read_text_file("llm_instructions.txt")
 
-    full_prompt = instructions.format(prompt=prompt, characters=characters_str, max_tokens=max_tokens, music_categories=music_categories_str)
+    # check for placeholders
+    if (
+        "{prompt}" not in instructions
+        or "{music_categories}" not in instructions
+        or "{characters}" not in instructions
+    ):
+        raise ValueError(
+            "Custom instructions file must contain the placeholders '{prompt}', '{music_categories}', and '{characters}'"
+        )
+
+    full_prompt = instructions.format(
+        prompt=prompt,
+        characters=characters_str,
+        max_tokens=max_tokens,
+        music_categories=music_categories_str,
+    )
     approved = False
     while not approved:
-        raw_script= chatgpt.chat(full_prompt, temperature=temperature, max_tokens=max_tokens, model=model)
+        raw_script = chatgpt.chat(
+            full_prompt, temperature=temperature, max_tokens=max_tokens, model=model
+        )
         logging.debug("Raw script", raw_script)
         toml_script = toml.loads(raw_script)
-        toml_script["characters"] = [asdict(c) for c in characters] # from characters to dict back to character. Refactor at some point.
+        toml_script["characters"] = [
+            asdict(c) for c in characters
+        ]  # from characters to dict back to character. Refactor at some point.
         script = Script.from_dict(toml_script)
         if narrator_dropout:
-            script = script.replace(clips=[c for c in script.clips if c.speaker.lower().strip() != "narrator"])
+            script = script.replace(
+                clips=[
+                    c for c in script.clips if c.speaker.lower().strip() != "narrator"
+                ]
+            )
             if len(script.clips) == 0:
-                raise ValueError("Narrator dropout resulted in an empty script. Please try again.")
+                raise ValueError(
+                    "Narrator dropout resulted in an empty script. Please try again."
+                )
         logging.debug("TOML script", script)
         print(formatted_script(script), "\n")
-        if(require_approval):
+        if require_approval:
             validated = None
             while validated not in ["y", "n", "q"]:
                 validated = input("Do you approve this script? (y/n/q): ").lower()
-                if validated == "y": approved = True
-                elif validated == "n": approved = False
-                elif validated == "q": exit()
-                else: print("Unrecognized input. Try again.")
+                if validated == "y":
+                    approved = True
+                elif validated == "n":
+                    approved = False
+                elif validated == "q":
+                    exit()
+                else:
+                    print("Unrecognized input. Try again.")
         else:
             approved = True
     return script
 
+
 def script_from_file(path: str) -> Script:
     script = Script.from_dict(toml.load(path))
     return script
-    
+
+
 def formatted_script(script: Script) -> str:
     metadata = f"Title: {script.metadata.title or '<No Title>'}\nStyle: {script.metadata.art_style or '<No Art Style>'}\n"
     clips = "\n".join([f"{c.speaker}: {c.speech}" for c in script.clips if c.speaker])
     return metadata + clips
+
+
+def generate_script_prompt(custom_metaprompt: str | None = None) -> str:
+    """
+    Asks the LLM to generate a prompt for a script.
+
+    :param custom_metaprompt: A custom prompt to use for generating the script prompt
+    """
+    metaprompt = custom_metaprompt or read_text_file("metaprompt.txt")
+    from .integrations.chatgpt import chatgpt
+
+    prompt = chatgpt.chat(metaprompt, temperature=1.2)
+    logging.debug("Generated prompt", prompt)
+    return prompt

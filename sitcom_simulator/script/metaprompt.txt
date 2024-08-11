@@ -1,0 +1,20 @@
+Please generate a prompt that will be passed to a YouTube video creator AI. The prompt can be short and simple, or it can be in depth. The AI creates deepfake videos of famous people and popular characters in funny situations. The videos should be 20 seconds or less. Please specify the genre, characters, art style, and plot, along with any other instructions that would help realize the creative vision. The AI is smart enough to handle diverse prompts. Here are some good prompt examples:
+
+- Tom Cruise admits that he devours cats around the neighborhood each time it rains
+- Donald Trump discreetly confesses to Joe Biden that he has a crush on the Zootopia bunny
+- Creepy Mario (as in the Nintendo character) stares directly into your soul for 8 seconds with a neutral expression. Dark, bloody, gritty photography. Close up on his face. No speech, just 8 one-second clips of creepy mario staring directly into the camera.
+- Elon Musk explains his keys of success. All of his tips are non-sensical, bizarre, and appalling. Two of them should be "always eat a kitten before lunch" and "I am consumed by a lovecraftian god every morning to clear my sinuses." Make sure to prominently feature Elon in the images.
+- Mario rips off Luigi's mustache, but it's extremely dark and horrific. It ends with Mario eating Luigi's mustache on a silver platter in the middle of a creepy destroyed mansion.
+- Patrick Star lost his leg, but it wont grow back. (grotesque, horrific, creepily photorealistic)
+- Mario becomes an oyster in front of Luigi, who is very confused.
+- Luigi has Mario think of as many uses for a brick as possible (creativity challenge) but all of Mario's ideas are super unhinged and dark, like breaking people's skulls open.
+- A murder mystery where Shrek has been murdered and the murderer is obviously Mario but Luigi is such a bad detective that he can't figure it out.
+- Mario eats a cactus whole and Luigi is shocked and in awe of his ability to handle the prickles. Mario teaches Luigi about stoicism. Keep it short.
+- Mario eats Luigi's ant farm
+- Spider Man becomes a terrorist
+- Mario creates a pyramid scheme and tries to sell Luigi on it, but Luigi is skeptical
+- Weird Al creates a cryptocurrency empire
+
+Please restrict your character names to names likely to have a preexisting deepfaked model on the internet. The characters in the prompts above are all good examples, but thousands more exist.
+
+Now please generate a new prompt in natural language. Favor ideas that would become popular on YouTube due to their brevity, unexpectedly dark nature, and shock value. Favor dark, edgy, ambitious ideas. The ideas need to be large in scope but brief in exection. Favor brevity. Put characters in bizarre situations that they wouldn't typically encounter. Assume the viewer has no context for what's going on. Avoid crossovers (using characters from different fictional worlds). Favor situations related to meme formats, like extremely buff characters, communism, sigmas, rizzlers, among us, morbidly obese animals, etc. Avoid cheesy cliches. Come up with unique ideas that will capture people's attention immediately. Keep your prompt between 1-3 sentences.

@@ -1,28 +1,30 @@
 from typing import Literal
 
+
 def create_sitcom(
-        prompt:str | None = None,
-        art_style:str | None = None,
-        script_path:str | None = None,
-        debug_images:bool=False,
-        debug_audio:bool=False,
-        font:str = 'Arial',
-        max_tokens:int=2048,
-        approve_script:bool=False,
-        manual_select_characters:bool=True,
-        upload_to_yt=False,
-        audio_job_delay:int=30,
-        audio_poll_delay:int=10,
-        caption_bg_style:Literal['box_shadow', 'text_shadow', 'none']='box_shadow',
-        save_script:bool=False,
-        speed:float=1,
-        pan_and_zoom:bool=True,
-        orientation:Literal["landscape", "portrait", "square"]="portrait",
-        resolution:int=1080,
-        narrator_dropout:bool=False,
-        music_url:str|None=None,
-        audio_codec:Literal['mp3', 'aac']='mp3',
-): 
+    prompt: str | None = None,
+    art_style: str | None = None,
+    script_path: str | None = None,
+    debug_images: bool = False,
+    debug_audio: bool = False,
+    font: str = "Arial",
+    max_tokens: int = 2048,
+    approve_script: bool = False,
+    manual_select_characters: bool = True,
+    upload_to_yt=False,
+    audio_job_delay: int = 30,
+    audio_poll_delay: int = 10,
+    caption_bg_style: Literal["box_shadow", "text_shadow", "none"] = "box_shadow",
+    save_script: bool = False,
+    speed: float = 1,
+    pan_and_zoom: bool = True,
+    orientation: Literal["landscape", "portrait", "square"] = "portrait",
+    resolution: int = 1080,
+    narrator_dropout: bool = False,
+    music_url: str | None = None,
+    audio_codec: Literal["mp3", "aac"] = "mp3",
+    auto_prompt: bool = False,
+):
     """
     Generates a sitcom video based on a prompt or a script file.
     It combines the script generation, voice generation, image generation, music generation, and video rendering steps into a single function.
@@ -47,6 +49,7 @@ def create_sitcom(
     :param narrator_dropout: If True, the narrator will be forcibly removed from the script (ChatGPT often goes heavy on the narrators).
     :param music_url: A URL to a music track to use for the video.
     :param audio_codec: The audio codec to use for the video. mp3 seems to be more compatible with more video players, but aac is higher quality and is necessary for viewing videos in an iPhone browser.
+    :param auto_prompt: If True, the AI will generate its own prompt.
     """
     from .models import VideoResult
     from .script import write_script
@@ -56,12 +59,25 @@ def create_sitcom(
     from .video import render_video
     from .script import script_from_file
     from .social.yt_uploader import upload_to_yt
-    
-    if(prompt == None and script_path == None):
+
+    if prompt == None and script_path == None and auto_prompt == False:
         prompt = input("Enter a prompt to generate the video script: ")
 
-    assert prompt or script_path, "You must provide a prompt or a script path"
-    assert orientation in ["landscape", "portrait", "square"], "Orientation must be 'landscape', 'portrait', or 'square'"
+    if auto_prompt:
+        from .script.script_generator import generate_script_prompt
+
+        prompt = generate_script_prompt()
+        print(f"Generated prompt: {prompt}")
+
+    assert (
+        prompt
+    ), "Either a prompt or script path must be provided unless auto-prompt is enabled."
+
+    assert orientation in [
+        "landscape",
+        "portrait",
+        "square",
+    ], "Orientation must be 'landscape', 'portrait', or 'square'"
 
     if prompt and not script_path:
         initial_script = write_script(
@@ -76,9 +92,11 @@ def create_sitcom(
         initial_script = script_from_file(script_path)
     else:
         raise ValueError("You must provide a prompt or a script path, not both")
-    
+
     if art_style:
-        initial_script = initial_script.replace(metadata=initial_script.metadata.replace(art_style=art_style))
+        initial_script = initial_script.replace(
+            metadata=initial_script.metadata.replace(art_style=art_style)
+        )
 
     script_with_voices = add_voices(
         initial_script,
@@ -93,7 +111,7 @@ def create_sitcom(
         engine="stability" if not debug_images else "pillow",
         orientation=orientation,
     )
-    
+
     script_with_music = add_music(
         script=script_with_images,
         music_url=music_url,
@@ -101,7 +119,11 @@ def create_sitcom(
 
     final_script = script_with_music
 
-    filename = final_script.metadata.title[:50].strip() or 'render' if final_script.metadata.title else 'render'
+    filename = (
+        final_script.metadata.title[:50].strip() or "render"
+        if final_script.metadata.title
+        else "render"
+    )
     output_path = f"./{filename}.mp4"
 
     final_video_path = render_video(
@@ -119,7 +141,8 @@ def create_sitcom(
     result = VideoResult(
         path=final_video_path,
         title=final_script.metadata.title if final_script.metadata.title else filename,
-        description=prompt or 'an AI-generated meme video created with Sitcom Simulator'
+        description=prompt
+        or "an AI-generated meme video created with Sitcom Simulator",
     )
 
     print(f"Video generated at {final_video_path}")
@@ -127,7 +150,8 @@ def create_sitcom(
     if save_script:
         import toml
         from dataclasses import asdict
-        with open(f"./{filename}.toml", 'w') as f:
+
+        with open(f"./{filename}.toml", "w") as f:
             f.write(toml.dumps(asdict(final_script)))
         print(f"Script saved at ./{filename}.toml")
 
@@ -137,3 +161,4 @@ def create_sitcom(
     #     upload_to_yt(result.path, result.title, result.description, keywords, "24", "public")
 
     return result
+
