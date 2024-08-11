@@ -2,7 +2,7 @@ def chat(
         prompt: str,
         max_tokens:int=2048,
         temperature:float=1,
-        model: str="gpt-3.5-turbo",
+        model: str="gpt-4o-mini",
     ):
     """
     Given a prompt, returns a response from ChatGPT.

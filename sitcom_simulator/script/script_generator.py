@@ -10,7 +10,7 @@ def write_script(
         max_tokens:int=2048,
         require_approval:bool=False,
         temperature:float=0.5,
-        model:str="gpt-3.5-turbo",
+        model:str="gpt-4o-mini",
         custom_script_instructions: str | None=None,
         custom_character_instructions: str | None=None,
         fakeyou_characters:bool=True,
