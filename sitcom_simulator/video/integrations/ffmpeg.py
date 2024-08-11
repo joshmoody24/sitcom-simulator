@@ -241,7 +241,7 @@ def render_clip(
             'drawtext',
             text=caption if caption else random.choice(failed_image_captions),
             fontfile=caption_settings.font,
-            fontsize=42 * scale_factor, # scales the font size with 720px as the reference screen width
+            fontsize=48 * scale_factor, # scales the font size with 720px as the reference screen width
             fontcolor='white',
             text_align="M+C", # had to dig deep into FFmpeg source code to learn that you combine flags with a plus sign
             x='(w - text_w) / 2',

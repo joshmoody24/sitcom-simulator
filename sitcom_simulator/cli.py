@@ -21,7 +21,7 @@ def _parse_args():
     parser.add_argument('--font', type=str, help="the font to use for the video", default='Arial')
     parser.add_argument('--audio-job-delay', type=int, default=30, help="the number of seconds to wait between starting audio generation jobs. Lower values render faster but are more likely to get rate limited")
     parser.add_argument('--audio-poll-delay', type=int, default=10, help="the number of seconds to wait between polling for audio generation job completion")
-    parser.add_argument('--text-shadow', action='store_true', help="use text shadow for captions instead of box background")
+    parser.add_argument('--box-shadow', action='store_true', help="use box background for captions instead of text shadow")
     parser.add_argument('--save-script', action='store_true', help="save the generated script to a file")
     parser.add_argument('--speed', type=float, default=1, help="speed up the final video by this factor (1.0 is normal speed)")
     parser.add_argument('--no-pan-and-zoom', action='store_true', help="disable pan and zoom effect on images")
@@ -54,7 +54,7 @@ def main():
         upload_to_yt=args.upload,
         audio_job_delay=args.audio_job_delay,
         audio_poll_delay=args.audio_poll_delay,
-        caption_bg_style="text_shadow" if args.text_shadow else "box_shadow",
+        caption_bg_style="box_shadow" if args.box_shadow else "text_shadow",
         save_script=args.save_script,
         speed=args.speed,
         pan_and_zoom=not args.no_pan_and_zoom,

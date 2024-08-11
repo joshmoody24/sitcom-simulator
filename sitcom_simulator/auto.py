@@ -13,7 +13,7 @@ def create_sitcom(
         upload_to_yt=False,
         audio_job_delay:int=30,
         audio_poll_delay:int=10,
-        caption_bg_style:Literal['box_shadow', 'text_shadow', 'none']='box_shadow',
+        caption_bg_style:Literal['box_shadow', 'text_shadow', 'none']='text_shadow',
         save_script:bool=False,
         speed:float=1,
         pan_and_zoom:bool=True,
