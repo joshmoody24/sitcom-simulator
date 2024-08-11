@@ -12,7 +12,7 @@ def render_video(
         clip_buffer_seconds:float=0.35,
         min_clip_seconds:float=1.5,
         speaking_delay_seconds:float=0.12,
-        caption_bg_style:Literal['box_shadow', 'text_shadow', 'none']='box_shadow',
+        caption_bg_style:Literal['box_shadow', 'text_shadow', 'none']='text_shadow',
         caption_bg_alpha:float=0.6,
         caption_bg_color:str="black",
         caption_bg_shadow_distance_x:float=5,
