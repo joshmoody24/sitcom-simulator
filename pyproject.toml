@@ -1,6 +1,6 @@
 [project]
 name = "sitcom-simulator"
-version = "0.6.1"
+version = "0.6.2rc1"
 authors = [
     { name = "Josh Moody", email = "josh@joshmoody.org" },
 ]
@@ -28,7 +28,7 @@ dependencies = [
     # "fakeyou==1.2.5", Currently using raw HTTP requests instead
     # "moviepy==1.0.3", No longer supported due to lack of features. Using ffmpeg-python instead
 ]
-requires-python = ">= 3.11"
+requires-python = ">=3.11,<3.13"
 
 [project.optional-dependencies]
 dev = [

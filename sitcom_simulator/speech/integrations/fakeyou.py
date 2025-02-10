@@ -22,20 +22,34 @@ def download_voice(url: str):
 
     :param url: The URL of the audio to download
     """
-    logging.info("downloading audio:", url)
+    logging.info(f"Downloading audio from: {url}")
     temp_audio_file = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
     atexit.register(os.remove, temp_audio_file.name)
+
     try:
         # uses urllib because AWS lambda doesn't have requests (not that that matters anymore)
-        with urllib.request.urlopen(url) as response, open(temp_audio_file.name, 'wb') as out_file:
-            data = response.read()  # Read the content as bytes
+        # Create a request with a browser-like User-Agent (otherwise 403 on FakeYou's new CDN)
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+                "Accept": "*/*",
+                "Connection": "keep-alive",
+                "Referer": "https://fakeyou.com/",  # FakeYou might check this
+            }
+        )
+
+        # Open the URL and write the content to a file
+        with urllib.request.urlopen(req) as response, open(temp_audio_file.name, 'wb') as out_file:
+            data = response.read()
             out_file.write(data)
+
+        logging.info(f"Audio downloaded to: {temp_audio_file.name}")
         return temp_audio_file.name
+
     except urllib.error.HTTPError as e:
-        # Handle HTTP errors
         raise Exception(f"Failed to download audio from URL: {url}. Status code: {e.code}")
     except urllib.error.URLError as e:
-        # Handle URL errors (e.g., network issues)
         raise Exception(f"Failed to download audio from URL: {url}. Error: {e.reason}")
 
 def fetch_voicelist():
@@ -202,7 +216,7 @@ def generate_voices(
                 completed = True
                 total_poll_time = time.time() - polling_start_time
                 audio_path = json["state"]["maybe_public_bucket_wav_audio_path"]
-                audio_url = f'https://storage.googleapis.com/vocodes-public{audio_path}'
+                audio_url = f'https://cdn-2.fakeyou.com{audio_path}'
                 audio_urls.append(audio_url)
                 if(on_voice_url_generated):
                     on_voice_url_generated(i, audio_url)
