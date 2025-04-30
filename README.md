@@ -1,6 +1,10 @@
 # Sitcom Simulator
 A highly-customizable tool that automatically creates AI-generated meme videos
 
+## Update
+
+Sitcom Simulator's web app has moved to [https://sitcom-simulator.net](https://sitcom-simulator.net), instead of `.com` due to the old domain expiring and getting scalped 😅
+
 `pip install sitcom-simulator`
 
 ## Documentation
@@ -89,4 +93,5 @@ Have fun!!!
 ## Links
 
 - [Documentation](https://joshmoody24.github.io/sitcom-simulator/)
-- [Web app](https://sitcom-simulator.com)
+- [sitcom-simulator.net](https://sitcom-simulator.net)
+  - Formerly `sitcom-simulator.com`
